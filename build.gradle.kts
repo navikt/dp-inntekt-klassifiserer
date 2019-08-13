@@ -1,0 +1,109 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+    application
+    kotlin("jvm") version Kotlin.version
+    id(Spotless.spotless) version Spotless.version
+    id(Shadow.shadow) version Shadow.version
+}
+
+repositories {
+    jcenter()
+    maven("http://packages.confluent.io/maven/")
+    maven("https://jitpack.io")
+}
+
+application {
+    applicationName = "dp-inntekt-klassifiserer"
+    mainClassName = "no.nav.dagpenger.inntekt.klassifiserer.InntektKlassifisererKt"
+}
+
+dependencies {
+    implementation(kotlin("stdlib-jdk8"))
+
+    // ktor
+    implementation(Ktor.serverNetty)
+
+    // Miljøkonfigurasjon
+    implementation(Konfig.konfig)
+
+    // Logging
+    implementation(Kotlin.Logging.kotlinLogging)
+    implementation(Log4j2.api)
+    implementation(Log4j2.core)
+    implementation(Log4j2.slf4j)
+    implementation(Log4j2.Logstash.logstashLayout)
+
+    // prometheus
+    implementation(Prometheus.common)
+    implementation(Prometheus.hotspot)
+    implementation(Prometheus.log4j2)
+
+    // testing
+    testImplementation(kotlin("test"))
+    testImplementation(Ktor.ktorTest)
+    testImplementation(Junit5.api)
+    testRuntimeOnly(Junit5.engine)
+    testRuntimeOnly(Junit5.vintageEngine)
+    testImplementation(Junit5.kotlinRunner)
+    testImplementation(TestContainers.postgresql)
+    testImplementation(Mockk.mockk)
+}
+
+configurations {
+    "implementation" {
+        exclude(group = "org.slf4j", module = "slf4j-log4j12")
+        exclude(group = "ch.qos.logback", module = "logback-classic")
+    }
+    "testImplementation" {
+        exclude(group = "org.slf4j", module = "slf4j-log4j12")
+        exclude(group = "ch.qos.logback", module = "logback-classic")
+    }
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
+    testLogging {
+        showExceptions = true
+        showStackTraces = true
+        exceptionFormat = TestExceptionFormat.FULL
+        events("passed", "skipped", "failed")
+    }
+}
+
+val compileKotlin: KotlinCompile by tasks
+compileKotlin.kotlinOptions {
+    jvmTarget = "1.8"
+}
+val compileTestKotlin: KotlinCompile by tasks
+compileTestKotlin.kotlinOptions {
+    jvmTarget = "1.8"
+}
+
+spotless {
+    kotlin {
+        ktlint(Klint.version)
+    }
+    kotlinGradle {
+        target("*.gradle.kts")
+        ktlint(Klint.version)
+    }
+}
+
+tasks.named("shadowJar") {
+    dependsOn("test")
+}
+
+tasks.named("jar") {
+    dependsOn("test")
+}
+
+tasks.named("compileKotlin") {
+    dependsOn("spotlessCheck")
+}
