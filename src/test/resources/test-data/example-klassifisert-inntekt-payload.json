@@ -1,0 +1,24 @@
+{
+  "inntektsId": "12345",
+  "sisteAvsluttendeKalenderMåned": "2017-09",
+  "inntektsListe": [
+    {
+      "årMåned": "2017-09",
+      "klassifiserteInntekter": [
+        {
+          "beløp": "362000",
+          "inntektKlasse": "ARBEIDSINNTEKT"
+        }
+      ]
+    },
+    {
+      "årMåned": "2017-08",
+      "klassifiserteInntekter": [
+        {
+          "beløp": "18900",
+          "inntektKlasse": "ARBEIDSINNTEKT"
+        }
+      ]
+    }
+  ]
+}

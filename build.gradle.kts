@@ -22,6 +22,16 @@ application {
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
 
+    // Dagpenger
+    implementation(Dagpenger.Streams)
+    implementation(Dagpenger.Events)
+
+    // json
+    implementation(Moshi.moshiAdapters)
+
+    // kafka
+    implementation(Kafka.streams)
+
     // ktor
     implementation(Ktor.serverNetty)
 
@@ -49,6 +59,7 @@ dependencies {
     testImplementation(Junit5.kotlinRunner)
     testImplementation(TestContainers.postgresql)
     testImplementation(Mockk.mockk)
+    testImplementation(Kafka.streamTestUtils)
 }
 
 configurations {
