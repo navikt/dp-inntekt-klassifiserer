@@ -28,13 +28,13 @@ object Cucumber {
 object Dagpenger {
 
     object Biblioteker {
-        const val version = "2019.08.06-10.38.37f08827d066"
+        const val version = "2019.09.06-10.34.4777e7ddd918"
         const val stsKlient = "com.github.navikt.dp-biblioteker:sts-klient:$version"
         const val grunnbeløp = "com.github.navikt.dp-biblioteker:grunnbelop:$version"
         const val ktorUtils = "com.github.navikt.dp-biblioteker:ktor-utils:$version"
     }
 
-    const val Streams = "com.github.navikt:dagpenger-streams:2019.08.06-10.54.063ebf321402"
+    const val Streams = "com.github.navikt:dagpenger-streams:2019.08.13-10.25.4b7bef10fc88"
     const val Events = "com.github.navikt:dagpenger-events:2019.09.18-14.06.017d68533202"
 }
 
@@ -211,6 +211,3 @@ object Wiremock {
     const val version = "2.21.0"
     const val standalone = "com.github.tomakehurst:wiremock-standalone:$version"
 }
-
-
-
