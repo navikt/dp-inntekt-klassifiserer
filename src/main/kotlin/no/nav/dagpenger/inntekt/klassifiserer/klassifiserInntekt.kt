@@ -14,15 +14,15 @@ fun klassifiserInntekt(spesifisertInntekt: SpesifisertInntekt): Inntekt {
     val avvikMåneder = spesifisertInntekt.avvik.groupBy { it.avvikPeriode }
 
     val klassifisertInntektMåneder = groupedInntekt
-        .groupBy { it.first.posteringsMåned }
+        .groupBy { (postering, _) -> postering.posteringsMåned }
         .map { (måned, groupedInntektList) ->
             groupedInntektList
-                .groupBy { it.second }
+                .groupBy { (_, klasse) -> klasse }
                 .map { (klasse, inntektList) ->
                     KlassifisertInntektMåned(
                         årMåned = måned,
                         klassifiserteInntekter = listOf(KlassifisertInntekt(
-                            beløp = inntektList.fold(BigDecimal.ZERO) { sum, postering -> sum + postering.first.beløp },
+                            beløp = inntektList.fold(BigDecimal.ZERO) { sum, (postering, _) -> sum + postering.beløp },
                             inntektKlasse = klasse
                         )),
                         harAvvik = avvikMåneder.containsKey(måned)
@@ -42,6 +42,11 @@ private fun groupPostering(posteringsType: PosteringsType): InntektKlasse {
     return when {
         isArbeidsInntekt(posteringsType) -> InntektKlasse.ARBEIDSINNTEKT
         isFangstFiske(posteringsType) -> InntektKlasse.FANGST_FISKE
+        isDagpenger(posteringsType) -> InntektKlasse.DAGPENGER
+        isDagpengerFangstFiske(posteringsType) -> InntektKlasse.DAGPENGER_FANGST_FISKE
+        isSykepengerFangstFiske(posteringsType) -> InntektKlasse.SYKEPENGER_FANGST_FISKE
+        isSykepenger(posteringsType) -> InntektKlasse.SYKEPENGER
+        isTiltakslønn(posteringsType) -> InntektKlasse.TILTAKSLØNN
         else -> throw KlassifiseringsException("Unknown inntektklasse for $posteringsType")
     }
 }
@@ -106,8 +111,16 @@ private fun isArbeidsInntekt(posteringsType: PosteringsType): Boolean {
     return arbeidsPosteringsTyper.contains(posteringsType)
 }
 
+private fun isDagpenger(posteringsType: PosteringsType): Boolean {
+    return posteringsType == PosteringsType.Y_DAGPENGER_VED_ARBEIDSLØSHET
+}
+
+private fun isSykepenger(posteringsType: PosteringsType): Boolean {
+    return posteringsType == PosteringsType.Y_SYKEPENGER
+}
+
 private fun isFangstFiske(posteringsType: PosteringsType): Boolean {
-    val næringsPosteringsTyper = listOf(
+    val fangstFiskePosteringsTyper = listOf(
         PosteringsType.L_ANNET_H,
         PosteringsType.L_BONUS_H,
         PosteringsType.L_FAST_TILLEGG_H,
@@ -123,7 +136,41 @@ private fun isFangstFiske(posteringsType: PosteringsType): Boolean {
         PosteringsType.N_LOTT_KUN_TRYGDEAVGIFT,
         PosteringsType.N_VEDERLAG
     )
-    return næringsPosteringsTyper.contains(posteringsType)
+    return fangstFiskePosteringsTyper.contains(posteringsType)
+}
+
+private fun isDagpengerFangstFiske(posteringsType: PosteringsType): Boolean {
+    val dagpengerFangstFiskePosteringsTyper = listOf(
+        PosteringsType.N_DAGPENGER_TIL_FISKER,
+        PosteringsType.Y_DAGPENGER_TIL_FISKER_SOM_BARE_HAR_HYRE
+    )
+    return dagpengerFangstFiskePosteringsTyper.contains(posteringsType)
+}
+
+private fun isSykepengerFangstFiske(posteringsType: PosteringsType): Boolean {
+    val sykepengerFangstFiskePosteringsTyper = listOf(
+        PosteringsType.N_SYKEPENGER_TIL_FISKER,
+        PosteringsType.Y_SYKEPENGER_TIL_FISKER_SOM_BARE_HAR_HYRE
+    )
+    return sykepengerFangstFiskePosteringsTyper.contains(posteringsType)
+}
+
+private fun isTiltakslønn(posteringsType: PosteringsType): Boolean {
+    val tiltakslønnPosteringsTyper = listOf(
+        PosteringsType.L_ANNET_T,
+        PosteringsType.L_BONUS_T,
+        PosteringsType.L_FAST_TILLEGG_T,
+        PosteringsType.L_FASTLØNN_T,
+        PosteringsType.L_FERIEPENGER_T,
+        PosteringsType.L_HELLIGDAGSTILLEGG_T,
+        PosteringsType.L_OVERTIDSGODTGJØRELSE_T,
+        PosteringsType.L_SLUTTVEDERLAG_T,
+        PosteringsType.L_TIMELØNN_T,
+        PosteringsType.L_UREGELMESSIGE_TILLEGG_KNYTTET_TIL_ARBEIDET_TID_T,
+        PosteringsType.L_UREGELMESSIGE_TILLEGG_KNYTTET_TIL_IKKE_ARBEIDET_TID_T,
+        PosteringsType.L_TREKK_I_LØNN_FOR_FERIE_T
+    )
+    return tiltakslønnPosteringsTyper.contains(posteringsType)
 }
 
 class KlassifiseringsException(message: String) : RuntimeException(message)

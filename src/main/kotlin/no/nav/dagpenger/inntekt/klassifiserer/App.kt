@@ -29,6 +29,7 @@ class App : River() {
         }
 
         val klassifisertInntekt = klassifiserInntekt(spesifisertInntekt)
+        packet.putValue(INNTEKT, klassifisertInntekt)
 
         return packet
     }
@@ -38,4 +39,3 @@ fun main() {
     val configuration = Configuration()
     val inntektKlassifiserer = App()
 }
-

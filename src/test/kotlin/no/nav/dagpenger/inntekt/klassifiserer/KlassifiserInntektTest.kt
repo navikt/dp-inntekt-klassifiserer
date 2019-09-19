@@ -190,44 +190,61 @@ class KlassifiserInntektTest {
             PosteringsType.L_YRKEBIL_TJENESTLIGBEHOV_LISTEPRIS
         )
 
-        val posteringer = arbeidsPosteringsTyper.map {
-            Postering(
-                posteringsMåned = YearMonth.of(2019, 3),
-                beløp = BigDecimal(102),
-                fordel = "fordel",
-                inntektskilde = "kilde",
-                inntektsstatus = "status",
-                inntektsperiodetype = "periodetype",
-                utbetaltIMåned = YearMonth.of(2019, 5),
-                posteringsType = it
-            )
-        }
+        val spesifisertInntekt = createTestSpesifisertInntekt(arbeidsPosteringsTyper)
 
-        val spesifisertInntekt = SpesifisertInntekt(
-            inntektId = InntektId("01DMNAADXVEZXGJRQJTZ6DWWNV"),
-            avvik = emptyList(),
-            posteringer = posteringer,
-            ident = Aktør(AktørType.AKTOER_ID, "12345"),
-            manueltRedigert = false,
-            timestamp = LocalDateTime.of(2019, 3, 5, 1, 1),
-            sisteAvsluttendeKalenderMåned = YearMonth.of(2019, 4)
-        )
+        val klassifisertInntekt = klassifiserInntekt(spesifisertInntekt)
 
-        val klassifisertArbeid = klassifiserInntekt(spesifisertInntekt)
-
-        val klasseCount = klassifisertArbeid.inntektsListe
+        val klasseCount = klassifisertInntekt.inntektsListe
             .flatMap { it.klassifiserteInntekter }
             .groupingBy { it.inntektKlasse }
             .eachCount()
 
-        assertEquals(1, klasseCount.size, "Ikke klassifisert til bare 1 klasse")
+        assertEquals(1, klasseCount.size, "Alle posteringene er ikke klassifisert til samme klasse")
         assertEquals(1, klasseCount[InntektKlasse.ARBEIDSINNTEKT], "Ikke klassifisert som arbeidsinntekt")
+    }
+
+    @Test
+    fun `Klassifiser dagpenger`() {
+
+        val dagpengerPosteringer = listOf(
+            PosteringsType.Y_DAGPENGER_VED_ARBEIDSLØSHET
+        )
+
+        val spesifisertInntekt = createTestSpesifisertInntekt(dagpengerPosteringer)
+
+        val klassifisertInntekt = klassifiserInntekt(spesifisertInntekt)
+
+        val klasseCount = klassifisertInntekt.inntektsListe
+            .flatMap { it.klassifiserteInntekter }
+            .groupingBy { it.inntektKlasse }
+            .eachCount()
+
+        assertEquals(1, klasseCount[InntektKlasse.DAGPENGER], "Ikke klassifisert som dagpenger")
+    }
+
+    @Test
+    fun `Klassifiser sykepenger`() {
+
+        val sykepengerPosteringer = listOf(
+            PosteringsType.Y_SYKEPENGER
+        )
+
+        val spesifisertInntekt = createTestSpesifisertInntekt(sykepengerPosteringer)
+
+        val klassifisertInntekt = klassifiserInntekt(spesifisertInntekt)
+
+        val klasseCount = klassifisertInntekt.inntektsListe
+            .flatMap { it.klassifiserteInntekter }
+            .groupingBy { it.inntektKlasse }
+            .eachCount()
+
+        assertEquals(1, klasseCount[InntektKlasse.SYKEPENGER], "Ikke klassifisert som sykepenger")
     }
 
     @Test
     fun `Klassifiser fangst og fiske`() {
 
-        val arbeidsPosteringsTyper = listOf(
+        val fangstFiskePosteringer = listOf(
             PosteringsType.L_ANNET_H,
             PosteringsType.L_BONUS_H,
             PosteringsType.L_FAST_TILLEGG_H,
@@ -244,7 +261,94 @@ class KlassifiserInntektTest {
             PosteringsType.N_VEDERLAG
         )
 
-        val posteringer = arbeidsPosteringsTyper.map {
+        val spesifisertInntekt = createTestSpesifisertInntekt(fangstFiskePosteringer)
+
+        val klassifisertInntekt = klassifiserInntekt(spesifisertInntekt)
+
+        val klasseCount = klassifisertInntekt.inntektsListe
+            .flatMap { it.klassifiserteInntekter }
+            .groupingBy { it.inntektKlasse }
+            .eachCount()
+
+        assertEquals(1, klasseCount.size, "Alle posteringene er ikke klassifisert til samme klasse")
+        assertEquals(1, klasseCount[InntektKlasse.FANGST_FISKE], "Ikke klassifisert som fangst og fiske")
+    }
+
+    @Test
+    fun `Klassifiser dagpenger for fangst og fiske`() {
+
+        val dagpengerFangstFiskePosteringer = listOf(
+            PosteringsType.N_DAGPENGER_TIL_FISKER,
+            PosteringsType.Y_DAGPENGER_TIL_FISKER_SOM_BARE_HAR_HYRE
+        )
+
+        val spesifisertInntekt = createTestSpesifisertInntekt(dagpengerFangstFiskePosteringer)
+
+        val klassifisertInntekt = klassifiserInntekt(spesifisertInntekt)
+
+        val klasseCount = klassifisertInntekt.inntektsListe
+            .flatMap { it.klassifiserteInntekter }
+            .groupingBy { it.inntektKlasse }
+            .eachCount()
+
+        assertEquals(1, klasseCount.size, "Alle posteringene er ikke klassifisert til samme klasse")
+        assertEquals(1, klasseCount[InntektKlasse.DAGPENGER_FANGST_FISKE], "Ikke klassifisert som dagpenger for fangst og fiske")
+    }
+
+    @Test
+    fun `Klassifiser sykepenger for fangst og fiske`() {
+
+        val sykepengerFangstFiskePosteringer = listOf(
+            PosteringsType.N_SYKEPENGER_TIL_FISKER,
+            PosteringsType.Y_SYKEPENGER_TIL_FISKER_SOM_BARE_HAR_HYRE
+        )
+
+        val spesifisertInntekt = createTestSpesifisertInntekt(sykepengerFangstFiskePosteringer)
+
+        val klassifisertInntekt = klassifiserInntekt(spesifisertInntekt)
+
+        val klasseCount = klassifisertInntekt.inntektsListe
+            .flatMap { it.klassifiserteInntekter }
+            .groupingBy { it.inntektKlasse }
+            .eachCount()
+
+        assertEquals(1, klasseCount.size, "Alle posteringene er ikke klassifisert til samme klasse")
+        assertEquals(1, klasseCount[InntektKlasse.SYKEPENGER_FANGST_FISKE], "Ikke klassifisert som sykepenger for fangst og fiske")
+    }
+
+    @Test
+    fun `Klassifiser tiltakslønn`() {
+
+        val tiltakslønnPosteringer = listOf(
+            PosteringsType.L_ANNET_T,
+            PosteringsType.L_BONUS_T,
+            PosteringsType.L_FAST_TILLEGG_T,
+            PosteringsType.L_FASTLØNN_T,
+            PosteringsType.L_FERIEPENGER_T,
+            PosteringsType.L_HELLIGDAGSTILLEGG_T,
+            PosteringsType.L_OVERTIDSGODTGJØRELSE_T,
+            PosteringsType.L_SLUTTVEDERLAG_T,
+            PosteringsType.L_TIMELØNN_T,
+            PosteringsType.L_UREGELMESSIGE_TILLEGG_KNYTTET_TIL_ARBEIDET_TID_T,
+            PosteringsType.L_UREGELMESSIGE_TILLEGG_KNYTTET_TIL_IKKE_ARBEIDET_TID_T,
+            PosteringsType.L_TREKK_I_LØNN_FOR_FERIE_T
+        )
+
+        val spesifisertInntekt = createTestSpesifisertInntekt(tiltakslønnPosteringer)
+
+        val klassifisertInntekt = klassifiserInntekt(spesifisertInntekt)
+
+        val klasseCount = klassifisertInntekt.inntektsListe
+            .flatMap { it.klassifiserteInntekter }
+            .groupingBy { it.inntektKlasse }
+            .eachCount()
+
+        assertEquals(1, klasseCount.size, "Alle posteringene er ikke klassifisert til samme klasse")
+        assertEquals(1, klasseCount[InntektKlasse.TILTAKSLØNN], "Ikke klassifisert som tiltakslønn")
+    }
+
+    private fun createTestSpesifisertInntekt(posteringsTyper: List<PosteringsType>): SpesifisertInntekt {
+        val posteringer = posteringsTyper.map {
             Postering(
                 posteringsMåned = YearMonth.of(2019, 3),
                 beløp = BigDecimal(102),
@@ -267,14 +371,6 @@ class KlassifiserInntektTest {
             sisteAvsluttendeKalenderMåned = YearMonth.of(2019, 4)
         )
 
-        val klassifisertNæring = klassifiserInntekt(spesifisertInntekt)
-
-        val klasseCount = klassifisertNæring.inntektsListe
-            .flatMap { it.klassifiserteInntekter }
-            .groupingBy { it.inntektKlasse }
-            .eachCount()
-
-        assertEquals(1, klasseCount.size, "Ikke klassifisert til bare 1 klasse")
-        assertEquals(1, klasseCount[InntektKlasse.FANGST_FISKE], "Ikke klassifisert som fangst og fiske")
+        return spesifisertInntekt
     }
 }
