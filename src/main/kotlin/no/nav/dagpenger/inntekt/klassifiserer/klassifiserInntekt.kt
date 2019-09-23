@@ -9,20 +9,20 @@ import no.nav.dagpenger.events.inntekt.v1.SpesifisertInntekt
 import java.math.BigDecimal
 
 fun klassifiserInntekt(spesifisertInntekt: SpesifisertInntekt): Inntekt {
-    val groupedInntekt = spesifisertInntekt.posteringer.map { Pair(it, groupPostering(it.posteringsType)) }
+    val klassifisertePosteringer = spesifisertInntekt.posteringer.map { Pair(it, klassifiserPostering(it.posteringsType)) }
 
     val avvikMåneder = spesifisertInntekt.avvik.groupBy { it.avvikPeriode }
 
-    val klassifisertInntektMåneder = groupedInntekt
+    val klassifisertInntektMåneder = klassifisertePosteringer
         .groupBy { (postering, _) -> postering.posteringsMåned }
-        .map { (måned, groupedInntektList) ->
-            groupedInntektList
+        .map { (måned, klassifisertePosteringer) ->
+            klassifisertePosteringer
                 .groupBy { (_, klasse) -> klasse }
-                .map { (klasse, inntektList) ->
+                .map { (klasse, posteringer) ->
                     KlassifisertInntektMåned(
                         årMåned = måned,
                         klassifiserteInntekter = listOf(KlassifisertInntekt(
-                            beløp = inntektList.fold(BigDecimal.ZERO) { sum, (postering, _) -> sum + postering.beløp },
+                            beløp = posteringer.fold(BigDecimal.ZERO) { sum, (postering, _) -> sum + postering.beløp },
                             inntektKlasse = klasse
                         )),
                         harAvvik = avvikMåneder.containsKey(måned)
@@ -38,7 +38,7 @@ fun klassifiserInntekt(spesifisertInntekt: SpesifisertInntekt): Inntekt {
     )
 }
 
-private fun groupPostering(posteringsType: PosteringsType): InntektKlasse {
+private fun klassifiserPostering(posteringsType: PosteringsType): InntektKlasse {
     return when {
         isArbeidsInntekt(posteringsType) -> InntektKlasse.ARBEIDSINNTEKT
         isFangstFiske(posteringsType) -> InntektKlasse.FANGST_FISKE
