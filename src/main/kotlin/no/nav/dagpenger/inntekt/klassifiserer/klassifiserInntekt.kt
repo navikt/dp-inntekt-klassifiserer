@@ -1,33 +1,23 @@
 package no.nav.dagpenger.inntekt.klassifiserer
 
+import no.nav.dagpenger.events.inntekt.v1.Avvik
 import no.nav.dagpenger.events.inntekt.v1.Inntekt
 import no.nav.dagpenger.events.inntekt.v1.InntektKlasse
 import no.nav.dagpenger.events.inntekt.v1.KlassifisertInntekt
 import no.nav.dagpenger.events.inntekt.v1.KlassifisertInntektMåned
+import no.nav.dagpenger.events.inntekt.v1.Postering
 import no.nav.dagpenger.events.inntekt.v1.PosteringsType
 import no.nav.dagpenger.events.inntekt.v1.SpesifisertInntekt
 import java.math.BigDecimal
+import java.time.YearMonth
 
 fun klassifiserInntekt(spesifisertInntekt: SpesifisertInntekt): Inntekt {
-    val klassifisertePosteringer = spesifisertInntekt.posteringer.map { Pair(it, klassifiserPostering(it.posteringsType)) }
-
     val avvikMåneder = spesifisertInntekt.avvik.groupBy { it.avvikPeriode }
 
-    val klassifisertInntektMåneder = klassifisertePosteringer
-        .groupBy { (postering, _) -> postering.posteringsMåned }
-        .map { (måned, klassifisertePosteringer) ->
-            klassifisertePosteringer
-                .groupBy { (_, klasse) -> klasse }
-                .map { (klasse, posteringer) ->
-                    KlassifisertInntektMåned(
-                        årMåned = måned,
-                        klassifiserteInntekter = listOf(KlassifisertInntekt(
-                            beløp = posteringer.fold(BigDecimal.ZERO) { sum, (postering, _) -> sum + postering.beløp },
-                            inntektKlasse = klasse
-                        )),
-                        harAvvik = avvikMåneder.containsKey(måned)
-                    )
-            }
+    val klassifisertInntektMåneder = spesifisertInntekt.posteringer
+        .groupBy { postering -> postering.posteringsMåned }
+        .map { (årmåned, posteringer) ->
+            klassifiserBLOB(årmåned, posteringer, avvikMåneder)
         }.flatten()
 
     return Inntekt(
@@ -36,6 +26,27 @@ fun klassifiserInntekt(spesifisertInntekt: SpesifisertInntekt): Inntekt {
         manueltRedigert = spesifisertInntekt.manueltRedigert,
         sisteAvsluttendeKalenderMåned = spesifisertInntekt.sisteAvsluttendeKalenderMåned
     )
+}
+
+fun klassifiserBLOB(
+    årmåned: YearMonth,
+    posteringer: List<Postering>,
+    avvikMåneder: Map<YearMonth, List<Avvik>>
+): List<KlassifisertInntektMåned> {
+    return posteringer
+        .groupBy { postering -> klassifiserPostering(postering.posteringsType) }
+        .map { (klasse, posteringer) ->
+            KlassifisertInntektMåned(
+                årMåned = årmåned,
+                klassifiserteInntekter = listOf(
+                    KlassifisertInntekt(
+                        beløp = posteringer.fold(BigDecimal.ZERO) { sum, postering -> sum + postering.beløp },
+                        inntektKlasse = klasse
+                    )
+                ),
+                harAvvik = avvikMåneder.containsKey(årmåned)
+            )
+        }
 }
 
 private fun klassifiserPostering(posteringsType: PosteringsType): InntektKlasse {
