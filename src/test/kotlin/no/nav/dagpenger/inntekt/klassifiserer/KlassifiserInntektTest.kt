@@ -30,7 +30,7 @@ class KlassifiserInntektTest {
             sisteAvsluttendeKalenderMåned = YearMonth.of(2019, 4)
         )
 
-        val klassifisertInntekt = klassifiserInntekt(spesifisertInntekt)
+        val klassifisertInntekt = mapToKlassifisertInntekt(spesifisertInntekt)
 
         assertEquals(spesifisertInntekt.inntektId.id, klassifisertInntekt.inntektsId)
         assertEquals(spesifisertInntekt.manueltRedigert, klassifisertInntekt.manueltRedigert)
@@ -47,7 +47,7 @@ class KlassifiserInntektTest {
         val sum = spesifisertInntekt.posteringer.fold(BigDecimal.ZERO) { acc, postering -> acc + postering.beløp }
         val spesifiserteMåneder = spesifisertInntekt.posteringer.groupBy { it.posteringsMåned }.keys
 
-        val klassifisertInntekt = klassifiserInntekt(spesifisertInntekt)
+        val klassifisertInntekt = mapToKlassifisertInntekt(spesifisertInntekt)
 
         val klassifisertSum = klassifisertInntekt.inntektsListe.fold(BigDecimal.ZERO) { total, klassifisertInntektMåned ->
             total + klassifisertInntektMåned.klassifiserteInntekter.fold(BigDecimal.ZERO) {
@@ -121,7 +121,7 @@ class KlassifiserInntektTest {
             sisteAvsluttendeKalenderMåned = YearMonth.of(2019, 5)
         )
 
-        val klassifisertInntekt = klassifiserInntekt(spesifisertInntekt)
+        val klassifisertInntekt = mapToKlassifisertInntekt(spesifisertInntekt)
 
         val klassifiserteMåneder = klassifisertInntekt.inntektsListe.associateBy { it.årMåned }
 
@@ -192,7 +192,7 @@ class KlassifiserInntektTest {
 
         val spesifisertInntekt = createTestSpesifisertInntekt(arbeidsPosteringsTyper)
 
-        val klassifisertInntekt = klassifiserInntekt(spesifisertInntekt)
+        val klassifisertInntekt = mapToKlassifisertInntekt(spesifisertInntekt)
 
         val klasseCount = klassifisertInntekt.inntektsListe
             .flatMap { it.klassifiserteInntekter }
@@ -212,7 +212,7 @@ class KlassifiserInntektTest {
 
         val spesifisertInntekt = createTestSpesifisertInntekt(dagpengerPosteringer)
 
-        val klassifisertInntekt = klassifiserInntekt(spesifisertInntekt)
+        val klassifisertInntekt = mapToKlassifisertInntekt(spesifisertInntekt)
 
         val klasseCount = klassifisertInntekt.inntektsListe
             .flatMap { it.klassifiserteInntekter }
@@ -231,7 +231,7 @@ class KlassifiserInntektTest {
 
         val spesifisertInntekt = createTestSpesifisertInntekt(sykepengerPosteringer)
 
-        val klassifisertInntekt = klassifiserInntekt(spesifisertInntekt)
+        val klassifisertInntekt = mapToKlassifisertInntekt(spesifisertInntekt)
 
         val klasseCount = klassifisertInntekt.inntektsListe
             .flatMap { it.klassifiserteInntekter }
@@ -263,7 +263,7 @@ class KlassifiserInntektTest {
 
         val spesifisertInntekt = createTestSpesifisertInntekt(fangstFiskePosteringer)
 
-        val klassifisertInntekt = klassifiserInntekt(spesifisertInntekt)
+        val klassifisertInntekt = mapToKlassifisertInntekt(spesifisertInntekt)
 
         val klasseCount = klassifisertInntekt.inntektsListe
             .flatMap { it.klassifiserteInntekter }
@@ -284,7 +284,7 @@ class KlassifiserInntektTest {
 
         val spesifisertInntekt = createTestSpesifisertInntekt(dagpengerFangstFiskePosteringer)
 
-        val klassifisertInntekt = klassifiserInntekt(spesifisertInntekt)
+        val klassifisertInntekt = mapToKlassifisertInntekt(spesifisertInntekt)
 
         val klasseCount = klassifisertInntekt.inntektsListe
             .flatMap { it.klassifiserteInntekter }
@@ -305,7 +305,7 @@ class KlassifiserInntektTest {
 
         val spesifisertInntekt = createTestSpesifisertInntekt(sykepengerFangstFiskePosteringer)
 
-        val klassifisertInntekt = klassifiserInntekt(spesifisertInntekt)
+        val klassifisertInntekt = mapToKlassifisertInntekt(spesifisertInntekt)
 
         val klasseCount = klassifisertInntekt.inntektsListe
             .flatMap { it.klassifiserteInntekter }
@@ -336,7 +336,7 @@ class KlassifiserInntektTest {
 
         val spesifisertInntekt = createTestSpesifisertInntekt(tiltakslønnPosteringer)
 
-        val klassifisertInntekt = klassifiserInntekt(spesifisertInntekt)
+        val klassifisertInntekt = mapToKlassifisertInntekt(spesifisertInntekt)
 
         val klasseCount = klassifisertInntekt.inntektsListe
             .flatMap { it.klassifiserteInntekter }

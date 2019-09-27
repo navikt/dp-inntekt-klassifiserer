@@ -28,7 +28,7 @@ class App : River() {
                 serialized -> checkNotNull(spesifisertInntektJsonAdapter.fromJsonValue(serialized))
         }
 
-        val klassifisertInntekt = klassifiserInntekt(spesifisertInntekt)
+        val klassifisertInntekt = mapToKlassifisertInntekt(spesifisertInntekt)
         packet.putValue(INNTEKT, klassifisertInntekt)
 
         return packet
