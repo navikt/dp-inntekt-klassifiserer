@@ -16,7 +16,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-class KlassifiserInntektTest {
+class klassifiserOgMapInntektTest {
 
     @Test
     fun `Klassifiserer tom inntekt`() {
@@ -30,7 +30,7 @@ class KlassifiserInntektTest {
             sisteAvsluttendeKalenderMåned = YearMonth.of(2019, 4)
         )
 
-        val klassifisertInntekt = mapToKlassifisertInntekt(spesifisertInntekt)
+        val klassifisertInntekt = klassifiserOgMapInntekt(spesifisertInntekt)
 
         assertEquals(spesifisertInntekt.inntektId.id, klassifisertInntekt.inntektsId)
         assertEquals(spesifisertInntekt.manueltRedigert, klassifisertInntekt.manueltRedigert)
@@ -40,14 +40,14 @@ class KlassifiserInntektTest {
 
     @Test
     fun `Ta med alle måneder med inntekter`() {
-        val testDataJson = KlassifiserInntektTest::class.java
+        val testDataJson = klassifiserOgMapInntektTest::class.java
             .getResource("/test-data/example-spesifisert-inntekt-payload.json").readText()
         val spesifisertInntekt = spesifisertInntektJsonAdapter.fromJson(testDataJson)!!
 
         val sum = spesifisertInntekt.posteringer.fold(BigDecimal.ZERO) { acc, postering -> acc + postering.beløp }
         val spesifiserteMåneder = spesifisertInntekt.posteringer.groupBy { it.posteringsMåned }.keys
 
-        val klassifisertInntekt = mapToKlassifisertInntekt(spesifisertInntekt)
+        val klassifisertInntekt = klassifiserOgMapInntekt(spesifisertInntekt)
 
         val klassifisertSum = klassifisertInntekt.inntektsListe.fold(BigDecimal.ZERO) { total, klassifisertInntektMåned ->
             total + klassifisertInntektMåned.klassifiserteInntekter.fold(BigDecimal.ZERO) {
@@ -121,7 +121,7 @@ class KlassifiserInntektTest {
             sisteAvsluttendeKalenderMåned = YearMonth.of(2019, 5)
         )
 
-        val klassifisertInntekt = mapToKlassifisertInntekt(spesifisertInntekt)
+        val klassifisertInntekt = klassifiserOgMapInntekt(spesifisertInntekt)
 
         val klassifiserteMåneder = klassifisertInntekt.inntektsListe.associateBy { it.årMåned }
 
@@ -192,7 +192,7 @@ class KlassifiserInntektTest {
 
         val spesifisertInntekt = createTestSpesifisertInntekt(arbeidsPosteringsTyper)
 
-        val klassifisertInntekt = mapToKlassifisertInntekt(spesifisertInntekt)
+        val klassifisertInntekt = klassifiserOgMapInntekt(spesifisertInntekt)
 
         val klasseCount = klassifisertInntekt.inntektsListe
             .flatMap { it.klassifiserteInntekter }
@@ -212,7 +212,7 @@ class KlassifiserInntektTest {
 
         val spesifisertInntekt = createTestSpesifisertInntekt(dagpengerPosteringer)
 
-        val klassifisertInntekt = mapToKlassifisertInntekt(spesifisertInntekt)
+        val klassifisertInntekt = klassifiserOgMapInntekt(spesifisertInntekt)
 
         val klasseCount = klassifisertInntekt.inntektsListe
             .flatMap { it.klassifiserteInntekter }
@@ -231,7 +231,7 @@ class KlassifiserInntektTest {
 
         val spesifisertInntekt = createTestSpesifisertInntekt(sykepengerPosteringer)
 
-        val klassifisertInntekt = mapToKlassifisertInntekt(spesifisertInntekt)
+        val klassifisertInntekt = klassifiserOgMapInntekt(spesifisertInntekt)
 
         val klasseCount = klassifisertInntekt.inntektsListe
             .flatMap { it.klassifiserteInntekter }
@@ -263,7 +263,7 @@ class KlassifiserInntektTest {
 
         val spesifisertInntekt = createTestSpesifisertInntekt(fangstFiskePosteringer)
 
-        val klassifisertInntekt = mapToKlassifisertInntekt(spesifisertInntekt)
+        val klassifisertInntekt = klassifiserOgMapInntekt(spesifisertInntekt)
 
         val klasseCount = klassifisertInntekt.inntektsListe
             .flatMap { it.klassifiserteInntekter }
@@ -284,7 +284,7 @@ class KlassifiserInntektTest {
 
         val spesifisertInntekt = createTestSpesifisertInntekt(dagpengerFangstFiskePosteringer)
 
-        val klassifisertInntekt = mapToKlassifisertInntekt(spesifisertInntekt)
+        val klassifisertInntekt = klassifiserOgMapInntekt(spesifisertInntekt)
 
         val klasseCount = klassifisertInntekt.inntektsListe
             .flatMap { it.klassifiserteInntekter }
@@ -305,7 +305,7 @@ class KlassifiserInntektTest {
 
         val spesifisertInntekt = createTestSpesifisertInntekt(sykepengerFangstFiskePosteringer)
 
-        val klassifisertInntekt = mapToKlassifisertInntekt(spesifisertInntekt)
+        val klassifisertInntekt = klassifiserOgMapInntekt(spesifisertInntekt)
 
         val klasseCount = klassifisertInntekt.inntektsListe
             .flatMap { it.klassifiserteInntekter }
@@ -336,7 +336,7 @@ class KlassifiserInntektTest {
 
         val spesifisertInntekt = createTestSpesifisertInntekt(tiltakslønnPosteringer)
 
-        val klassifisertInntekt = mapToKlassifisertInntekt(spesifisertInntekt)
+        val klassifisertInntekt = klassifiserOgMapInntekt(spesifisertInntekt)
 
         val klasseCount = klassifisertInntekt.inntektsListe
             .flatMap { it.klassifiserteInntekter }
@@ -361,7 +361,7 @@ class KlassifiserInntektTest {
             )
         }
 
-        val spesifisertInntekt = SpesifisertInntekt(
+        return  SpesifisertInntekt(
             inntektId = InntektId("01DMNAADXVEZXGJRQJTZ6DWWNV"),
             avvik = emptyList(),
             posteringer = posteringer,
@@ -370,7 +370,5 @@ class KlassifiserInntektTest {
             timestamp = LocalDateTime.of(2019, 3, 5, 1, 1),
             sisteAvsluttendeKalenderMåned = YearMonth.of(2019, 4)
         )
-
-        return spesifisertInntekt
     }
 }
