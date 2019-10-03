@@ -35,7 +35,7 @@ private fun mapTilKlassifisertInntektMåned(
     klassifisertePosteringer: List<KlassifisertPostering>,
     avvikMåneder: Map<YearMonth, List<Avvik>>
 ) = klassifisertePosteringer
-    .groupBy { (_, inntektKlasse) -> inntektKlasse}
+    .groupBy { (_, inntektKlasse) -> inntektKlasse }
     .map { (klasse, klassifisertePosteringerForKlasse) ->
         KlassifisertInntektMåned(
             årMåned = årmåned,
@@ -48,4 +48,3 @@ private fun mapTilKlassifisertInntektMåned(
             harAvvik = avvikMåneder.containsKey(årmåned)
         )
     }
-

@@ -53,7 +53,7 @@ class InntektKlassifisererTopologyTest {
             }
         """.trimIndent()
 
-        val app = App()
+        val app = App(Configuration())
         TopologyTestDriver(app.buildTopology(), config).use { topologyTestDriver ->
             val inputWithSpesfisertInntekt = factory.create(Packet(packetWithSpesifisertInntektJson))
             topologyTestDriver.pipeInput(inputWithSpesfisertInntekt)
@@ -89,7 +89,7 @@ class InntektKlassifisererTopologyTest {
             }
         """.trimIndent()
 
-        val app = App()
+        val app = App(Configuration())
         TopologyTestDriver(app.buildTopology(), config).use { topologyTestDriver ->
             val input = factory.create(Packet(packetWithKlassifisertInntekt))
             topologyTestDriver.pipeInput(input)

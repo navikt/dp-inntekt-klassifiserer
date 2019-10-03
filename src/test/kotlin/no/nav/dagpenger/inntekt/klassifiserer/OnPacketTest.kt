@@ -12,7 +12,7 @@ import java.time.YearMonth
 class OnPacketTest {
     @Test
     fun `Add klassifisert inntekt to behov`() {
-        val app = App()
+        val app = App(Configuration())
 
         val spesifisertInntekt = SpesifisertInntekt(
             inntektId = InntektId("01DJ7VC8PHZ4D308MWX8TVDTDN"),

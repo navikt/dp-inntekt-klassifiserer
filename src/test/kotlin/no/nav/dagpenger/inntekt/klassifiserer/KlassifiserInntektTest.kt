@@ -361,7 +361,7 @@ class klassifiserOgMapInntektTest {
             )
         }
 
-        return  SpesifisertInntekt(
+        return SpesifisertInntekt(
             inntektId = InntektId("01DMNAADXVEZXGJRQJTZ6DWWNV"),
             avvik = emptyList(),
             posteringer = posteringer,
