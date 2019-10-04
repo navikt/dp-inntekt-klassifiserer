@@ -4,7 +4,7 @@ metadata:
   name: dp-inntekt-klassifiserer
 spec:
   image: repo.adeo.no:5443/dp-inntekt-klassifiserer:latest
-  port: 8094
+  port: 8080
   liveness:
     path: /isAlive
   readiness:

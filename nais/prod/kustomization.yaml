@@ -1,9 +1,4 @@
 bases:
   - ../base
-
-commonLabels:
-  app: dp-inntekt-klassifiserer
-  team: teamdagpenger
-
 patchesStrategicMerge:
   - nais.yaml
