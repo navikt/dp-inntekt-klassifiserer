@@ -156,28 +156,5 @@ pipeline {
         }
       }
     }
-
-    stage('Deploy') {
-      when { branch 'master' }
-
-      steps {
-        sh label: 'Deploy with kubectl', script: """
-          kubectl config use-context prod-${env.ZONE}
-          kubectl apply  -f ./nais/nais-prod-deploy.yaml --wait
-          kubectl rollout status -w deployment/${APPLICATION_NAME}
-        """
-
-        archiveArtifacts artifacts: 'nais/nais-prod-deploy.yaml', fingerprint: true
-
-      }
-    }
-
-    stage('Release') {
-      when { branch 'master' }
-
-      steps {
-        sh "echo true"
-      }
-    }
   }
 }

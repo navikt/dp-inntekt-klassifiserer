@@ -39,7 +39,14 @@ private val prodProperties = ConfigurationMap(
 )
 
 data class Configuration(
-    val application: Application = Application()
+    val application: Application = Application(),
+    val kafka: Kafka = Kafka()
+)
+
+data class Kafka(
+    val bootstrapServer: String = config()[Key("kafka.bootstrapServer", stringType)],
+    val username: String = config()[Key("srvdp.inntekt.klassifiserer.username", stringType)],
+    val password: String = config()[Key("srvdp.inntekt.klassifiserer.password", stringType)]
 )
 
 data class Application(
