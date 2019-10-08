@@ -12,7 +12,7 @@ private val LOGGER = KotlinLogging.logger {}
 
 class App(private val configuration: Configuration) : River() {
 
-    override val SERVICE_APP_ID: String = "dagpenger-inntekt-datasamler"
+    override val SERVICE_APP_ID: String = "dp-inntekt-klassifiserer"
 
     companion object {
         const val SPESIFISERT_INNTEKT = "spesifisertInntektV1"
