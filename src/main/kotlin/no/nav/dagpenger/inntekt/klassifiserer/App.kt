@@ -21,8 +21,9 @@ class App(private val configuration: Configuration) : River() {
 
     override fun getConfig(): Properties {
         return streamConfig(
-            SERVICE_APP_ID, configuration.kafka.bootstrapServer,
-            KafkaCredential(configuration.application.username, configuration.application.password)
+            SERVICE_APP_ID,
+            configuration.kafka.bootstrapServer,
+            KafkaCredential(configuration.kafka.username, configuration.kafka.password)
         )
     }
 
