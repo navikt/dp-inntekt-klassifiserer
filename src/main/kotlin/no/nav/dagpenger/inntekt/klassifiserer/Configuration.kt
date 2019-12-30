@@ -7,6 +7,9 @@ import com.natpryce.konfig.Key
 import com.natpryce.konfig.intType
 import com.natpryce.konfig.overriding
 import com.natpryce.konfig.stringType
+import no.nav.dagpenger.events.Packet
+import no.nav.dagpenger.streams.Topic
+import no.nav.dagpenger.streams.Topics
 
 private val localProperties = ConfigurationMap(
     mapOf(
@@ -14,7 +17,8 @@ private val localProperties = ConfigurationMap(
         "application.httpPort" to "8080",
         "kafka.bootstrapServer" to "localhost:9092",
         "srvdp.inntekt.klassifiserer.username" to "srvdp-inntekt-kl",
-        "srvdp.inntekt.klassifiserer.password" to "srvdp-passord"
+        "srvdp.inntekt.klassifiserer.password" to "srvdp-passord",
+        "behov.topic" to Topics.DAGPENGER_BEHOV_PACKET_EVENT.name
     )
 )
 
@@ -22,7 +26,8 @@ private val devProperties = ConfigurationMap(
     mapOf(
         "application.profile" to "DEV",
         "application.httpPort" to "8080",
-        "kafka.bootstrapServer" to "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443"
+        "kafka.bootstrapServer" to "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443",
+        "behov.topic" to Topics.DAGPENGER_BEHOV_PACKET_EVENT.name
     )
 )
 
@@ -30,7 +35,8 @@ private val prodProperties = ConfigurationMap(
     mapOf(
         "application.profile" to "PROD",
         "application.httpPort" to "8080",
-        "kafka.bootstrapServer" to "a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00149.adeo.no:8443"
+        "kafka.bootstrapServer" to "a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00149.adeo.no:8443",
+        "behov.topic" to Topics.DAGPENGER_BEHOV_PACKET_EVENT.name
     )
 )
 
@@ -42,10 +48,14 @@ data class Configuration(
 data class Kafka(
     val bootstrapServer: String = config()[Key("kafka.bootstrapServer", stringType)],
     val username: String = config()[Key("srvdp.inntekt.klassifiserer.username", stringType)],
-    val password: String = config()[Key("srvdp.inntekt.klassifiserer.password", stringType)]
+    val password: String = config()[Key("srvdp.inntekt.klassifiserer.password", stringType)],
+    val behovTopic: Topic<String, Packet> = Topics.DAGPENGER_BEHOV_PACKET_EVENT.copy(
+        name = config()[Key("behov.topic", stringType)]
+    )
 )
 
 data class Application(
+    val id: String = config().getOrElse(Key("application.id", stringType), "dp-inntekt-klassifiserer"),
     val httpPort: Int = config()[Key("application.httpPort", intType)],
     val profile: Profile = config()[Key("application.profile", stringType)].let { Profile.valueOf(it) }
 )
