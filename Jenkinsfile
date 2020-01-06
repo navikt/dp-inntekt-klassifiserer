@@ -169,7 +169,6 @@ pipeline {
             kubectl rollout status -n q2 -w deployment/${APPLICATION_NAME}
           """
           archiveArtifacts artifacts: 'nais/nais-dev-q2-deploy.yaml', fingerprint: true
-        }
       }
     }
   }
