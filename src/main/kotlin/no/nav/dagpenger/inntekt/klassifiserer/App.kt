@@ -1,19 +1,15 @@
 package no.nav.dagpenger.inntekt.klassifiserer
 
-import mu.KotlinLogging
 import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.streams.KafkaCredential
 import no.nav.dagpenger.streams.River
-import no.nav.dagpenger.streams.Topics
 import no.nav.dagpenger.streams.streamConfig
 import org.apache.kafka.streams.kstream.Predicate
 import java.util.Properties
 
-private val LOGGER = KotlinLogging.logger {}
+class App(private val configuration: Configuration) : River(configuration.kafka.behovTopic) {
 
-class App(private val configuration: Configuration) : River(Topics.DAGPENGER_BEHOV_PACKET_EVENT) {
-
-    override val SERVICE_APP_ID: String = "dp-inntekt-klassifiserer"
+    override val SERVICE_APP_ID: String = configuration.application.id
 
     companion object {
         const val SPESIFISERT_INNTEKT = "spesifisertInntektV1"

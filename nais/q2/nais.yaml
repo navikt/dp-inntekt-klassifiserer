@@ -1,0 +1,10 @@
+apiVersion: "nais.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: dp-inntekt-klassifiserer
+spec:
+  env:
+    - name: BEHOV_TOPIC
+      value: "privat-dagpenger-behov-v1-q2"
+    - name: APPLICATION_ID
+      value: "dp-inntekt-klassifiserer-q2"
