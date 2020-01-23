@@ -25,6 +25,7 @@ dependencies {
     // Dagpenger
     implementation(Dagpenger.Streams)
     implementation(Dagpenger.Events)
+    implementation(Dagpenger.Biblioteker.ktorUtils)
 
     // json
     implementation(Moshi.moshiAdapters)
@@ -34,6 +35,10 @@ dependencies {
 
     // ktor
     implementation(Ktor.serverNetty)
+
+    // http client
+    implementation(Fuel.fuel)
+    implementation(Fuel.fuelMoshi)
 
     // Miljøkonfigurasjon
     implementation(Konfig.konfig)
@@ -50,6 +55,9 @@ dependencies {
     implementation(Prometheus.hotspot)
     implementation(Prometheus.log4j2)
 
+    // unleash
+    implementation("no.finn.unleash:unleash-client-java:3.2.9")
+
     // testing
     testImplementation(kotlin("test"))
     testImplementation(Ktor.ktorTest)
@@ -60,6 +68,7 @@ dependencies {
     testImplementation(TestContainers.postgresql)
     testImplementation(Mockk.mockk)
     testImplementation(Kafka.streamTestUtils)
+    testImplementation(Wiremock.standalone)
 }
 
 configurations {
