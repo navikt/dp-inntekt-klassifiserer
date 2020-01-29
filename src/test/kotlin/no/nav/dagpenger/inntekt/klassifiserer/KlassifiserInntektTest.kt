@@ -1,5 +1,6 @@
 package no.nav.dagpenger.inntekt.klassifiserer
 
+import io.kotlintest.shouldBe
 import no.nav.dagpenger.events.inntekt.v1.Aktør
 import no.nav.dagpenger.events.inntekt.v1.AktørType
 import no.nav.dagpenger.events.inntekt.v1.Avvik
@@ -34,14 +35,17 @@ class klassifiserOgMapInntektTest {
 
         assertEquals(spesifisertInntekt.inntektId.id, klassifisertInntekt.inntektsId)
         assertEquals(spesifisertInntekt.manueltRedigert, klassifisertInntekt.manueltRedigert)
-        assertEquals(spesifisertInntekt.sisteAvsluttendeKalenderMåned, klassifisertInntekt.sisteAvsluttendeKalenderMåned)
+        assertEquals(
+            spesifisertInntekt.sisteAvsluttendeKalenderMåned,
+            klassifisertInntekt.sisteAvsluttendeKalenderMåned
+        )
         assertEquals(0, klassifisertInntekt.inntektsListe.size)
     }
 
     @Test
     fun `Ta med alle måneder med inntekter`() {
         val testDataJson = klassifiserOgMapInntektTest::class.java
-            .getResource("/test-data/example-spesifisert-inntekt-payload.json").readText()
+            .getResource("/test-data/spesifisert-inntekt-mange-posteringer.json").readText()
         val spesifisertInntekt = spesifisertInntektJsonAdapter.fromJson(testDataJson)!!
 
         val sum = spesifisertInntekt.posteringer.fold(BigDecimal.ZERO) { acc, postering -> acc + postering.beløp }
@@ -49,16 +53,39 @@ class klassifiserOgMapInntektTest {
 
         val klassifisertInntekt = klassifiserOgMapInntekt(spesifisertInntekt)
 
-        val klassifisertSum = klassifisertInntekt.inntektsListe.fold(BigDecimal.ZERO) { total, klassifisertInntektMåned ->
-            total + klassifisertInntektMåned.klassifiserteInntekter.fold(BigDecimal.ZERO) {
-                totalMåned, klassifisertInntekt -> totalMåned + klassifisertInntekt.beløp
+        val klassifisertSum =
+            klassifisertInntekt.inntektsListe.fold(BigDecimal.ZERO) { total, klassifisertInntektMåned ->
+                total + klassifisertInntektMåned.klassifiserteInntekter.fold(BigDecimal.ZERO) { totalMåned, klassifisertInntekt ->
+                    totalMåned + klassifisertInntekt.beløp
+                }
             }
-        }
 
         val klassifiserteMåneder = klassifisertInntekt.inntektsListe.map { it.årMåned }.toSet()
 
         assertEquals(spesifiserteMåneder, klassifiserteMåneder, "Månedene med inntekt er forandret")
         assertEquals(sum, klassifisertSum, "Sum av inntekter er forandret")
+    }
+
+    @Test
+    fun `Inntekt grupperes riktig i måneder`() {
+        val testDataJson = klassifiserOgMapInntektTest::class.java
+            .getResource("/test-data/spesifisert-inntekt-flere-klasser.json").readText()
+        val spesifisertInntekt = spesifisertInntektJsonAdapter.fromJson(testDataJson)!!
+
+        val klassifisertInntekt = klassifiserOgMapInntekt(spesifisertInntekt)
+
+        val firstMonth = klassifisertInntekt.inntektsListe.first()
+
+        val inntektsKlasser = firstMonth.klassifiserteInntekter.map { it.inntektKlasse }.toSet()
+
+        firstMonth.klassifiserteInntekter.size shouldBe 4
+        inntektsKlasser.size shouldBe 4
+        inntektsKlasser shouldBe setOf(
+            InntektKlasse.ARBEIDSINNTEKT,
+            InntektKlasse.DAGPENGER,
+            InntektKlasse.SYKEPENGER,
+            InntektKlasse.SYKEPENGER_FANGST_FISKE
+        )
     }
 
     @Test
@@ -292,7 +319,11 @@ class klassifiserOgMapInntektTest {
             .eachCount()
 
         assertEquals(1, klasseCount.size, "Alle posteringene er ikke klassifisert til samme klasse")
-        assertEquals(1, klasseCount[InntektKlasse.DAGPENGER_FANGST_FISKE], "Ikke klassifisert som dagpenger for fangst og fiske")
+        assertEquals(
+            1,
+            klasseCount[InntektKlasse.DAGPENGER_FANGST_FISKE],
+            "Ikke klassifisert som dagpenger for fangst og fiske"
+        )
     }
 
     @Test
@@ -313,7 +344,11 @@ class klassifiserOgMapInntektTest {
             .eachCount()
 
         assertEquals(1, klasseCount.size, "Alle posteringene er ikke klassifisert til samme klasse")
-        assertEquals(1, klasseCount[InntektKlasse.SYKEPENGER_FANGST_FISKE], "Ikke klassifisert som sykepenger for fangst og fiske")
+        assertEquals(
+            1,
+            klasseCount[InntektKlasse.SYKEPENGER_FANGST_FISKE],
+            "Ikke klassifisert som sykepenger for fangst og fiske"
+        )
     }
 
     @Test

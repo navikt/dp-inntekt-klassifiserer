@@ -28,23 +28,21 @@ private fun mapTilKlassifisertInntektMåneder(klassifisertePosteringer: List<Kla
         .groupBy { klassifisertPostering -> klassifisertPostering.postering.posteringsMåned }
         .map { (årmåned, klassifisertePosteringerForMåned) ->
             mapTilKlassifisertInntektMåned(årmåned, klassifisertePosteringerForMåned, avvikMåneder)
-        }.flatten()
+        }
 
 private fun mapTilKlassifisertInntektMåned(
     årmåned: YearMonth,
     klassifisertePosteringer: List<KlassifisertPostering>,
     avvikMåneder: Map<YearMonth, List<Avvik>>
-) = klassifisertePosteringer
-    .groupBy { (_, inntektKlasse) -> inntektKlasse }
-    .map { (klasse, klassifisertePosteringerForKlasse) ->
-        KlassifisertInntektMåned(
-            årMåned = årmåned,
-            klassifiserteInntekter = listOf(
-                KlassifisertInntekt(
-                    beløp = klassifisertePosteringerForKlasse.fold(BigDecimal.ZERO) { sum, postering -> sum + postering.postering.beløp },
-                    inntektKlasse = klasse
-                )
-            ),
-            harAvvik = avvikMåneder.containsKey(årmåned)
-        )
-    }
+) = KlassifisertInntektMåned(
+    årMåned = årmåned,
+    harAvvik = avvikMåneder.containsKey(årmåned),
+    klassifiserteInntekter = klassifisertePosteringer
+        .groupBy { (_, inntektKlasse) -> inntektKlasse }
+        .map { (klasse, klassifisertePosteringerForKlasse) ->
+            KlassifisertInntekt(
+                beløp = klassifisertePosteringerForKlasse.fold(BigDecimal.ZERO) { sum, postering -> sum + postering.postering.beløp },
+                inntektKlasse = klasse
+            )
+        }
+)
