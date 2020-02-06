@@ -16,8 +16,8 @@ private val localProperties = ConfigurationMap(
         "application.profile" to "LOCAL",
         "application.httpPort" to "8080",
         "kafka.bootstrapServer" to "localhost:9092",
-        "srvdp.inntekt.klassifiserer.username" to "srvdp-inntekt-kl",
-        "srvdp.inntekt.klassifiserer.password" to "srvdp-passord",
+        "srvdp.inntekt.klas.username" to "srvdp-inntekt-kl",
+        "srvdp.inntekt.klas.password" to "srvdp-passord",
         "dp.inntekt.api.key" to "dp-datalaster-inntekt",
         "dp.inntekt.api.secret" to "secret",
         "dp.inntekt.api.url" to "http://localhost/",
@@ -55,8 +55,8 @@ data class Configuration(
 
 data class Kafka(
     val bootstrapServer: String = config()[Key("kafka.bootstrapServer", stringType)],
-    val username: String = config()[Key("srvdp.inntekt.klassifiserer.username", stringType)],
-    val password: String = config()[Key("srvdp.inntekt.klassifiserer.password", stringType)],
+    val username: String = config()[Key("srvdp.inntekt.klas.username", stringType)],
+    val password: String = config()[Key("srvdp.inntekt.klas.password", stringType)],
     val behovTopic: Topic<String, Packet> = Topics.DAGPENGER_BEHOV_PACKET_EVENT.copy(
         name = config()[Key("behov.topic", stringType)]
     )
