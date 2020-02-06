@@ -8,3 +8,7 @@ spec:
       value: "privat-dagpenger-behov-v1-q2"
     - name: APPLICATION_ID
       value: "dp-inntekt-klassifiserer-q2"
+  vault:
+    paths:
+      - kvPath: "serviceuser/data/dev/srvdp-inntekt-klas"
+        mountPath: "/secrets/serviceuser/srvdp-inntekt-klas"
