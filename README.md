@@ -6,3 +6,4 @@ Henter spesifisert inntekt fra inntekt-api og klassifiserer den.
 Gradle brukes som byggverktøy og er bundlet inn.
 
 `./gradlew build`
+
