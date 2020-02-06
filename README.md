@@ -1,5 +1,5 @@
 # dagpenger-inntekt-klassifiserer
-Klassifiserer inntekt
+Henter spesifisert inntekt fra inntekt-api og klassifiserer den.
 
 # Komme i gang
 
