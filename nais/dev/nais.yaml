@@ -7,3 +7,5 @@ spec:
     paths:
       - kvPath: "serviceuser/data/dev/srvdp-inntekt-klas"
         mountPath: "/secrets/serviceuser/srvdp-inntekt-klas"
+      - kvPath: "kv/preprod/fss/dp-inntekt-klassifiserer/default"
+        mountPath: "/var/run/secrets/nais.io/vault/"
