@@ -1,5 +1,6 @@
 package no.nav.dagpenger.inntekt.klassifiserer
 
+import io.kotlintest.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import no.finn.unleash.FakeUnleash
@@ -14,6 +15,7 @@ import java.time.LocalDateTime
 import java.time.YearMonth
 
 class OnPacketTest {
+
     @Test
     fun `Add klassifisert inntekt to behov`() {
         val spesifisertInntektMock: SpesifisertInntektHttpClient = mockk()
@@ -43,5 +45,24 @@ class OnPacketTest {
         val resultPacket = app.onPacket(inputPacket)
 
         assert(resultPacket.hasField("inntektV1"))
+    }
+}
+
+class FilterPredicatesTest {
+
+    @Test
+    fun `Skal ikke legge på inntekt der det er manuelt grunnlag`() {
+        val packet = Packet().apply {
+            putValue("manueltGrunnlag", 1000)
+        }
+        val app = App(configuration = Configuration(), spesifisertInntektHttpClient = mockk(), unleash = FakeUnleash().apply { disableAll() })
+        app.filterPredicates().all { it.test("", packet) } shouldBe false
+    }
+
+    @Test
+    fun `Skal legge på inntekt der det er ikke er manuelt grunnlag`() {
+        val packet = Packet()
+        val app = App(configuration = Configuration(), spesifisertInntektHttpClient = mockk(), unleash = FakeUnleash().apply { enableAll() })
+        app.filterPredicates().all { it.test("", packet) } shouldBe true
     }
 }
