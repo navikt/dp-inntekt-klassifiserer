@@ -23,4 +23,3 @@ readonly OVERLAY_PATH="${DIR}"
 
 . $DIR/uatJob "-j ${JOB_NAME} -p ${OVERLAY_PATH}"
 
-main $@
