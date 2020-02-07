@@ -25,6 +25,7 @@ class App(
         const val INNTEKT = "inntektV1"
         const val AKTØRID = "aktørId"
         const val VEDTAKID = "vedtakId"
+        const val MANUELT_GRUNNLAG = "manueltGrunnlag"
         const val BEREGNINGSDATO = "beregningsDato"
     }
 
@@ -39,6 +40,7 @@ class App(
     override fun filterPredicates(): List<Predicate<String, Packet>> {
         return listOf(
             Predicate { _, packet -> !packet.hasField(INNTEKT) },
+            Predicate { _, packet -> !packet.hasField(MANUELT_GRUNNLAG) },
             Predicate { _, _ -> unleash.isEnabled("dp.klassifiserer") }
         )
     }
