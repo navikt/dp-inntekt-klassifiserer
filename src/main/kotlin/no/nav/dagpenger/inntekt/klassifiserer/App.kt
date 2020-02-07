@@ -39,7 +39,7 @@ class App(
     override fun filterPredicates(): List<Predicate<String, Packet>> {
         return listOf(
             Predicate { _, packet -> !packet.hasField(INNTEKT) },
-            Predicate { _, _ -> unleash.isEnabled("dp.ny-klassifisering") }
+            Predicate { _, _ -> unleash.isEnabled("dp.klassifiserer") }
         )
     }
 
