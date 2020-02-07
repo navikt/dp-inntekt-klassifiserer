@@ -100,7 +100,7 @@ class InntektKlassifisererTopologyTest {
             unleash = unleash
         )
         TopologyTestDriver(app.buildTopology(), config).use { topologyTestDriver ->
-            unleash.enable("dp.ny-klassifisering")
+            unleash.enable("dp.klassifiserer")
             val inputWithSpesfisertInntekt = factory.create(Packet(packetWithSpesifisertInntektJson))
             topologyTestDriver.pipeInput(inputWithSpesfisertInntekt)
 
@@ -113,7 +113,7 @@ class InntektKlassifisererTopologyTest {
             Assertions.assertTrue { processedOutput != null }
             Assertions.assertTrue(processedOutput.value().hasField("inntektV1"))
 
-            unleash.disable("dp.ny-klassifisering")
+            unleash.disable("dp.klassifiserer")
             val inputWithoutSpesfisertInntekt = factory.create(Packet(packetWithoutSpesifisertInntekt))
             topologyTestDriver.pipeInput(inputWithoutSpesfisertInntekt)
 
