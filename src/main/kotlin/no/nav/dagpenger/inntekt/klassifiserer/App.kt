@@ -39,7 +39,6 @@ class App(
 
     override fun filterPredicates(): List<Predicate<String, Packet>> {
         return listOf(
-            Predicate { _, packet -> (packet.hasField(VEDTAKID) && packet.getIntValue(VEDTAKID) != -12345) },
             Predicate { _, packet -> !packet.hasField(INNTEKT) },
             Predicate { _, packet -> !packet.hasField(MANUELT_GRUNNLAG) },
             Predicate { _, _ -> unleash.isEnabled("dp.klassifiserer") }
