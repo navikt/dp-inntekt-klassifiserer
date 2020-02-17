@@ -62,6 +62,7 @@ class FilterPredicatesTest {
     @Test
     fun `Skal legge på inntekt der det er ikke er manuelt grunnlag`() {
         val packet = Packet()
+        packet.putValue("vedtakId", 123)
         val app = App(configuration = Configuration(), spesifisertInntektHttpClient = mockk(), unleash = FakeUnleash().apply { enableAll() })
         app.filterPredicates().all { it.test("", packet) } shouldBe true
     }
