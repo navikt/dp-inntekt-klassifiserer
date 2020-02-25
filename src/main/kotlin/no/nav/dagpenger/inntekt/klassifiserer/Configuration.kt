@@ -51,7 +51,7 @@ data class Configuration(
 )
 
 data class Kafka(
-    val bootstrapServer: String = config()[Key("kafka.bootstrapServer", stringType)],
+    val bootstrapServer: String = config()[Key("kafka.bootstrap.servers", stringType)],
     val username: String = config()[Key("srvdp.inntekt.klassifiserer.username", stringType)],
     val password: String = config()[Key("srvdp.inntekt.klassifiserer.password", stringType)],
     val behovTopic: Topic<String, Packet> = Topics.DAGPENGER_BEHOV_PACKET_EVENT.copy(
