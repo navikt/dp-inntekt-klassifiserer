@@ -2,7 +2,6 @@ package no.nav.dagpenger.inntekt.klassifiserer
 
 import io.mockk.every
 import io.mockk.mockk
-import no.finn.unleash.FakeUnleash
 import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.events.inntekt.v1.Aktør
 import no.nav.dagpenger.events.inntekt.v1.AktørType
@@ -45,7 +44,7 @@ class InntektKlassifisererTopologyTest {
             }
         """.trimIndent()
 
-        val app = App(configuration = Configuration(), spesifisertInntektHttpClient = mockk(), unleash = FakeUnleash())
+        val app = App(configuration = Configuration(), spesifisertInntektHttpClient = mockk())
         TopologyTestDriver(app.buildTopology(), config).use { topologyTestDriver ->
             val input = factory.create(Packet(packetWithKlassifisertInntekt))
             topologyTestDriver.pipeInput(input)
@@ -61,19 +60,13 @@ class InntektKlassifisererTopologyTest {
     }
 
     @Test
-    fun `Only process packets when feature toggle is on`() {
+    fun `Skal legge på inntekt på pakka `() {
         val packetWithSpesifisertInntektJson = """
             {
                 "aktørId": "12345",
                 "vedtakId": 123,
                 "beregningsDato": 2019-01-25
            }
-        """.trimIndent()
-
-        val packetWithoutSpesifisertInntekt = """
-            {
-                "something" : "something"
-            }
         """.trimIndent()
 
         val spesifisertInntektMock: SpesifisertInntektHttpClient = mockk()
@@ -93,14 +86,12 @@ class InntektKlassifisererTopologyTest {
             sisteAvsluttendeKalenderMåned = YearMonth.of(2019, 5)
         )
 
-        val unleash = FakeUnleash()
         val app = App(
             configuration = Configuration(),
-            spesifisertInntektHttpClient = spesifisertInntektMock,
-            unleash = unleash
+            spesifisertInntektHttpClient = spesifisertInntektMock
         )
         TopologyTestDriver(app.buildTopology(), config).use { topologyTestDriver ->
-            unleash.enable("dp.klassifiserer")
+
             val inputWithSpesfisertInntekt = factory.create(Packet(packetWithSpesifisertInntektJson))
             topologyTestDriver.pipeInput(inputWithSpesfisertInntekt)
 
@@ -112,18 +103,6 @@ class InntektKlassifisererTopologyTest {
 
             Assertions.assertTrue { processedOutput != null }
             Assertions.assertTrue(processedOutput.value().hasField("inntektV1"))
-
-            unleash.disable("dp.klassifiserer")
-            val inputWithoutSpesfisertInntekt = factory.create(Packet(packetWithoutSpesifisertInntekt))
-            topologyTestDriver.pipeInput(inputWithoutSpesfisertInntekt)
-
-            val emptyResult = topologyTestDriver.readOutput(
-                Topics.DAGPENGER_BEHOV_PACKET_EVENT.name,
-                Topics.DAGPENGER_BEHOV_PACKET_EVENT.keySerde.deserializer(),
-                Topics.DAGPENGER_BEHOV_PACKET_EVENT.valueSerde.deserializer()
-            )
-
-            assertNull(emptyResult)
         }
     }
 }
