@@ -15,7 +15,7 @@ private val localProperties = ConfigurationMap(
     mapOf(
         "application.profile" to "LOCAL",
         "application.httpPort" to "8080",
-        "kafka.bootstrapServer" to "localhost:9092",
+        "kafka.bootstrap.servers" to "localhost:9092",
         "srvdp.inntekt.klassifiserer.username" to "srvdp-inntekt-kl",
         "srvdp.inntekt.klassifiserer.password" to "srvdp-passord",
         "dp.inntekt.api.key" to "dp-datalaster-inntekt",
@@ -29,7 +29,7 @@ private val devProperties = ConfigurationMap(
     mapOf(
         "application.profile" to "DEV",
         "application.httpPort" to "8080",
-        "kafka.bootstrapServer" to "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443",
+        "kafka.bootstrap.servers" to "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443",
         "dp.inntekt.api.url" to "http://dp-inntekt-api//",
         "behov.topic" to Topics.DAGPENGER_BEHOV_PACKET_EVENT.name
     )
@@ -40,7 +40,7 @@ private val prodProperties = ConfigurationMap(
         "application.profile" to "PROD",
         "application.httpPort" to "8080",
         "dp.inntekt.api.url" to "http://dp-inntekt-api/",
-        "kafka.bootstrapServer" to "a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00149.adeo.no:8443",
+        "kafka.bootstrap.servers" to "a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00149.adeo.no:8443",
         "behov.topic" to Topics.DAGPENGER_BEHOV_PACKET_EVENT.name
     )
 )
