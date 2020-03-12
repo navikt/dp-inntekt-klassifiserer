@@ -4,7 +4,7 @@ import no.nav.dagpenger.events.inntekt.v1.InntektKlasse
 import no.nav.dagpenger.events.inntekt.v1.Postering
 import no.nav.dagpenger.events.inntekt.v1.PosteringsType
 
-fun klassifiserPosteringer(posteringer: List<Postering>): List<KlassifisertPostering> {
+fun klassifiserPosteringerMedHyreendring(posteringer: List<Postering>): List<KlassifisertPostering> {
     return posteringer.map { KlassifisertPostering(it, klassifiserPosteringsType(it.posteringsType)) }
 }
 
@@ -76,21 +76,7 @@ private fun isArbeidsInntekt(posteringsType: PosteringsType): Boolean {
         PosteringsType.L_UREGELMESSIGE_TILLEGG_KNYTTET_TIL_ARBEIDET_TID,
         PosteringsType.L_UREGELMESSIGE_TILLEGG_KNYTTET_TIL_IKKE_ARBEIDET_TID,
         PosteringsType.L_YRKEBIL_TJENESTLIGBEHOV_KILOMETER,
-        PosteringsType.L_YRKEBIL_TJENESTLIGBEHOV_LISTEPRIS
-    )
-    return arbeidsPosteringsTyper.contains(posteringsType)
-}
-
-private fun isDagpenger(posteringsType: PosteringsType): Boolean {
-    return posteringsType == PosteringsType.Y_DAGPENGER_VED_ARBEIDSLØSHET
-}
-
-private fun isSykepenger(posteringsType: PosteringsType): Boolean {
-    return posteringsType == PosteringsType.Y_SYKEPENGER
-}
-
-private fun isFangstFiske(posteringsType: PosteringsType): Boolean {
-    val fangstFiskePosteringsTyper = listOf(
+        PosteringsType.L_YRKEBIL_TJENESTLIGBEHOV_LISTEPRIS,
         PosteringsType.L_ANNET_H,
         PosteringsType.L_BONUS_H,
         PosteringsType.L_FAST_TILLEGG_H,
@@ -102,7 +88,29 @@ private fun isFangstFiske(posteringsType: PosteringsType): Boolean {
         PosteringsType.L_TIMELØNN_H,
         PosteringsType.L_UREGELMESSIGE_TILLEGG_KNYTTET_TIL_ARBEIDET_TID_H,
         PosteringsType.L_UREGELMESSIGE_TILLEGG_KNYTTET_TIL_IKKE_ARBEIDET_TID_H,
-        PosteringsType.L_TREKK_I_LØNN_FOR_FERIE_H,
+        PosteringsType.L_TREKK_I_LØNN_FOR_FERIE_H
+    )
+    return arbeidsPosteringsTyper.contains(posteringsType)
+}
+
+private fun isDagpenger(posteringsType: PosteringsType): Boolean {
+    val dagpengerPosteringsTyper = listOf(
+        PosteringsType.Y_DAGPENGER_VED_ARBEIDSLØSHET,
+        PosteringsType.Y_DAGPENGER_TIL_FISKER_SOM_BARE_HAR_HYRE
+    )
+    return dagpengerPosteringsTyper.contains(posteringsType)
+}
+
+private fun isSykepenger(posteringsType: PosteringsType): Boolean {
+    val sykepengerPosteringsTyper = listOf(
+        PosteringsType.Y_SYKEPENGER,
+        PosteringsType.Y_SYKEPENGER_TIL_FISKER_SOM_BARE_HAR_HYRE
+    )
+    return sykepengerPosteringsTyper.contains(posteringsType)
+}
+
+private fun isFangstFiske(posteringsType: PosteringsType): Boolean {
+    val fangstFiskePosteringsTyper = listOf(
         PosteringsType.N_LOTT_KUN_TRYGDEAVGIFT,
         PosteringsType.N_VEDERLAG
     )
@@ -111,16 +119,14 @@ private fun isFangstFiske(posteringsType: PosteringsType): Boolean {
 
 private fun isDagpengerFangstFiske(posteringsType: PosteringsType): Boolean {
     val dagpengerFangstFiskePosteringsTyper = listOf(
-        PosteringsType.N_DAGPENGER_TIL_FISKER,
-        PosteringsType.Y_DAGPENGER_TIL_FISKER_SOM_BARE_HAR_HYRE
+        PosteringsType.N_DAGPENGER_TIL_FISKER
     )
     return dagpengerFangstFiskePosteringsTyper.contains(posteringsType)
 }
 
 private fun isSykepengerFangstFiske(posteringsType: PosteringsType): Boolean {
     val sykepengerFangstFiskePosteringsTyper = listOf(
-        PosteringsType.N_SYKEPENGER_TIL_FISKER,
-        PosteringsType.Y_SYKEPENGER_TIL_FISKER_SOM_BARE_HAR_HYRE
+        PosteringsType.N_SYKEPENGER_TIL_FISKER
     )
     return sykepengerFangstFiskePosteringsTyper.contains(posteringsType)
 }
@@ -142,5 +148,3 @@ private fun isTiltakslønn(posteringsType: PosteringsType): Boolean {
     )
     return tiltakslønnPosteringsTyper.contains(posteringsType)
 }
-
-class KlassifiseringsException(message: String) : RuntimeException(message)
