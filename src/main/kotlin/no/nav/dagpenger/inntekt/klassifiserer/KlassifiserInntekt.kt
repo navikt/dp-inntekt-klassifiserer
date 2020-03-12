@@ -1,5 +1,6 @@
 package no.nav.dagpenger.inntekt.klassifiserer
 
+import no.finn.unleash.Unleash
 import no.nav.dagpenger.events.inntekt.v1.Avvik
 import no.nav.dagpenger.events.inntekt.v1.Inntekt
 import no.nav.dagpenger.events.inntekt.v1.KlassifisertInntekt
@@ -8,8 +9,11 @@ import no.nav.dagpenger.events.inntekt.v1.SpesifisertInntekt
 import java.math.BigDecimal
 import java.time.YearMonth
 
-fun klassifiserOgMapInntekt(spesifisertInntekt: SpesifisertInntekt): Inntekt {
-    val klassifisertePosteringer = klassifiserPosteringer(spesifisertInntekt.posteringer)
+fun klassifiserOgMapInntekt(spesifisertInntekt: SpesifisertInntekt, unleash: Unleash): Inntekt {
+    val klassifisertePosteringer =
+        if (unleash.isEnabled("dp.hyreendring", false))
+            klassifiserPosteringerMedHyreendring(spesifisertInntekt.posteringer)
+        else klassifiserPosteringer(spesifisertInntekt.posteringer)
 
     val avvikMåneder = spesifisertInntekt.avvik.groupBy { it.avvikPeriode }
 

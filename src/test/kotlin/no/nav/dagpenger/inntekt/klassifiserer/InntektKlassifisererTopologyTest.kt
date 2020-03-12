@@ -2,6 +2,7 @@ package no.nav.dagpenger.inntekt.klassifiserer
 
 import io.mockk.every
 import io.mockk.mockk
+import no.finn.unleash.FakeUnleash
 import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.events.inntekt.v1.Aktør
 import no.nav.dagpenger.events.inntekt.v1.AktørType
@@ -44,7 +45,12 @@ class InntektKlassifisererTopologyTest {
             }
         """.trimIndent()
 
-        val app = App(configuration = Configuration(), spesifisertInntektHttpClient = mockk())
+        val app = App(
+            configuration = Configuration(),
+            spesifisertInntektHttpClient = mockk(),
+            unleash = FakeUnleash()
+        )
+
         TopologyTestDriver(app.buildTopology(), config).use { topologyTestDriver ->
             val input = factory.create(Packet(packetWithKlassifisertInntekt))
             topologyTestDriver.pipeInput(input)
@@ -88,7 +94,8 @@ class InntektKlassifisererTopologyTest {
 
         val app = App(
             configuration = Configuration(),
-            spesifisertInntektHttpClient = spesifisertInntektMock
+            spesifisertInntektHttpClient = spesifisertInntektMock,
+            unleash = FakeUnleash()
         )
         TopologyTestDriver(app.buildTopology(), config).use { topologyTestDriver ->
 
