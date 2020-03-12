@@ -11,7 +11,7 @@ import java.time.YearMonth
 
 fun klassifiserOgMapInntekt(spesifisertInntekt: SpesifisertInntekt, unleash: Unleash): Inntekt {
     val klassifisertePosteringer =
-        if (unleash.isEnabled("dp.hyreendring"))
+        if (unleash.isEnabled("dp.hyreendring", false))
             klassifiserPosteringerMedHyreendring(spesifisertInntekt.posteringer)
         else klassifiserPosteringer(spesifisertInntekt.posteringer)
 
