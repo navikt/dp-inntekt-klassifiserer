@@ -1,6 +1,7 @@
 package no.nav.dagpenger.inntekt.klassifiserer
 
 import mu.KotlinLogging
+import no.finn.unleash.Unleash
 import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.ktor.auth.ApiKeyVerifier
 import no.nav.dagpenger.streams.KafkaCredential
@@ -13,7 +14,8 @@ private val LOGGER = KotlinLogging.logger {}
 
 class App(
     private val configuration: Configuration,
-    private val spesifisertInntektHttpClient: SpesifisertInntektHttpClient
+    private val spesifisertInntektHttpClient: SpesifisertInntektHttpClient,
+    private val unleash: Unleash
 ) : River(configuration.kafka.behovTopic) {
 
     override val SERVICE_APP_ID: String = configuration.application.id
@@ -49,7 +51,7 @@ class App(
         val beregningsDato = packet.getLocalDate(BEREGNINGSDATO)
         val spesifisertInntekt = spesifisertInntektHttpClient.getSpesifisertInntekt(aktørId, vedtakId, beregningsDato)
 
-        val klassifisertInntekt = klassifiserOgMapInntekt(spesifisertInntekt)
+        val klassifisertInntekt = klassifiserOgMapInntekt(spesifisertInntekt, unleash)
 
         packet.putValue(INNTEKT, klassifisertInntekt)
 
@@ -60,6 +62,8 @@ class App(
 fun main() {
     val configuration = Configuration()
 
+    val unleash = setupUnleash(configuration.application.unleashUrl)
+
     val apiKeyVerifier = ApiKeyVerifier(configuration.application.inntektApiSecret)
     val apiKey = apiKeyVerifier.generate(configuration.application.inntektApiKey)
 
@@ -68,6 +72,6 @@ fun main() {
         apiKey
     )
 
-    val inntektKlassifiserer = App(configuration, spesifisertInntektHttpClient)
+    val inntektKlassifiserer = App(configuration, spesifisertInntektHttpClient, unleash)
     inntektKlassifiserer.start()
 }

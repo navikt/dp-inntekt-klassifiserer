@@ -3,6 +3,7 @@ package no.nav.dagpenger.inntekt.klassifiserer
 import io.kotlintest.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import no.finn.unleash.FakeUnleash
 import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.events.inntekt.v1.Aktør
 import no.nav.dagpenger.events.inntekt.v1.AktørType
@@ -34,7 +35,10 @@ class OnPacketTest {
             sisteAvsluttendeKalenderMåned = YearMonth.of(2019, 5)
         )
 
-        val app = App(configuration = Configuration(), spesifisertInntektHttpClient = spesifisertInntektMock)
+        val app = App(
+            configuration = Configuration(),
+            spesifisertInntektHttpClient = spesifisertInntektMock,
+            unleash = FakeUnleash())
 
         val inputPacket = Packet()
         inputPacket.putValue("aktørId", "123")
@@ -54,7 +58,7 @@ class FilterPredicatesTest {
         val packet = Packet().apply {
             putValue("manueltGrunnlag", 1000)
         }
-        val app = App(configuration = Configuration(), spesifisertInntektHttpClient = mockk())
+        val app = App(configuration = Configuration(), spesifisertInntektHttpClient = mockk(), unleash = FakeUnleash())
         app.filterPredicates().all { it.test("", packet) } shouldBe false
     }
 
@@ -62,7 +66,7 @@ class FilterPredicatesTest {
     fun `Skal legge på inntekt der det er ikke er manuelt grunnlag`() {
         val packet = Packet()
         packet.putValue("vedtakId", 123)
-        val app = App(configuration = Configuration(), spesifisertInntektHttpClient = mockk())
+        val app = App(configuration = Configuration(), spesifisertInntektHttpClient = mockk(), unleash = FakeUnleash())
         app.filterPredicates().all { it.test("", packet) } shouldBe true
     }
 }

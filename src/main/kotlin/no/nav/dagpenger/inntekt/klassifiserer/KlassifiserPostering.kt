@@ -1,11 +1,13 @@
 package no.nav.dagpenger.inntekt.klassifiserer
 
+import no.finn.unleash.Unleash
 import no.nav.dagpenger.events.inntekt.v1.InntektKlasse
 import no.nav.dagpenger.events.inntekt.v1.Postering
 import no.nav.dagpenger.events.inntekt.v1.PosteringsType
 
-fun klassifiserPosteringer(posteringer: List<Postering>) =
-    posteringer.map { KlassifisertPostering(it, klassifiserPosteringsType(it.posteringsType)) }
+fun klassifiserPosteringer(posteringer: List<Postering>, unleash: Unleash): List<KlassifisertPostering> {
+    return posteringer.map { KlassifisertPostering(it, klassifiserPosteringsType(it.posteringsType)) }
+}
 
 fun klassifiserPosteringsType(posteringsType: PosteringsType): InntektKlasse {
     return when {
