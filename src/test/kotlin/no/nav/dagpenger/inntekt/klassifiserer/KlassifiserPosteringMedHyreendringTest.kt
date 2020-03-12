@@ -84,7 +84,8 @@ class KlassifiserPosteringMedHyreendringTest {
             PosteringsType.L_TREKK_I_LØNN_FOR_FERIE_H,
             PosteringsType.L_ANNET_IKKE_SKATTEPLIKTIG,
             PosteringsType.L_ANNET_UTLANDET,
-            PosteringsType.L_ANNET_KONKURS
+            PosteringsType.L_ANNET_KONKURS,
+            PosteringsType.L_HONORAR_AKKORD_PROSENT_PROVISJON_H
         )
 
         val spesifisertInntekt = createTestSpesifisertInntekt(arbeidsPosteringsTyper)
