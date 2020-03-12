@@ -21,7 +21,7 @@ private val localProperties = ConfigurationMap(
         "dp.inntekt.api.key" to "dp-datalaster-inntekt",
         "dp.inntekt.api.secret" to "secret",
         "dp.inntekt.api.url" to "http://localhost/",
-        "unleash.url" to "https://unleash.nais.preprod.local/api/",
+        "unleash.url" to "https://localhost",
         "behov.topic" to Topics.DAGPENGER_BEHOV_PACKET_EVENT.name
     )
 )
@@ -32,7 +32,7 @@ private val devProperties = ConfigurationMap(
         "application.httpPort" to "8080",
         "kafka.bootstrap.servers" to "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443",
         "dp.inntekt.api.url" to "http://dp-inntekt-api//",
-        "unleash.url" to "https://unleash.nais.adeo.no/api/",
+        "unleash.url" to "https://unleash.nais.preprod.local/api/",
         "behov.topic" to Topics.DAGPENGER_BEHOV_PACKET_EVENT.name
     )
 )
@@ -43,6 +43,7 @@ private val prodProperties = ConfigurationMap(
         "application.httpPort" to "8080",
         "dp.inntekt.api.url" to "http://dp-inntekt-api/",
         "kafka.bootstrap.servers" to "a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00149.adeo.no:8443",
+        "unleash.url" to "https://unleash.nais.adeo.no/api/",
         "behov.topic" to Topics.DAGPENGER_BEHOV_PACKET_EVENT.name
     )
 )
