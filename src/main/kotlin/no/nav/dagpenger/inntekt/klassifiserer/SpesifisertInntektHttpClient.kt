@@ -45,8 +45,9 @@ class SpesifisertInntektHttpClient(private val inntektApiUrl: String, private va
                     "Klarte ikke å hente inntekt"
                 )
             )
+
             throw InntektApiHttpClientException(
-                "Failed to fetch inntekt. Response message ${response.responseMessage}",
+                "Failed to fetch inntekt. Problem: ${problem.title}. Response code: ${response.statusCode}, message: ${response.responseMessage}",
                 problem
             )
         } else {
