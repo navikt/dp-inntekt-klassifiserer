@@ -2,7 +2,6 @@ package no.nav.dagpenger.inntekt.klassifiserer
 
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.fuel.moshi.moshiDeserializerOf
-import com.github.kittinunf.result.Result
 import no.nav.dagpenger.events.Problem
 import no.nav.dagpenger.events.inntekt.v1.SpesifisertInntekt
 import no.nav.dagpenger.events.moshiInstance
@@ -36,23 +35,26 @@ class SpesifisertInntektHttpClient(private val inntektApiUrl: String, private va
             responseObject(moshiDeserializerOf(spesifisertInntektJsonAdapter))
         }
 
-        return if (result is Result.Failure) {
-            val problem = runCatching {
-                problemAdapter.fromJson(response.body().asString("application/json"))!!
-            }.getOrDefault(
-                Problem(
-                    URI.create("urn:dp:error:inntektskomponenten"),
-                    "Klarte ikke å hente inntekt"
+        return result.fold(
+            {
+                spesifisertInntekt -> spesifisertInntekt
+            },
+            { error ->
+                val problem = runCatching {
+                    problemAdapter.fromJson(response.body().asString("application/json"))!!
+                }.getOrDefault(
+                    Problem(
+                        URI.create("urn:dp:error:inntektskomponenten"),
+                        "Klarte ikke å hente inntekt"
+                    )
                 )
-            )
 
-            throw InntektApiHttpClientException(
-                "Failed to fetch inntekt. Problem: ${problem.title}. Response code: ${response.statusCode}, message: ${response.responseMessage}",
-                problem
-            )
-        } else {
-            result.get()
-        }
+                throw InntektApiHttpClientException(
+                    "Failed to fetch inntekt. Problem: ${problem.title}. Response code: ${response.statusCode}, message: ${response.responseMessage}",
+                    problem,
+                    error.exception
+                )
+            })
     }
 }
 
@@ -64,4 +66,4 @@ private data class SpesifisertInntektRequest(
 
 private fun String.toBearerToken() = "Bearer $this"
 
-class InntektApiHttpClientException(override val message: String, val problem: Problem) : RuntimeException(message)
+class InntektApiHttpClientException(override val message: String, val problem: Problem, override val cause: Throwable) : RuntimeException(message, cause)
