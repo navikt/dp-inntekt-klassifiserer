@@ -153,3 +153,5 @@ private fun isTiltakslønn(posteringsType: PosteringsType): Boolean {
     )
     return tiltakslønnPosteringsTyper.contains(posteringsType)
 }
+
+class KlassifiseringsException(message: String) : RuntimeException(message)

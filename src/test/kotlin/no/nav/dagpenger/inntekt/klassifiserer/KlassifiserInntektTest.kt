@@ -79,13 +79,12 @@ class klassifiserOgMapInntektTest {
 
         val inntektsKlasser = firstMonth.klassifiserteInntekter.map { it.inntektKlasse }.toSet()
 
-        firstMonth.klassifiserteInntekter.size shouldBe 4
-        inntektsKlasser.size shouldBe 4
+        firstMonth.klassifiserteInntekter.size shouldBe 3
+        inntektsKlasser.size shouldBe 3
         inntektsKlasser shouldBe setOf(
             InntektKlasse.ARBEIDSINNTEKT,
             InntektKlasse.DAGPENGER,
-            InntektKlasse.SYKEPENGER,
-            InntektKlasse.SYKEPENGER_FANGST_FISKE
+            InntektKlasse.SYKEPENGER
         )
     }
 

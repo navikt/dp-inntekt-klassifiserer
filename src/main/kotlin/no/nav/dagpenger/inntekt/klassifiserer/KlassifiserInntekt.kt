@@ -10,10 +10,7 @@ import java.math.BigDecimal
 import java.time.YearMonth
 
 fun klassifiserOgMapInntekt(spesifisertInntekt: SpesifisertInntekt, unleash: Unleash): Inntekt {
-    val klassifisertePosteringer =
-        if (unleash.isEnabled("dp.hyreendring", false))
-            klassifiserPosteringerMedHyreendring(spesifisertInntekt.posteringer)
-        else klassifiserPosteringer(spesifisertInntekt.posteringer)
+    val klassifisertePosteringer = klassifiserPosteringerMedHyreendring(spesifisertInntekt.posteringer)
 
     val avvikMåneder = spesifisertInntekt.avvik.groupBy { it.avvikPeriode }
 
