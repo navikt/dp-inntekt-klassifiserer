@@ -9,3 +9,6 @@ spec:
         mountPath: "/secrets/serviceuser/srvdp-inntekt-klas"
       - kvPath: "kv/prod/fss/dp-inntekt-klassifiserer/default"
         mountPath: "/var/run/secrets/nais.io/vault/"
+  replicas:
+    min: 4
+    max: 6
