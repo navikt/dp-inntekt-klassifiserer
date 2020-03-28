@@ -7,6 +7,7 @@ import no.nav.dagpenger.ktor.auth.ApiKeyVerifier
 import no.nav.dagpenger.streams.KafkaCredential
 import no.nav.dagpenger.streams.River
 import no.nav.dagpenger.streams.streamConfig
+import org.apache.kafka.streams.StreamsConfig
 import org.apache.kafka.streams.kstream.Predicate
 import java.util.Properties
 
@@ -34,7 +35,10 @@ class App(
             SERVICE_APP_ID,
             configuration.kafka.bootstrapServer,
             KafkaCredential(configuration.kafka.username, configuration.kafka.password)
-        )
+        ).apply {
+            this[StreamsConfig.DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG] =
+                configuration.kafka.deserializationExceptionHandler
+        }
     }
 
     override fun filterPredicates(): List<Predicate<String, Packet>> {
