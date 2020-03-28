@@ -10,8 +10,6 @@ import com.natpryce.konfig.stringType
 import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.streams.Topic
 import no.nav.dagpenger.streams.Topics
-import org.apache.kafka.streams.errors.LogAndContinueExceptionHandler
-import org.apache.kafka.streams.errors.LogAndFailExceptionHandler
 
 private val localProperties = ConfigurationMap(
     mapOf(
@@ -24,7 +22,6 @@ private val localProperties = ConfigurationMap(
         "dp.inntekt.api.secret" to "secret",
         "dp.inntekt.api.url" to "http://localhost/",
         "unleash.url" to "https://localhost",
-        "kafka.deserialization.exception.handler" to LogAndFailExceptionHandler::class.java.name,
         "behov.topic" to Topics.DAGPENGER_BEHOV_PACKET_EVENT.name
     )
 )
@@ -36,7 +33,6 @@ private val devProperties = ConfigurationMap(
         "kafka.bootstrap.servers" to "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443",
         "dp.inntekt.api.url" to "http://dp-inntekt-api//",
         "unleash.url" to "https://unleash.nais.preprod.local/api/",
-        "kafka.deserialization.exception.handler" to LogAndContinueExceptionHandler::class.java.name,
         "behov.topic" to Topics.DAGPENGER_BEHOV_PACKET_EVENT.name
     )
 )
@@ -48,7 +44,6 @@ private val prodProperties = ConfigurationMap(
         "dp.inntekt.api.url" to "http://dp-inntekt-api/",
         "kafka.bootstrap.servers" to "a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00149.adeo.no:8443",
         "unleash.url" to "https://unleash.nais.adeo.no/api/",
-        "kafka.deserialization.exception.handler" to LogAndFailExceptionHandler::class.java.name,
         "behov.topic" to Topics.DAGPENGER_BEHOV_PACKET_EVENT.name
     )
 )
@@ -60,7 +55,6 @@ data class Configuration(
 
 data class Kafka(
     val bootstrapServer: String = config()[Key("kafka.bootstrap.servers", stringType)],
-    val deserializationExceptionHandler: String = config()[Key("kafka.deserialization.exception.handler", stringType)],
     val username: String = config()[Key("srvdp.inntekt.klassifiserer.username", stringType)],
     val password: String = config()[Key("srvdp.inntekt.klassifiserer.password", stringType)],
     val behovTopic: Topic<String, Packet> = Topics.DAGPENGER_BEHOV_PACKET_EVENT.copy(
