@@ -1,5 +1,6 @@
 package no.nav.dagpenger.inntekt.klassifiserer
 
+import io.kotlintest.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import no.finn.unleash.FakeUnleash
@@ -110,6 +111,55 @@ class InntektKlassifisererTopologyTest {
 
             Assertions.assertTrue { processedOutput != null }
             Assertions.assertTrue(processedOutput.value().hasField("inntektV1"))
+        }
+    }
+
+    @Test
+    fun `Skal ikke behandle pakker over 30 sekunder`() {
+        val packetWithSpesifisertInntektJson = """
+            {
+                "system_started": "2020-03-28T12:35:53.082955",
+                "aktørId": "12345",
+                "vedtakId": 123,
+                "beregningsDato": 2019-01-25
+           }
+        """.trimIndent()
+
+        val spesifisertInntektMock: SpesifisertInntektHttpClient = mockk()
+        every {
+            spesifisertInntektMock.getSpesifisertInntekt(
+                "12345",
+                123,
+                LocalDate.of(2019, 1, 25)
+            )
+        } returns SpesifisertInntekt(
+            inntektId = InntektId("01DJ7VC8PHZ4D308MWX8TVDTDN"),
+            avvik = emptyList(),
+            posteringer = emptyList(),
+            ident = Aktør(AktørType.AKTOER_ID, "123"),
+            manueltRedigert = false,
+            timestamp = LocalDateTime.of(2019, 4, 13, 1, 1),
+            sisteAvsluttendeKalenderMåned = YearMonth.of(2019, 5)
+        )
+
+        val app = App(
+            configuration = Configuration(),
+            spesifisertInntektHttpClient = spesifisertInntektMock,
+            unleash = FakeUnleash()
+        )
+        TopologyTestDriver(app.buildTopology(), config).use { topologyTestDriver ->
+
+            val inputWithSpesfisertInntekt = factory.create(Packet(packetWithSpesifisertInntektJson))
+            topologyTestDriver.pipeInput(inputWithSpesfisertInntekt)
+
+            val processedOutput = topologyTestDriver.readOutput(
+                Topics.DAGPENGER_BEHOV_PACKET_EVENT.name,
+                Topics.DAGPENGER_BEHOV_PACKET_EVENT.keySerde.deserializer(),
+                Topics.DAGPENGER_BEHOV_PACKET_EVENT.valueSerde.deserializer()
+            )
+
+            Assertions.assertTrue { processedOutput != null }
+            processedOutput.value().hasProblem() shouldBe true
         }
     }
 }

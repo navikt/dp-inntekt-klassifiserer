@@ -8,6 +8,8 @@ import no.nav.dagpenger.streams.KafkaCredential
 import no.nav.dagpenger.streams.River
 import no.nav.dagpenger.streams.streamConfig
 import org.apache.kafka.streams.kstream.Predicate
+import java.lang.RuntimeException
+import java.time.LocalDateTime
 import java.util.Properties
 
 private val LOGGER = KotlinLogging.logger {}
@@ -45,17 +47,25 @@ class App(
     }
 
     override fun onPacket(packet: Packet): Packet {
+        val started: LocalDateTime? =
+            packet.getNullableStringValue("system_started")
+                ?.let { runCatching { LocalDateTime.parse(it) }.getOrNull() }
 
-        val aktørId = packet.getStringValue(AKTØRID)
-        val vedtakId = packet.getIntValue(VEDTAKID)
-        val beregningsDato = packet.getLocalDate(BEREGNINGSDATO)
-        val spesifisertInntekt = spesifisertInntektHttpClient.getSpesifisertInntekt(aktørId, vedtakId, beregningsDato)
+        if (started?.isBefore(LocalDateTime.now().minusSeconds(30)) == true) {
+            throw RuntimeException("Denne pakka er for gammal!")
+        } else {
 
-        val klassifisertInntekt = klassifiserOgMapInntekt(spesifisertInntekt, unleash)
+            val aktørId = packet.getStringValue(AKTØRID)
+            val vedtakId = packet.getIntValue(VEDTAKID)
+            val beregningsDato = packet.getLocalDate(BEREGNINGSDATO)
+            val spesifisertInntekt = spesifisertInntektHttpClient.getSpesifisertInntekt(aktørId, vedtakId, beregningsDato)
 
-        packet.putValue(INNTEKT, klassifisertInntekt)
+            val klassifisertInntekt = klassifiserOgMapInntekt(spesifisertInntekt, unleash)
 
-        return packet
+            packet.putValue(INNTEKT, klassifisertInntekt)
+
+            return packet
+        }
     }
 }
 
