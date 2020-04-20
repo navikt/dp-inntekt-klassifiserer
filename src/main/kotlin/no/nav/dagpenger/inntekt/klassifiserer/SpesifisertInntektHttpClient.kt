@@ -2,11 +2,11 @@ package no.nav.dagpenger.inntekt.klassifiserer
 
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.fuel.moshi.moshiDeserializerOf
+import java.net.URI
+import java.time.LocalDate
 import no.nav.dagpenger.events.Problem
 import no.nav.dagpenger.events.inntekt.v1.SpesifisertInntekt
 import no.nav.dagpenger.events.moshiInstance
-import java.net.URI
-import java.time.LocalDate
 
 class SpesifisertInntektHttpClient(private val inntektApiUrl: String, private val apiKey: String) {
 

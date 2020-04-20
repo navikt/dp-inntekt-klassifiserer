@@ -64,7 +64,7 @@ dependencies {
     testImplementation(Junit5.api)
     testRuntimeOnly(Junit5.engine)
     testRuntimeOnly(Junit5.vintageEngine)
-    testImplementation(Junit5.kotlinRunner)
+    testImplementation(KoTest.runner)
     testImplementation(TestContainers.postgresql)
     testImplementation(Mockk.mockk)
     testImplementation(Kafka.streamTestUtils)

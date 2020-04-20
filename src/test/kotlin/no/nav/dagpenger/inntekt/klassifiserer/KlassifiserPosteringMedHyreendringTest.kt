@@ -1,10 +1,10 @@
 package no.nav.dagpenger.inntekt.klassifiserer
 
+import kotlin.test.assertEquals
 import no.finn.unleash.FakeUnleash
 import no.nav.dagpenger.events.inntekt.v1.InntektKlasse
 import no.nav.dagpenger.events.inntekt.v1.PosteringsType
 import org.junit.jupiter.api.Test
-import kotlin.test.assertEquals
 
 class KlassifiserPosteringMedHyreendringTest {
 

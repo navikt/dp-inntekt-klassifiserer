@@ -1,8 +1,11 @@
 package no.nav.dagpenger.inntekt.klassifiserer
 
-import io.kotlintest.shouldBe
+import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.YearMonth
 import no.finn.unleash.FakeUnleash
 import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.events.inntekt.v1.Aktør
@@ -10,9 +13,6 @@ import no.nav.dagpenger.events.inntekt.v1.AktørType
 import no.nav.dagpenger.events.inntekt.v1.InntektId
 import no.nav.dagpenger.events.inntekt.v1.SpesifisertInntekt
 import org.junit.jupiter.api.Test
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.YearMonth
 
 class OnPacketTest {
 

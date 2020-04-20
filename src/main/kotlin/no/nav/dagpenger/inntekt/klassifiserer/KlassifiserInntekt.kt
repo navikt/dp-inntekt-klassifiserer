@@ -1,13 +1,13 @@
 package no.nav.dagpenger.inntekt.klassifiserer
 
+import java.math.BigDecimal
+import java.time.YearMonth
 import no.finn.unleash.Unleash
 import no.nav.dagpenger.events.inntekt.v1.Avvik
 import no.nav.dagpenger.events.inntekt.v1.Inntekt
 import no.nav.dagpenger.events.inntekt.v1.KlassifisertInntekt
 import no.nav.dagpenger.events.inntekt.v1.KlassifisertInntektMåned
 import no.nav.dagpenger.events.inntekt.v1.SpesifisertInntekt
-import java.math.BigDecimal
-import java.time.YearMonth
 
 fun klassifiserOgMapInntekt(spesifisertInntekt: SpesifisertInntekt, unleash: Unleash): Inntekt {
     val klassifisertePosteringer = klassifiserPosteringerMedHyreendring(spesifisertInntekt.posteringer)

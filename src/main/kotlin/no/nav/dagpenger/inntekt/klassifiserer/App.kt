@@ -1,5 +1,8 @@
 package no.nav.dagpenger.inntekt.klassifiserer
 
+import java.lang.RuntimeException
+import java.time.LocalDateTime
+import java.util.Properties
 import mu.KotlinLogging
 import no.finn.unleash.Unleash
 import no.nav.dagpenger.events.Packet
@@ -8,9 +11,6 @@ import no.nav.dagpenger.streams.KafkaCredential
 import no.nav.dagpenger.streams.River
 import no.nav.dagpenger.streams.streamConfig
 import org.apache.kafka.streams.kstream.Predicate
-import java.lang.RuntimeException
-import java.time.LocalDateTime
-import java.util.Properties
 
 private val LOGGER = KotlinLogging.logger {}
 

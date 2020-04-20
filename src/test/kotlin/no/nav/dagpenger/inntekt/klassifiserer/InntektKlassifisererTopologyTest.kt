@@ -1,8 +1,12 @@
 package no.nav.dagpenger.inntekt.klassifiserer
 
-import io.kotlintest.shouldBe
+import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.YearMonth
+import java.util.Properties
 import no.finn.unleash.FakeUnleash
 import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.events.inntekt.v1.Aktør
@@ -16,10 +20,6 @@ import org.apache.kafka.streams.test.ConsumerRecordFactory
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.YearMonth
-import java.util.Properties
 
 class InntektKlassifisererTopologyTest {
 
