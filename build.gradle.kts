@@ -27,6 +27,9 @@ dependencies {
     implementation(Dagpenger.Events)
     implementation(Dagpenger.Biblioteker.ktorUtils)
 
+    // rapid and rivers
+    implementation("com.github.navikt:rapids-and-rivers:1.35001d7")
+
     // json
     implementation(Moshi.moshiAdapters)
 
@@ -63,8 +66,8 @@ dependencies {
     testImplementation(Ktor.ktorTest)
     testImplementation(Junit5.api)
     testRuntimeOnly(Junit5.engine)
-    testRuntimeOnly(Junit5.vintageEngine)
     testImplementation(KoTest.runner)
+    testImplementation(KoTest.assertions)
     testImplementation(TestContainers.postgresql)
     testImplementation(Mockk.mockk)
     testImplementation(Kafka.streamTestUtils)

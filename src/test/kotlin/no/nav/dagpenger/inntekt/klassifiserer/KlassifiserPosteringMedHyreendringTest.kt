@@ -1,19 +1,14 @@
 package no.nav.dagpenger.inntekt.klassifiserer
 
 import kotlin.test.assertEquals
-import no.finn.unleash.FakeUnleash
 import no.nav.dagpenger.events.inntekt.v1.InntektKlasse
 import no.nav.dagpenger.events.inntekt.v1.PosteringsType
 import org.junit.jupiter.api.Test
 
 class KlassifiserPosteringMedHyreendringTest {
 
-    private val unleash = FakeUnleash()
-
     @Test
     fun `Klassifiser arbeidsinntekt - enabled hyreendring`() {
-
-        unleash.enable("dp.hyreendring")
 
         val arbeidsPosteringsTyper = listOf(
             PosteringsType.L_SKATTEPLIKTIG_PERSONALRABATT,
@@ -90,7 +85,7 @@ class KlassifiserPosteringMedHyreendringTest {
 
         val spesifisertInntekt = createTestSpesifisertInntekt(arbeidsPosteringsTyper)
 
-        val klassifisertInntekt = klassifiserOgMapInntekt(spesifisertInntekt, unleash)
+        val klassifisertInntekt = klassifiserOgMapInntekt(spesifisertInntekt)
 
         val klasseCount = klassifisertInntekt.inntektsListe
             .flatMap { it.klassifiserteInntekter }
@@ -104,8 +99,6 @@ class KlassifiserPosteringMedHyreendringTest {
     @Test
     fun `Klassifiser dagpenger - enabled hyreendring`() {
 
-        unleash.enable("dp.hyreendring")
-
         val dagpengerPosteringer = listOf(
             PosteringsType.Y_DAGPENGER_VED_ARBEIDSLØSHET,
             PosteringsType.Y_DAGPENGER_TIL_FISKER_SOM_BARE_HAR_HYRE
@@ -113,7 +106,7 @@ class KlassifiserPosteringMedHyreendringTest {
 
         val spesifisertInntekt = createTestSpesifisertInntekt(dagpengerPosteringer)
 
-        val klassifisertInntekt = klassifiserOgMapInntekt(spesifisertInntekt, unleash)
+        val klassifisertInntekt = klassifiserOgMapInntekt(spesifisertInntekt)
 
         val klasseCount = klassifisertInntekt.inntektsListe
             .flatMap { it.klassifiserteInntekter }
@@ -127,8 +120,6 @@ class KlassifiserPosteringMedHyreendringTest {
     @Test
     fun `Klassifiser sykepenger - enabled hyreendring`() {
 
-        unleash.enable("dp.hyreendring")
-
         val sykepengerPosteringer = listOf(
             PosteringsType.Y_SYKEPENGER,
             PosteringsType.Y_SYKEPENGER_TIL_FISKER_SOM_BARE_HAR_HYRE
@@ -136,7 +127,7 @@ class KlassifiserPosteringMedHyreendringTest {
 
         val spesifisertInntekt = createTestSpesifisertInntekt(sykepengerPosteringer)
 
-        val klassifisertInntekt = klassifiserOgMapInntekt(spesifisertInntekt, unleash)
+        val klassifisertInntekt = klassifiserOgMapInntekt(spesifisertInntekt)
 
         val klasseCount = klassifisertInntekt.inntektsListe
             .flatMap { it.klassifiserteInntekter }
@@ -150,8 +141,6 @@ class KlassifiserPosteringMedHyreendringTest {
     @Test
     fun `Klassifiser fangst og fiske - enabled hyreendring`() {
 
-        unleash.enable("dp.hyreendring")
-
         val fangstFiskePosteringer = listOf(
 
             PosteringsType.N_LOTT_KUN_TRYGDEAVGIFT,
@@ -160,7 +149,7 @@ class KlassifiserPosteringMedHyreendringTest {
 
         val spesifisertInntekt = createTestSpesifisertInntekt(fangstFiskePosteringer)
 
-        val klassifisertInntekt = klassifiserOgMapInntekt(spesifisertInntekt, unleash)
+        val klassifisertInntekt = klassifiserOgMapInntekt(spesifisertInntekt)
 
         val klasseCount = klassifisertInntekt.inntektsListe
             .flatMap { it.klassifiserteInntekter }
@@ -174,15 +163,13 @@ class KlassifiserPosteringMedHyreendringTest {
     @Test
     fun `Klassifiser dagpenger for fangst og fiske - enabled hyreendring`() {
 
-        unleash.enable("dp.hyreendring")
-
         val dagpengerFangstFiskePosteringer = listOf(
             PosteringsType.N_DAGPENGER_TIL_FISKER
         )
 
         val spesifisertInntekt = createTestSpesifisertInntekt(dagpengerFangstFiskePosteringer)
 
-        val klassifisertInntekt = klassifiserOgMapInntekt(spesifisertInntekt, unleash)
+        val klassifisertInntekt = klassifiserOgMapInntekt(spesifisertInntekt)
 
         val klasseCount = klassifisertInntekt.inntektsListe
             .flatMap { it.klassifiserteInntekter }
@@ -200,15 +187,13 @@ class KlassifiserPosteringMedHyreendringTest {
     @Test
     fun `Klassifiser sykepenger for fangst og fiske - enabled hyreendring`() {
 
-        unleash.enable("dp.hyreendring")
-
         val sykepengerFangstFiskePosteringer = listOf(
             PosteringsType.N_SYKEPENGER_TIL_FISKER
         )
 
         val spesifisertInntekt = createTestSpesifisertInntekt(sykepengerFangstFiskePosteringer)
 
-        val klassifisertInntekt = klassifiserOgMapInntekt(spesifisertInntekt, unleash)
+        val klassifisertInntekt = klassifiserOgMapInntekt(spesifisertInntekt)
 
         val klasseCount = klassifisertInntekt.inntektsListe
             .flatMap { it.klassifiserteInntekter }
@@ -225,8 +210,6 @@ class KlassifiserPosteringMedHyreendringTest {
 
     @Test
     fun `Klassifiser tiltakslønn - enabled hyreendring`() {
-
-        unleash.enable("dp.hyreendring")
 
         val tiltakslønnPosteringer = listOf(
             PosteringsType.L_ANNET_T,
@@ -245,7 +228,7 @@ class KlassifiserPosteringMedHyreendringTest {
 
         val spesifisertInntekt = createTestSpesifisertInntekt(tiltakslønnPosteringer)
 
-        val klassifisertInntekt = klassifiserOgMapInntekt(spesifisertInntekt, unleash)
+        val klassifisertInntekt = klassifiserOgMapInntekt(spesifisertInntekt)
 
         val klasseCount = klassifisertInntekt.inntektsListe
             .flatMap { it.klassifiserteInntekter }
