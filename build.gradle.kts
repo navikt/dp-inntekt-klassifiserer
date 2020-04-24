@@ -28,7 +28,7 @@ dependencies {
     implementation(Dagpenger.Biblioteker.ktorUtils)
 
     // rapid and rivers
-    implementation("com.github.navikt:rapids-and-rivers:1.35001d7")
+    implementation(RapidAndRivers)
 
     // json
     implementation(Moshi.moshiAdapters)
