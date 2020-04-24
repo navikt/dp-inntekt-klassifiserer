@@ -16,7 +16,7 @@ repositories {
 
 application {
     applicationName = "dp-inntekt-klassifiserer"
-    mainClassName = "no.nav.dagpenger.inntekt.klassifiserer.AppKt"
+    mainClassName = "no.nav.dagpenger.inntekt.klassifiserer.ApplicationKt"
 }
 
 dependencies {
