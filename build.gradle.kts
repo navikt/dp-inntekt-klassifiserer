@@ -61,6 +61,9 @@ dependencies {
     // unleash
     implementation("no.finn.unleash:unleash-client-java:3.2.9")
 
+    // logback (brought in by rapid-rivers)
+    implementation("ch.qos.logback:logback-classic:1.2.3")
+
     // testing
     testImplementation(kotlin("test"))
     testImplementation(Ktor.ktorTest)
