@@ -1,15 +1,23 @@
 package no.nav.dagpenger.inntekt.klassifiserer
 
 import java.math.BigDecimal
+import java.time.LocalDate
 import java.time.YearMonth
-import no.finn.unleash.Unleash
 import no.nav.dagpenger.events.inntekt.v1.Avvik
 import no.nav.dagpenger.events.inntekt.v1.Inntekt
 import no.nav.dagpenger.events.inntekt.v1.KlassifisertInntekt
 import no.nav.dagpenger.events.inntekt.v1.KlassifisertInntektMåned
 import no.nav.dagpenger.events.inntekt.v1.SpesifisertInntekt
 
-fun klassifiserOgMapInntekt(spesifisertInntekt: SpesifisertInntekt, unleash: Unleash): Inntekt {
+class InntektKlassifiserer(private val inntektHttpClient: SpesifisertInntektHttpClient) {
+    fun getInntekt(
+        aktørId: String,
+        vedtakId: Int,
+        beregningsDato: LocalDate
+    ): Inntekt = klassifiserOgMapInntekt(inntektHttpClient.getSpesifisertInntekt(aktørId = aktørId, vedtakId = vedtakId, beregningsDato = beregningsDato))
+}
+
+internal fun klassifiserOgMapInntekt(spesifisertInntekt: SpesifisertInntekt): Inntekt {
     val klassifisertePosteringer = klassifiserPosteringerMedHyreendring(spesifisertInntekt.posteringer)
 
     val avvikMåneder = spesifisertInntekt.avvik.groupBy { it.avvikPeriode }

@@ -16,7 +16,7 @@ repositories {
 
 application {
     applicationName = "dp-inntekt-klassifiserer"
-    mainClassName = "no.nav.dagpenger.inntekt.klassifiserer.AppKt"
+    mainClassName = "no.nav.dagpenger.inntekt.klassifiserer.ApplicationKt"
 }
 
 dependencies {
@@ -26,6 +26,9 @@ dependencies {
     implementation(Dagpenger.Streams)
     implementation(Dagpenger.Events)
     implementation(Dagpenger.Biblioteker.ktorUtils)
+
+    // rapid and rivers
+    implementation("com.github.navikt:rapids-and-rivers:1.47c31b4")
 
     // json
     implementation(Moshi.moshiAdapters)
@@ -45,10 +48,8 @@ dependencies {
 
     // Logging
     implementation(Kotlin.Logging.kotlinLogging)
-    implementation(Log4j2.api)
-    implementation(Log4j2.core)
-    implementation(Log4j2.slf4j)
-    implementation(Log4j2.Logstash.logstashLayout)
+    // logback (brought in by rapid-rivers)
+    implementation("ch.qos.logback:logback-classic:1.2.3")
 
     // prometheus
     implementation(Prometheus.common)
@@ -63,28 +64,25 @@ dependencies {
     testImplementation(Ktor.ktorTest)
     testImplementation(Junit5.api)
     testRuntimeOnly(Junit5.engine)
-    testRuntimeOnly(Junit5.vintageEngine)
     testImplementation(KoTest.runner)
+    testImplementation(KoTest.assertions)
     testImplementation(TestContainers.postgresql)
     testImplementation(Mockk.mockk)
     testImplementation(Kafka.streamTestUtils)
     testImplementation(Wiremock.standalone)
 }
 
-configurations {
-    "implementation" {
-        exclude(group = "org.slf4j", module = "slf4j-log4j12")
-        exclude(group = "ch.qos.logback", module = "logback-classic")
-    }
-    "testImplementation" {
-        exclude(group = "org.slf4j", module = "slf4j-log4j12")
-        exclude(group = "ch.qos.logback", module = "logback-classic")
-    }
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+tasks.withType<KotlinCompile> {
+    kotlinOptions.jvmTarget = "1.8"
+}
+
+tasks.named<KotlinCompile>("compileTestKotlin") {
+    kotlinOptions.jvmTarget = "1.8"
 }
 
 tasks.withType<Test> {

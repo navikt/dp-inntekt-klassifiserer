@@ -11,18 +11,24 @@ import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.streams.Topic
 import no.nav.dagpenger.streams.Topics
 
+private const val TOPIC = "privat-dagpenger-behov-v2"
+
 private val localProperties = ConfigurationMap(
     mapOf(
         "application.profile" to "LOCAL",
         "application.httpPort" to "8080",
-        "kafka.bootstrap.servers" to "localhost:9092",
-        "srvdp.inntekt.klassifiserer.username" to "srvdp-inntekt-kl",
-        "srvdp.inntekt.klassifiserer.password" to "srvdp-passord",
+        "behov.topic" to Topics.DAGPENGER_BEHOV_PACKET_EVENT.name,
         "dp.inntekt.api.key" to "dp-datalaster-inntekt",
         "dp.inntekt.api.secret" to "secret",
         "dp.inntekt.api.url" to "http://localhost/",
-        "unleash.url" to "https://localhost",
-        "behov.topic" to Topics.DAGPENGER_BEHOV_PACKET_EVENT.name
+        "kafka.bootstrap.servers" to "localhost:9092",
+        "kafka.topic" to TOPIC,
+        "kafka.reset.policy" to "earliest",
+        "nav.truststore.path" to "",
+        "nav.truststore.password" to "changeme",
+        "srvdp.inntekt.klassifiserer.username" to "srvdp-inntekt-kl",
+        "srvdp.inntekt.klassifiserer.password" to "srvdp-passord",
+        "unleash.url" to "https://localhost"
     )
 )
 
@@ -30,10 +36,13 @@ private val devProperties = ConfigurationMap(
     mapOf(
         "application.profile" to "DEV",
         "application.httpPort" to "8080",
-        "kafka.bootstrap.servers" to "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443",
+        "behov.topic" to Topics.DAGPENGER_BEHOV_PACKET_EVENT.name,
         "dp.inntekt.api.url" to "http://dp-inntekt-api//",
-        "unleash.url" to "https://unleash.nais.preprod.local/api/",
-        "behov.topic" to Topics.DAGPENGER_BEHOV_PACKET_EVENT.name
+        "kafka.bootstrap.servers" to "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443",
+        "kafka.topic" to TOPIC,
+        "kafka.reset.policy" to "earliest",
+        "unleash.url" to "https://unleash.nais.preprod.local/api/"
+
     )
 )
 
@@ -41,16 +50,27 @@ private val prodProperties = ConfigurationMap(
     mapOf(
         "application.profile" to "PROD",
         "application.httpPort" to "8080",
+        "behov.topic" to Topics.DAGPENGER_BEHOV_PACKET_EVENT.name,
         "dp.inntekt.api.url" to "http://dp-inntekt-api/",
         "kafka.bootstrap.servers" to "a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00149.adeo.no:8443",
-        "unleash.url" to "https://unleash.nais.adeo.no/api/",
-        "behov.topic" to Topics.DAGPENGER_BEHOV_PACKET_EVENT.name
+        "kafka.topic" to TOPIC,
+        "kafka.reset.policy" to "earliest",
+        "unleash.url" to "https://unleash.nais.adeo.no/api/"
     )
 )
 
 data class Configuration(
-    val application: Application = Application(),
-    val kafka: Kafka = Kafka()
+    val applicationConfig: ApplicationConfig = ApplicationConfig(),
+    val kafka: Kafka = Kafka(),
+    val rapidApplication: Map<String, String> = mapOf(
+        "KAFKA_BOOTSTRAP_SERVERS" to config()[Key("kafka.bootstrap.servers", stringType)],
+        "KAFKA_CONSUMER_GROUP_ID" to "dp-inntekt-klassifiserer-rapid",
+        "KAFKA_RAPID_TOPIC" to config()[Key("kafka.topic", stringType)],
+        "KAFKA_RESET_POLICY" to config()[Key("kafka.reset.policy", stringType)],
+        "NAV_TRUSTSTORE_PATH" to config()[Key("nav.truststore.path", stringType)],
+        "NAV_TRUSTSTORE_PASSWORD" to config()[Key("nav.truststore.password", stringType)],
+        "HTTP_PORT" to "8088" // @todo - to avoid port clash with dagpenger River
+    )
 )
 
 data class Kafka(
@@ -62,7 +82,7 @@ data class Kafka(
     )
 )
 
-data class Application(
+data class ApplicationConfig(
     val id: String = config().getOrElse(Key("application.id", stringType), "dp-inntekt-klassifiserer"),
     val httpPort: Int = config()[Key("application.httpPort", intType)],
     val profile: Profile = config()[Key("application.profile", stringType)].let { Profile.valueOf(it) },

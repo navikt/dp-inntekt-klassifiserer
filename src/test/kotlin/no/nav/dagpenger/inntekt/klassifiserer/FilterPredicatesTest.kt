@@ -3,42 +3,52 @@ package no.nav.dagpenger.inntekt.klassifiserer
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import java.math.BigDecimal
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.YearMonth
-import no.finn.unleash.FakeUnleash
 import no.nav.dagpenger.events.Packet
-import no.nav.dagpenger.events.inntekt.v1.Aktør
-import no.nav.dagpenger.events.inntekt.v1.AktørType
-import no.nav.dagpenger.events.inntekt.v1.InntektId
-import no.nav.dagpenger.events.inntekt.v1.SpesifisertInntekt
+import no.nav.dagpenger.events.inntekt.v1.Inntekt
+import no.nav.dagpenger.events.inntekt.v1.InntektKlasse
+import no.nav.dagpenger.events.inntekt.v1.KlassifisertInntekt
+import no.nav.dagpenger.events.inntekt.v1.KlassifisertInntektMåned
 import org.junit.jupiter.api.Test
 
 class OnPacketTest {
 
+    companion object {
+        private val inntekt = Inntekt(
+            inntektsId = "inntektsid",
+            manueltRedigert = false,
+            inntektsListe = listOf(
+                KlassifisertInntektMåned(
+                    årMåned = YearMonth.now(),
+                    klassifiserteInntekter = listOf(
+                        KlassifisertInntekt(
+                            beløp = BigDecimal("1000.12"),
+                            inntektKlasse = InntektKlasse.ARBEIDSINNTEKT
+                        )
+                    ),
+                    harAvvik = false
+                )
+            ),
+            sisteAvsluttendeKalenderMåned = YearMonth.now())
+    }
     @Test
     fun `Add klassifisert inntekt to behov`() {
-        val spesifisertInntektMock: SpesifisertInntektHttpClient = mockk()
+        val inntektKlassifiserer: InntektKlassifiserer = mockk()
         every {
-            spesifisertInntektMock.getSpesifisertInntekt(
+            inntektKlassifiserer.getInntekt(
                 "123",
                 12345,
                 LocalDate.of(2020, 1, 1)
             )
-        } returns SpesifisertInntekt(
-            inntektId = InntektId("01DJ7VC8PHZ4D308MWX8TVDTDN"),
-            avvik = emptyList(),
-            posteringer = emptyList(),
-            ident = Aktør(AktørType.AKTOER_ID, "123"),
-            manueltRedigert = false,
-            timestamp = LocalDateTime.of(2019, 4, 13, 1, 1),
-            sisteAvsluttendeKalenderMåned = YearMonth.of(2019, 5)
-        )
+        } returns inntekt
 
-        val app = App(
+        val app = Application(
             configuration = Configuration(),
-            spesifisertInntektHttpClient = spesifisertInntektMock,
-            unleash = FakeUnleash())
+            inntektKlassifiserer = inntektKlassifiserer,
+            healthCheck = mockk(relaxed = true)
+        )
 
         val inputPacket = Packet()
         inputPacket.putValue("aktørId", "123")
@@ -58,7 +68,7 @@ class FilterPredicatesTest {
         val packet = Packet().apply {
             putValue("manueltGrunnlag", 1000)
         }
-        val app = App(configuration = Configuration(), spesifisertInntektHttpClient = mockk(), unleash = FakeUnleash())
+        val app = Application(configuration = Configuration(), inntektKlassifiserer = mockk(), healthCheck = mockk(relaxed = true))
         app.filterPredicates().all { it.test("", packet) } shouldBe false
     }
 
@@ -66,7 +76,7 @@ class FilterPredicatesTest {
     fun `Skal legge på inntekt der det er ikke er manuelt grunnlag`() {
         val packet = Packet()
         packet.putValue("vedtakId", 123)
-        val app = App(configuration = Configuration(), spesifisertInntektHttpClient = mockk(), unleash = FakeUnleash())
+        val app = Application(configuration = Configuration(), inntektKlassifiserer = mockk(), healthCheck = mockk(relaxed = true))
         app.filterPredicates().all { it.test("", packet) } shouldBe true
     }
 }

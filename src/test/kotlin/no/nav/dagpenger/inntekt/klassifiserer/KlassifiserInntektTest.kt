@@ -7,7 +7,6 @@ import java.time.YearMonth
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
-import no.finn.unleash.FakeUnleash
 import no.nav.dagpenger.events.inntekt.v1.Aktør
 import no.nav.dagpenger.events.inntekt.v1.AktørType
 import no.nav.dagpenger.events.inntekt.v1.Avvik
@@ -32,7 +31,7 @@ class klassifiserOgMapInntektTest {
             sisteAvsluttendeKalenderMåned = YearMonth.of(2019, 4)
         )
 
-        val klassifisertInntekt = klassifiserOgMapInntekt(spesifisertInntekt, FakeUnleash())
+        val klassifisertInntekt = klassifiserOgMapInntekt(spesifisertInntekt)
 
         assertEquals(spesifisertInntekt.inntektId.id, klassifisertInntekt.inntektsId)
         assertEquals(spesifisertInntekt.manueltRedigert, klassifisertInntekt.manueltRedigert)
@@ -52,7 +51,7 @@ class klassifiserOgMapInntektTest {
         val sum = spesifisertInntekt.posteringer.fold(BigDecimal.ZERO) { acc, postering -> acc + postering.beløp }
         val spesifiserteMåneder = spesifisertInntekt.posteringer.groupBy { it.posteringsMåned }.keys
 
-        val klassifisertInntekt = klassifiserOgMapInntekt(spesifisertInntekt, FakeUnleash())
+        val klassifisertInntekt = klassifiserOgMapInntekt(spesifisertInntekt)
 
         val klassifisertSum =
             klassifisertInntekt.inntektsListe.fold(BigDecimal.ZERO) { total, klassifisertInntektMåned ->
@@ -73,7 +72,7 @@ class klassifiserOgMapInntektTest {
             .getResource("/test-data/spesifisert-inntekt-flere-klasser.json").readText()
         val spesifisertInntekt = spesifisertInntektJsonAdapter.fromJson(testDataJson)!!
 
-        val klassifisertInntekt = klassifiserOgMapInntekt(spesifisertInntekt, FakeUnleash())
+        val klassifisertInntekt = klassifiserOgMapInntekt(spesifisertInntekt)
 
         val firstMonth = klassifisertInntekt.inntektsListe.first()
 
@@ -148,7 +147,7 @@ class klassifiserOgMapInntektTest {
             sisteAvsluttendeKalenderMåned = YearMonth.of(2019, 5)
         )
 
-        val klassifisertInntekt = klassifiserOgMapInntekt(spesifisertInntekt, FakeUnleash())
+        val klassifisertInntekt = klassifiserOgMapInntekt(spesifisertInntekt)
 
         val klassifiserteMåneder = klassifisertInntekt.inntektsListe.associateBy { it.årMåned }
 

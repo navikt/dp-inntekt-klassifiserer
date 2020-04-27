@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
-if test -f /secrets/serviceuser/srvdp-inntekt-klas/username;
+if test -f /var/run/secrets/nais.io/service_user/username;
 then
-    export  SRVDP_INNTEKT_KLASSIFISERER_USERNAME=$(cat /secrets/serviceuser/srvdp-inntekt-klas/username)
+    export  SRVDP_INNTEKT_KLASSIFISERER_USERNAME=$(cat /var/run/secrets/nais.io/service_user/username)
 fi
-if test -f /secrets/serviceuser/srvdp-inntekt-klas/password;
+if test -f /var/run/secrets/nais.io/service_user/password;
 then
-    export  SRVDP_INNTEKT_KLASSIFISERER_PASSWORD=$(cat /secrets/serviceuser/srvdp-inntekt-klas/password)
+    export  SRVDP_INNTEKT_KLASSIFISERER_PASSWORD=$(cat /var/run/secrets/nais.io/service_user/password)
 fi
 
 
