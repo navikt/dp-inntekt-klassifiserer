@@ -73,7 +73,7 @@ pipeline {
     stage('Acceptance testing') {
       stages {
         stage('Deploy to pre-production') {
-          when { branch 'feature/rapid-rivers' }
+          when { branch 'master' }
           steps {
 
 
