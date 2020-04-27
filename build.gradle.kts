@@ -72,17 +72,6 @@ dependencies {
     testImplementation(Wiremock.standalone)
 }
 
-configurations {
-    "implementation" {
-        exclude(group = "org.slf4j", module = "slf4j-log4j12")
-        exclude(group = "ch.qos.logback", module = "logback-classic")
-    }
-    "testImplementation" {
-        exclude(group = "org.slf4j", module = "slf4j-log4j12")
-        exclude(group = "ch.qos.logback", module = "logback-classic")
-    }
-}
-
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
