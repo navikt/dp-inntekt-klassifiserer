@@ -9,3 +9,5 @@ spec:
         mountPath: "/var/run/secrets/nais.io/service_user"
       - kvPath: "kv/preprod/fss/dp-inntekt-klassifiserer/default"
         mountPath: "/var/run/secrets/nais.io/vault/"
+  secureLogs:
+    enabled: true

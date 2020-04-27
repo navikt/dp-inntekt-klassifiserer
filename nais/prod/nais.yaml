@@ -12,3 +12,5 @@ spec:
   replicas:
     min: 4
     max: 6
+  secureLogs:
+    enabled: true

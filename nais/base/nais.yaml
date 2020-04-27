@@ -22,7 +22,5 @@ spec:
     requests:
       cpu: 100m
       memory: 256Mi
-  secureLogs:
-    enabled: true
   vault:
     enabled: true
