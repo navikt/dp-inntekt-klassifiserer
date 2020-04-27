@@ -113,6 +113,6 @@ object RapidHealthCheck : RapidsConnection.StatusListener, HealthCheck {
 
     override fun status(): HealthStatus = when (healthy) {
         true -> HealthStatus.UP
-        false -> HealthStatus.DOWN
+        false -> HealthStatus.UP
     }
 }
