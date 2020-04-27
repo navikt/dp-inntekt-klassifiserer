@@ -48,9 +48,8 @@ dependencies {
 
     // Logging
     implementation(Kotlin.Logging.kotlinLogging)
-    implementation(Log4j2.api)
-    implementation(Log4j2.core)
-    implementation(Log4j2.Logstash.logstashLayout)
+    // logback (brought in by rapid-rivers)
+    implementation("ch.qos.logback:logback-classic:1.2.3")
 
     // prometheus
     implementation(Prometheus.common)
@@ -59,9 +58,6 @@ dependencies {
 
     // unleash
     implementation("no.finn.unleash:unleash-client-java:3.2.9")
-
-    // logback (brought in by rapid-rivers)
-    implementation("ch.qos.logback:logback-classic:1.2.3")
 
     // testing
     testImplementation(kotlin("test"))
