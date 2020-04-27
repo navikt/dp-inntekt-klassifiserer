@@ -2,6 +2,7 @@ package no.nav.dagpenger.inntekt.klassifiserer
 
 import mu.KotlinLogging
 import no.nav.helse.rapids_rivers.JsonMessage
+import no.nav.helse.rapids_rivers.MessageProblems
 import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.helse.rapids_rivers.River
 import no.nav.helse.rapids_rivers.asLocalDate
@@ -10,6 +11,9 @@ class LøsningService(
     private val rapidsConnection: RapidsConnection,
     private val inntektKlassifiserer: InntektKlassifiserer
 ) : River.PacketListener {
+
+    private val log = KotlinLogging.logger {}
+    private val sikkerlogg = KotlinLogging.logger("tjenestekall")
 
     init {
         River(rapidsConnection).apply {
@@ -43,5 +47,10 @@ class LøsningService(
         } catch (err: Exception) {
             logger.error(err) { "feil ved innhenting av inntekt: ${err.message} for ${packet["@id"].asText()}" }
         }
+    }
+
+    override fun onError(problems: MessageProblems, context: RapidsConnection.MessageContext) {
+        log.info { problems.toString() }
+        sikkerlogg.info { problems.toExtendedReport() }
     }
 }
