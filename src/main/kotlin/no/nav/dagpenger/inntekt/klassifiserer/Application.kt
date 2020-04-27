@@ -78,8 +78,6 @@ fun main() {
         ))
 
     val application = Application(configuration = configuration, inntektKlassifiserer = inntektKlassifiserer, healthCheck = RapidHealthCheck as HealthCheck)
-    application.start()
-
     RapidApplication.create(
         Configuration().rapidApplication
     ).apply {
@@ -90,6 +88,8 @@ fun main() {
     }.also {
         it.register(RapidHealthCheck)
     }.start()
+
+    application.start()
 }
 
 object RapidHealthCheck : RapidsConnection.StatusListener, HealthCheck {
