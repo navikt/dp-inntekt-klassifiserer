@@ -28,7 +28,7 @@ dependencies {
     implementation(Dagpenger.Biblioteker.ktorUtils)
 
     // rapid and rivers
-    implementation(RapidAndRivers)
+    implementation("com.github.navikt:rapids-and-rivers:1.47c31b4")
 
     // json
     implementation(Moshi.moshiAdapters)
@@ -89,8 +89,16 @@ configurations {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+tasks.withType<KotlinCompile> {
+    kotlinOptions.jvmTarget = "1.8"
+}
+
+tasks.named<KotlinCompile>("compileTestKotlin") {
+    kotlinOptions.jvmTarget = "1.8"
 }
 
 tasks.withType<Test> {
