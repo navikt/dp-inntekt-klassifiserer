@@ -18,8 +18,7 @@ import no.nav.dagpenger.events.inntekt.v1.InntektKlasse
 import no.nav.dagpenger.events.inntekt.v1.KlassifisertInntekt
 import no.nav.dagpenger.events.inntekt.v1.KlassifisertInntektMåned
 import no.nav.dagpenger.inntekt.klassifiserer.LøsningService.Companion.INNTEKT
-import no.nav.helse.rapids_rivers.InMemoryRapid
-import no.nav.helse.rapids_rivers.inMemoryRapid
+import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -46,25 +45,26 @@ internal class LøsningServiceTest {
                     harAvvik = false
                 )
             ),
-            sisteAvsluttendeKalenderMåned = YearMonth.now())
+            sisteAvsluttendeKalenderMåned = YearMonth.now()
+        )
     }
 
     private val inntektKlassifiserer = mockk<InntektKlassifiserer>(relaxed = true).also {
         every { it.getInntekt(any(), any(), any()) } returns inntekt
     }
 
-    private lateinit var rapid: InMemoryRapid
+    private val rapid = TestRapid().apply {
+        LøsningService(rapidsConnection = this, inntektKlassifiserer = inntektKlassifiserer)
+    }
 
     @BeforeEach
-    fun setUp() {
-        rapid = createRapid {
-            LøsningService(rapidsConnection = it, inntektKlassifiserer = inntektKlassifiserer)
-        }
+    fun setup() {
+        rapid.reset()
     }
 
     @Test
     fun ` Skal innhente løsning for inntekstbehov`() {
-        rapid.sendToListeners(
+        rapid.sendTestMessage(
             """
              {
                 "@behov": ["$INNTEKT"],
@@ -76,32 +76,22 @@ internal class LøsningServiceTest {
         )
 
         assertSoftly {
-            validateMessages(rapid) { messages ->
-                messages.size shouldBeExactly 1
 
-                messages.first().also { message ->
-                    message["@behov"].map(JsonNode::asText) shouldContain INNTEKT
-                    message["@løsning"].hasNonNull(INNTEKT)
-                    message["@løsning"][INNTEKT].hasNonNull("inntektsId")
-                    message["@løsning"][INNTEKT].hasNonNull("inntektsListe")
-                    message["@løsning"][INNTEKT].hasNonNull("sisteAvsluttendeKalenderMåned")
+            val inspektør = rapid.inspektør
+            inspektør.size shouldBeExactly 1
+            inspektør.field(0, "@behov").map(JsonNode::asText) shouldContain INNTEKT
+            inspektør.field(0, "@løsning").hasNonNull(INNTEKT)
+            inspektør.field(0, "@løsning")[INNTEKT].hasNonNull("inntektsId")
+            inspektør.field(0, "@løsning")[INNTEKT].hasNonNull("inntektsListe")
+            inspektør.field(0, "@løsning")[INNTEKT].hasNonNull("sisteAvsluttendeKalenderMåned")
 
-                    val inntektFraPacket: Inntekt = objectMapper.treeToValue(message["@løsning"][INNTEKT], Inntekt::class.java)
+            val inntektFraPacket: Inntekt =
+                objectMapper.treeToValue(inspektør.field(0, "@løsning")[INNTEKT], Inntekt::class.java)
 
-                    inntekt.inntektsId shouldBe inntektFraPacket.inntektsId
-                    inntekt.inntektsListe shouldBe inntektFraPacket.inntektsListe
-                    inntekt.manueltRedigert shouldBe inntektFraPacket.manueltRedigert
-                    inntekt.sisteAvsluttendeKalenderMåned shouldBe inntektFraPacket.sisteAvsluttendeKalenderMåned
-                }
-            }
+            inntekt.inntektsId shouldBe inntektFraPacket.inntektsId
+            inntekt.inntektsListe shouldBe inntektFraPacket.inntektsListe
+            inntekt.manueltRedigert shouldBe inntektFraPacket.manueltRedigert
+            inntekt.sisteAvsluttendeKalenderMåned shouldBe inntektFraPacket.sisteAvsluttendeKalenderMåned
         }
-    }
-
-    private fun validateMessages(rapid: InMemoryRapid, assertions: (messages: List<JsonNode>) -> Any) {
-        rapid.outgoingMessages.map { jacksonObjectMapper().readTree(it.value) }.also { assertions(it) }
-    }
-
-    private fun createRapid(service: (InMemoryRapid) -> Any): InMemoryRapid {
-        return inMemoryRapid { }.also { service(it) }
     }
 }
