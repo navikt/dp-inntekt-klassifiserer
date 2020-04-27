@@ -27,7 +27,7 @@ class LøsningService(
 
     companion object {
         const val INNTEKT: String = "Inntekt"
-        const val BEREGNINGSDATO: String = "beregningsDato"
+        const val BEREGNINGSDATO: String = "beregningsdato"
         const val AKTØRID: String = "aktørId"
         private val logger = KotlinLogging.logger {}
     }

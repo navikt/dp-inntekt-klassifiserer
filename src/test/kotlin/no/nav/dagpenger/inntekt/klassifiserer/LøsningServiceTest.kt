@@ -70,7 +70,7 @@ internal class LøsningServiceTest {
                 "@behov": ["$INNTEKT"],
                 "@id" : "12345", 
                 "aktørId" : "1234",
-                "beregningsDato": "2020-04-21"
+                "beregningsdato": "2020-04-21"
              }
             """.trimIndent()
         )
