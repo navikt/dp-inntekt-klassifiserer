@@ -66,8 +66,6 @@ class Application(
 fun main() {
     val configuration = Configuration()
 
-    val unleash = setupUnleash(configuration.applicationConfig.unleashUrl)
-
     val apiKeyVerifier = ApiKeyVerifier(configuration.applicationConfig.inntektApiSecret)
     val apiKey = apiKeyVerifier.generate(configuration.applicationConfig.inntektApiKey)
 
@@ -77,7 +75,12 @@ fun main() {
             apiKey
         ))
 
-    val application = Application(configuration = configuration, inntektKlassifiserer = inntektKlassifiserer, healthCheck = RapidHealthCheck as HealthCheck)
+    Application(
+        configuration = configuration,
+        inntektKlassifiserer = inntektKlassifiserer,
+        healthCheck = RapidHealthCheck as HealthCheck
+    ).start()
+
     RapidApplication.create(
         Configuration().rapidApplication
     ).apply {
@@ -88,8 +91,6 @@ fun main() {
     }.also {
         it.register(RapidHealthCheck)
     }.start()
-
-    application.start()
 }
 
 object RapidHealthCheck : RapidsConnection.StatusListener, HealthCheck {
@@ -113,6 +114,6 @@ object RapidHealthCheck : RapidsConnection.StatusListener, HealthCheck {
 
     override fun status(): HealthStatus = when (healthy) {
         true -> HealthStatus.UP
-        false -> HealthStatus.UP
+        false -> HealthStatus.DOWN
     }
 }
