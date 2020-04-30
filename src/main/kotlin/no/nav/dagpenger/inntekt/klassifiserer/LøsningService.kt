@@ -22,6 +22,8 @@ class LøsningService(
             validate { it.requireKey("@id") }
             validate { it.requireKey(BEREGNINGSDATO) }
             validate { it.requireKey(AKTØRID) }
+            validate { it.requireKey(FØDSELSNUNMER) }
+            validate { it.requireKey(VEDTAK_ID) }
         }.register(this)
     }
 
@@ -29,16 +31,24 @@ class LøsningService(
         const val INNTEKT: String = "Inntekt"
         const val BEREGNINGSDATO: String = "beregningsdato"
         const val AKTØRID: String = "aktørId"
+        const val FØDSELSNUNMER: String = "fødselsnummer"
+        const val VEDTAK_ID: String = "vedtakId"
         private val logger = KotlinLogging.logger {}
     }
 
     override fun onPacket(packet: JsonMessage, context: RapidsConnection.MessageContext) {
         val aktørId = packet[AKTØRID].asText()
-        val vedtakId = -1337 // @todo - gjøre inntektapi uavhengig av vedtak id
+        val vedtakId = packet[VEDTAK_ID].asText()
+        val fødselsnummer = packet[FØDSELSNUNMER].asText()
         val beregningsDato = packet[BEREGNINGSDATO].asLocalDate()
 
         try {
-            val inntekt = inntektKlassifiserer.getInntekt(aktørId, vedtakId, beregningsDato)
+            val inntekt = inntektKlassifiserer.getInntekt(
+                aktørId = aktørId,
+                vedtakId = vedtakId,
+                beregningsDato = beregningsDato,
+                fødselsnummer = fødselsnummer
+            )
             packet["@løsning"] = mapOf(
                 INNTEKT to inntekt
             )

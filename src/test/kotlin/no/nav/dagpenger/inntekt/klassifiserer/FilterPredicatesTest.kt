@@ -39,8 +39,9 @@ class OnPacketTest {
         every {
             inntektKlassifiserer.getInntekt(
                 "123",
-                12345,
-                LocalDate.of(2020, 1, 1)
+                "12345",
+                LocalDate.of(2020, 1, 1),
+                null
             )
         } returns inntekt
 
