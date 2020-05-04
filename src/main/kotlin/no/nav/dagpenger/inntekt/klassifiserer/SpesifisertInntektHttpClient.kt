@@ -15,16 +15,18 @@ class SpesifisertInntektHttpClient(private val inntektApiUrl: String, private va
 
     fun getSpesifisertInntekt(
         aktørId: String,
-        vedtakId: Int,
-        beregningsDato: LocalDate
+        vedtakId: String,
+        beregningsDato: LocalDate,
+        fødselsnummer: String?
     ): SpesifisertInntekt {
 
         val url = "${inntektApiUrl}v1/inntekt/spesifisert"
 
         val requestBody = SpesifisertInntektRequest(
-            aktørId,
-            vedtakId,
-            beregningsDato
+            aktørId = aktørId,
+            fødselsnummer = fødselsnummer,
+            vedtakId = vedtakId,
+            beregningsDato = beregningsDato
         )
         val jsonBody = jsonRequestRequestAdapter.toJson(requestBody)
 
@@ -36,8 +38,8 @@ class SpesifisertInntektHttpClient(private val inntektApiUrl: String, private va
         }
 
         return result.fold(
-            {
-                spesifisertInntekt -> spesifisertInntekt
+            { spesifisertInntekt ->
+                spesifisertInntekt
             },
             { error ->
                 val problem = runCatching {
@@ -60,10 +62,12 @@ class SpesifisertInntektHttpClient(private val inntektApiUrl: String, private va
 
 private data class SpesifisertInntektRequest(
     val aktørId: String,
-    val vedtakId: Int,
+    val fødselsnummer: String? = null,
+    val vedtakId: String,
     val beregningsDato: LocalDate
 )
 
 private fun String.toBearerToken() = "Bearer $this"
 
-class InntektApiHttpClientException(override val message: String, val problem: Problem, override val cause: Throwable) : RuntimeException(message, cause)
+class InntektApiHttpClientException(override val message: String, val problem: Problem, override val cause: Throwable) :
+    RuntimeException(message, cause)

@@ -50,7 +50,7 @@ internal class LøsningServiceTest {
     }
 
     private val inntektKlassifiserer = mockk<InntektKlassifiserer>(relaxed = true).also {
-        every { it.getInntekt(any(), any(), any()) } returns inntekt
+        every { it.getInntekt(any(), any(), any(), any()) } returns inntekt
     }
 
     private val rapid = TestRapid().apply {
@@ -70,6 +70,8 @@ internal class LøsningServiceTest {
                 "@behov": ["$INNTEKT"],
                 "@id" : "12345", 
                 "aktørId" : "1234",
+                "fødselsnummer" : "1234",
+                "vedtakId" : "vedtakId122423231ljnds",
                 "beregningsdato": "2020-04-21"
              }
             """.trimIndent()

@@ -12,9 +12,17 @@ import no.nav.dagpenger.events.inntekt.v1.SpesifisertInntekt
 class InntektKlassifiserer(private val inntektHttpClient: SpesifisertInntektHttpClient) {
     fun getInntekt(
         aktørId: String,
-        vedtakId: Int,
-        beregningsDato: LocalDate
-    ): Inntekt = klassifiserOgMapInntekt(inntektHttpClient.getSpesifisertInntekt(aktørId = aktørId, vedtakId = vedtakId, beregningsDato = beregningsDato))
+        vedtakId: String,
+        beregningsDato: LocalDate,
+        fødselsnummer: String? = null
+    ): Inntekt = klassifiserOgMapInntekt(
+        inntektHttpClient.getSpesifisertInntekt(
+            aktørId = aktørId,
+            vedtakId = vedtakId,
+            beregningsDato = beregningsDato,
+            fødselsnummer = fødselsnummer
+        )
+    )
 }
 
 internal fun klassifiserOgMapInntekt(spesifisertInntekt: SpesifisertInntekt): Inntekt {

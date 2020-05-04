@@ -56,7 +56,7 @@ class Application(
             val aktørId = packet.getStringValue(AKTØRID)
             val vedtakId = packet.getIntValue(VEDTAKID)
             val beregningsDato = packet.getLocalDate(BEREGNINGSDATO)
-            val klassifisertInntekt = inntektKlassifiserer.getInntekt(aktørId, vedtakId, beregningsDato)
+            val klassifisertInntekt = inntektKlassifiserer.getInntekt(aktørId, vedtakId.toString(), beregningsDato, null)
             packet.putValue(INNTEKT, klassifisertInntekt)
             return packet
         }

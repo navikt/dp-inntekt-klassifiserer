@@ -97,8 +97,9 @@ class InntektKlassifisererTopologyTest {
         every {
             inntektKlassifiserer.getInntekt(
                 "12345",
-                123,
-                LocalDate.of(2019, 1, 25)
+                "123",
+                LocalDate.of(2019, 1, 25),
+                null
             )
         } returns inntekt
 
@@ -138,8 +139,9 @@ class InntektKlassifisererTopologyTest {
         every {
             inntektKlassifiserer.getInntekt(
                 "12345",
-                123,
-                LocalDate.of(2019, 1, 25)
+                "123",
+                LocalDate.of(2019, 1, 25),
+                null
             )
         } returns inntekt
 

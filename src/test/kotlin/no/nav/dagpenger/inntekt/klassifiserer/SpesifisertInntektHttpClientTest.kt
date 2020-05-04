@@ -2,6 +2,9 @@ package no.nav.dagpenger.inntekt.klassifiserer
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
+import com.github.tomakehurst.wiremock.client.WireMock.equalTo
+import com.github.tomakehurst.wiremock.client.WireMock.matching
+import com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import com.github.tomakehurst.wiremock.matching.EqualToPattern
 import java.time.LocalDate
@@ -44,6 +47,15 @@ class SpesifisertInntektHttpClientTest {
         WireMock.stubFor(
             WireMock.post(WireMock.urlEqualTo("/v1/inntekt/spesifisert"))
                 .withHeader("X-API-KEY", EqualToPattern("api-key"))
+                .withRequestBody(
+                    matchingJsonPath("aktørId", equalTo("45456"))
+                )
+                .withRequestBody(
+                    matchingJsonPath("vedtakId", equalTo("123"))
+                )
+                .withRequestBody(
+                    matchingJsonPath("beregningsDato", matching("^\\d{4}-\\d{2}-\\d{2}\$"))
+                )
                 .willReturn(
                     WireMock.aResponse()
                         .withHeader("Content-Type", "application/json")
@@ -58,9 +70,55 @@ class SpesifisertInntektHttpClientTest {
 
         val spesifisertInntekt =
             spesifisertInntektHttpClient.getSpesifisertInntekt(
-                "",
-                123,
-                LocalDate.now()
+                "45456",
+                "123",
+                LocalDate.now(),
+                null
+            )
+
+        assertEquals("01D8G6FS9QGRT3JKBTA5KEE64C", spesifisertInntekt.inntektId.id)
+        assertEquals(4, spesifisertInntekt.posteringer.size)
+    }
+
+    @Test
+    fun `fetch spesifisert inntekt on 200 ok with fødselsnummer`() {
+
+        val responseBodyJson = SpesifisertInntektHttpClientTest::class.java
+            .getResource("/test-data/example-spesifisert-inntekt-payload.json").readText()
+
+        WireMock.stubFor(
+            WireMock.post(WireMock.urlEqualTo("/v1/inntekt/spesifisert"))
+                .withHeader("X-API-KEY", EqualToPattern("api-key"))
+                .withRequestBody(
+                    matchingJsonPath("aktørId", equalTo("45456"))
+                )
+                .withRequestBody(
+                    matchingJsonPath("vedtakId", equalTo("123"))
+                )
+                .withRequestBody(
+                    matchingJsonPath("beregningsDato", matching("^\\d{4}-\\d{2}-\\d{2}\$"))
+                )
+                .withRequestBody(
+                    matchingJsonPath("fødselsnummer", equalTo("12345678901"))
+                )
+                .willReturn(
+                    WireMock.aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(responseBodyJson)
+                )
+        )
+
+        val spesifisertInntektHttpClient = SpesifisertInntektHttpClient(
+            server.url(""),
+            "api-key"
+        )
+
+        val spesifisertInntekt =
+            spesifisertInntektHttpClient.getSpesifisertInntekt(
+                "45456",
+                "123",
+                LocalDate.now(),
+                "12345678901"
             )
 
         assertEquals("01D8G6FS9QGRT3JKBTA5KEE64C", spesifisertInntekt.inntektId.id)
@@ -98,8 +156,9 @@ class SpesifisertInntektHttpClientTest {
         val inntektApiHttpClientException = assertFailsWith<InntektApiHttpClientException> {
             spesifisertInntektHttpClient.getSpesifisertInntekt(
                 "",
-                123,
-                LocalDate.now()
+                "123",
+                LocalDate.now(),
+                null
             )
         }
 
@@ -128,8 +187,9 @@ class SpesifisertInntektHttpClientTest {
         val inntektApiHttpClientException = assertFailsWith<InntektApiHttpClientException> {
             spesifisertInntektHttpClient.getSpesifisertInntekt(
                 "",
-                123,
-                LocalDate.now()
+                "123",
+                LocalDate.now(),
+                null
             )
         }
 
