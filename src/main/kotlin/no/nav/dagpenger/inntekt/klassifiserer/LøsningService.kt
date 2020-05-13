@@ -51,7 +51,7 @@ class LøsningService(
                     fødselsnummer = fødselsnummer
                 )
                 packet["@løsning"] = mapOf(
-                    INNTEKT to inntekt
+                    INNTEKT to inntekt.inntektsId
                 )
                 context.send(packet.toJson())
                 logger.info { "løser behov for ${packet["@id"].asText()}" }

@@ -2,15 +2,17 @@ package no.nav.dagpenger.inntekt.klassifiserer
 
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.fuel.moshi.moshiDeserializerOf
+import com.squareup.moshi.JsonAdapter
 import java.net.URI
 import java.time.LocalDate
 import no.nav.dagpenger.events.Problem
+import no.nav.dagpenger.events.inntekt.v1.Inntekt
 import no.nav.dagpenger.events.inntekt.v1.SpesifisertInntekt
 import no.nav.dagpenger.events.moshiInstance
 
-class SpesifisertInntektHttpClient(private val inntektApiUrl: String, private val apiKey: String) {
+class InntektHttpClient(private val inntektApiUrl: String, private val apiKey: String) {
 
-    private val jsonRequestRequestAdapter = moshiInstance.adapter(SpesifisertInntektRequest::class.java)
+    private val jsonRequestRequestAdapter = moshiInstance.adapter(InntektRequest::class.java)
     private val problemAdapter = moshiInstance.adapter(Problem::class.java)!!
 
     fun getSpesifisertInntekt(
@@ -18,11 +20,25 @@ class SpesifisertInntektHttpClient(private val inntektApiUrl: String, private va
         vedtakId: String,
         beregningsDato: LocalDate,
         fødselsnummer: String?
-    ): SpesifisertInntekt {
+    ): SpesifisertInntekt = getInntekt(
+        aktørId = aktørId,
+        vedtakId = vedtakId,
+        beregningsDato = beregningsDato,
+        fødselsnummer = fødselsnummer,
+        url = "${inntektApiUrl}v1/inntekt/spesifisert",
+        adapter = spesifisertInntektJsonAdapter
+    )
 
-        val url = "${inntektApiUrl}v1/inntekt/spesifisert"
+    private inline fun <reified T : Any> getInntekt(
+        aktørId: String,
+        vedtakId: String,
+        beregningsDato: LocalDate,
+        fødselsnummer: String?,
+        url: String,
+        adapter: JsonAdapter<T>
+    ): T {
 
-        val requestBody = SpesifisertInntektRequest(
+        val requestBody = InntektRequest(
             aktørId = aktørId,
             fødselsnummer = fødselsnummer,
             vedtakId = vedtakId,
@@ -34,7 +50,7 @@ class SpesifisertInntektHttpClient(private val inntektApiUrl: String, private va
             header("Content-Type" to "application/json")
             header("X-API-KEY", apiKey)
             body(jsonBody)
-            responseObject(moshiDeserializerOf(spesifisertInntektJsonAdapter))
+            responseObject(moshiDeserializerOf(adapter))
         }
 
         return result.fold(
@@ -58,16 +74,28 @@ class SpesifisertInntektHttpClient(private val inntektApiUrl: String, private va
                 )
             })
     }
+
+    fun getKlassifisertInntekt(
+        aktørId: String,
+        vedtakId: String,
+        beregningsDato: LocalDate,
+        fødselsnummer: String?
+    ): Inntekt = getInntekt(
+        aktørId = aktørId,
+        vedtakId = vedtakId,
+        beregningsDato = beregningsDato,
+        fødselsnummer = fødselsnummer,
+        url = "${inntektApiUrl}v1/inntekt/klassifisert",
+        adapter = klassifisertInntektJsonAdapter
+    )
 }
 
-private data class SpesifisertInntektRequest(
+private data class InntektRequest(
     val aktørId: String,
     val fødselsnummer: String? = null,
     val vedtakId: String,
     val beregningsDato: LocalDate
 )
-
-private fun String.toBearerToken() = "Bearer $this"
 
 class InntektApiHttpClientException(override val message: String, val problem: Problem, override val cause: Throwable) :
     RuntimeException(message, cause)
