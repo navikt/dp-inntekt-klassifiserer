@@ -12,6 +12,7 @@ import java.time.YearMonth
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.function.BiFunction
+import mu.KotlinLogging
 import no.nav.dagpenger.events.inntekt.v1.Avvik
 import no.nav.dagpenger.events.inntekt.v1.Inntekt
 import no.nav.dagpenger.events.inntekt.v1.KlassifisertInntekt
@@ -21,11 +22,26 @@ import no.nav.dagpenger.events.inntekt.v1.SpesifisertInntekt
 class InntektKlassifiserer(private val inntektHttpClient: InntektHttpClient) {
 
     companion object {
+        private val sikkerlogg = KotlinLogging.logger("tjenestekall")
         private val executorService: ExecutorService = Executors.newFixedThreadPool(5)
-        private val comparator = BiFunction<Inntekt, Inntekt, Boolean> { control: Inntekt, candidate: Inntekt -> control.manueltRedigert == candidate.manueltRedigert &&
-            control.inntektsId == candidate.inntektsId &&
-            control.inntektsListe == candidate.inntektsListe &&
-            control.sisteAvsluttendeKalenderMåned == candidate.sisteAvsluttendeKalenderMåned }
+        private val comparator = BiFunction<Inntekt, Inntekt, Boolean> { control: Inntekt, candidate: Inntekt ->
+            val match: Boolean = control.manueltRedigert == candidate.manueltRedigert &&
+                control.inntektsId == candidate.inntektsId &&
+                control.inntektsListe == candidate.inntektsListe &&
+                control.sisteAvsluttendeKalenderMåned == candidate.sisteAvsluttendeKalenderMåned
+
+            if (!match) {
+                sikkerlogg.info {
+                    """
+                       Match $match 
+                       Control $control do not match
+                       Candidate $candidate
+                   """.trimIndent()
+                }
+            }
+
+            match
+        }
 
         val experiment: Experiment<Inntekt> = Experiment(
             "klassifiserer",
