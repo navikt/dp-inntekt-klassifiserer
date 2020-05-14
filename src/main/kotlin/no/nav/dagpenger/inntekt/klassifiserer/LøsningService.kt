@@ -10,7 +10,7 @@ import no.nav.helse.rapids_rivers.asLocalDate
 
 class LøsningService(
     private val rapidsConnection: RapidsConnection,
-    private val inntektKlassifiserer: InntektKlassifiserer
+    private val inntektHttpClient: InntektHttpClient
 ) : River.PacketListener {
 
     private val log = KotlinLogging.logger {}
@@ -44,7 +44,7 @@ class LøsningService(
             "vedtakId" to packet["vedtakId"].asText()
         ) {
             try {
-                val inntekt = inntektKlassifiserer.getInntekt(
+                val inntekt = inntektHttpClient.getKlassifisertInntekt(
                     aktørId = aktørId,
                     vedtakId = vedtakId,
                     beregningsDato = beregningsDato,

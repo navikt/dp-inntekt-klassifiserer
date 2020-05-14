@@ -35,9 +35,9 @@ class OnPacketTest {
     }
     @Test
     fun `Add klassifisert inntekt to behov`() {
-        val inntektKlassifiserer: InntektKlassifiserer = mockk()
+        val inntektHttpClient: InntektHttpClient = mockk()
         every {
-            inntektKlassifiserer.getInntekt(
+            inntektHttpClient.getKlassifisertInntekt(
                 "123",
                 "12345",
                 LocalDate.of(2020, 1, 1),
@@ -47,7 +47,7 @@ class OnPacketTest {
 
         val app = Application(
             configuration = Configuration(),
-            inntektKlassifiserer = inntektKlassifiserer,
+            inntektHttpClient = inntektHttpClient,
             healthCheck = mockk(relaxed = true)
         )
 
@@ -69,7 +69,7 @@ class FilterPredicatesTest {
         val packet = Packet().apply {
             putValue("manueltGrunnlag", 1000)
         }
-        val app = Application(configuration = Configuration(), inntektKlassifiserer = mockk(), healthCheck = mockk(relaxed = true))
+        val app = Application(configuration = Configuration(), inntektHttpClient = mockk(), healthCheck = mockk(relaxed = true))
         app.filterPredicates().all { it.test("", packet) } shouldBe false
     }
 
@@ -77,7 +77,7 @@ class FilterPredicatesTest {
     fun `Skal legge på inntekt der det er ikke er manuelt grunnlag`() {
         val packet = Packet()
         packet.putValue("vedtakId", 123)
-        val app = Application(configuration = Configuration(), inntektKlassifiserer = mockk(), healthCheck = mockk(relaxed = true))
+        val app = Application(configuration = Configuration(), inntektHttpClient = mockk(), healthCheck = mockk(relaxed = true))
         app.filterPredicates().all { it.test("", packet) } shouldBe true
     }
 }

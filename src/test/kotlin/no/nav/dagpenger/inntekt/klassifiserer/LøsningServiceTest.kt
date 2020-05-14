@@ -41,12 +41,12 @@ internal class LøsningServiceTest {
         )
     }
 
-    private val inntektKlassifiserer = mockk<InntektKlassifiserer>(relaxed = true).also {
-        every { it.getInntekt(any(), any(), any(), any()) } returns inntekt
+    private val inntektHttpClient = mockk<InntektHttpClient>(relaxed = true).also {
+        every { it.getKlassifisertInntekt(any(), any(), any(), any()) } returns inntekt
     }
 
     private val rapid = TestRapid().apply {
-        LøsningService(rapidsConnection = this, inntektKlassifiserer = inntektKlassifiserer)
+        LøsningService(rapidsConnection = this, inntektHttpClient = inntektHttpClient)
     }
 
     @BeforeEach

@@ -15,7 +15,7 @@ import org.apache.kafka.streams.kstream.Predicate
 
 class Application(
     private val configuration: Configuration,
-    private val inntektKlassifiserer: InntektKlassifiserer,
+    private val inntektHttpClient: InntektHttpClient,
     private val healthCheck: HealthCheck
 ) : River(configuration.kafka.behovTopic) {
 
@@ -56,7 +56,7 @@ class Application(
             val aktørId = packet.getStringValue(AKTØRID)
             val vedtakId = packet.getIntValue(VEDTAKID)
             val beregningsDato = packet.getLocalDate(BEREGNINGSDATO)
-            val klassifisertInntekt = inntektKlassifiserer.getInntekt(aktørId, vedtakId.toString(), beregningsDato, null)
+            val klassifisertInntekt = inntektHttpClient.getKlassifisertInntekt(aktørId, vedtakId.toString(), beregningsDato, null)
             packet.putValue(INNTEKT, klassifisertInntekt)
             return packet
         }
@@ -69,15 +69,14 @@ fun main() {
     val apiKeyVerifier = ApiKeyVerifier(configuration.applicationConfig.inntektApiSecret)
     val apiKey = apiKeyVerifier.generate(configuration.applicationConfig.inntektApiKey)
 
-    val inntektKlassifiserer = InntektKlassifiserer(
-        inntektHttpClient = InntektHttpClient(
+    val inntektHttpClient = InntektHttpClient(
             configuration.applicationConfig.inntektApiUrl,
             apiKey
-        ))
+        )
 
     Application(
         configuration = configuration,
-        inntektKlassifiserer = inntektKlassifiserer,
+        inntektHttpClient = inntektHttpClient,
         healthCheck = RapidHealthCheck as HealthCheck
     ).start()
 
@@ -86,7 +85,7 @@ fun main() {
     ).apply {
         LøsningService(
             this,
-            inntektKlassifiserer = inntektKlassifiserer
+            inntektHttpClient = inntektHttpClient
         )
     }.also {
         it.register(RapidHealthCheck)

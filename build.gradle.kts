@@ -22,10 +22,6 @@ application {
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
 
-    // scientist to compare klassifisering from dp-inntekt-api and local
-    implementation("com.github.rawls238:Scientist4JCore:0.8")
-    implementation(Micrometer.prometheusRegistry)
-
     // Dagpenger
     implementation(Dagpenger.Streams)
     implementation(Dagpenger.Events)
