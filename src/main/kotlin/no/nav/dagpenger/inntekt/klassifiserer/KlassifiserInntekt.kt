@@ -65,28 +65,35 @@ class InntektKlassifiserer(private val inntektHttpClient: InntektHttpClient) {
         beregningsDato: LocalDate,
         fødselsnummer: String? = null
     ): Inntekt {
-
-        return experiment.runAsync(
-            {
-                klassifiserOgMapInntekt(
-                    inntektHttpClient.getSpesifisertInntekt(
-                        aktørId = aktørId,
-                        vedtakId = vedtakId,
-                        beregningsDato = beregningsDato,
-                        fødselsnummer = fødselsnummer
-                    )
-                )
-            },
-            {
-                inntektHttpClient.getKlassifisertInntekt(
-                    aktørId = aktørId,
-                    vedtakId = vedtakId,
-                    beregningsDato = beregningsDato,
-                    fødselsnummer = fødselsnummer
-                )
-            }
-
+        return klassifiserOgMapInntekt(
+            inntektHttpClient.getSpesifisertInntekt(
+                aktørId = aktørId,
+                vedtakId = vedtakId,
+                beregningsDato = beregningsDato,
+                fødselsnummer = fødselsnummer
+            )
         )
+        // return experiment.runAsync(
+        //     {
+        //         klassifiserOgMapInntekt(
+        //             inntektHttpClient.getSpesifisertInntekt(
+        //                 aktørId = aktørId,
+        //                 vedtakId = vedtakId,
+        //                 beregningsDato = beregningsDato,
+        //                 fødselsnummer = fødselsnummer
+        //             )
+        //         )
+        //     },
+        //     {
+        //         inntektHttpClient.getKlassifisertInntekt(
+        //             aktørId = aktørId,
+        //             vedtakId = vedtakId,
+        //             beregningsDato = beregningsDato,
+        //             fødselsnummer = fødselsnummer
+        //         )
+        //     }
+        //
+        // )
     }
 }
 
