@@ -22,6 +22,12 @@ import no.nav.dagpenger.events.inntekt.v1.SpesifisertInntekt
 class InntektKlassifiserer(private val inntektHttpClient: InntektHttpClient) {
 
     companion object {
+        private fun toString(inntekt: Inntekt) = """ ${inntekt.inntektsId} 
+        | ${inntekt.inntektsListe} 
+        | ${inntekt.sisteAvsluttendeKalenderMåned}
+        | ${inntekt.manueltRedigert}
+    """.trimMargin()
+
         private val sikkerlogg = KotlinLogging.logger("tjenestekall")
         private val executorService: ExecutorService = Executors.newFixedThreadPool(5)
         private val comparator = BiFunction<Inntekt, Inntekt, Boolean> { control: Inntekt, candidate: Inntekt ->
@@ -34,8 +40,8 @@ class InntektKlassifiserer(private val inntektHttpClient: InntektHttpClient) {
                 sikkerlogg.info {
                     """
                        Match $match 
-                       Control $control do not match
-                       Candidate $candidate
+                       Control ${toString(control)} do not match
+                       Candidate ${toString(candidate)}
                    """.trimIndent()
                 }
             }
