@@ -70,7 +70,7 @@ fun main() {
     val apiKey = apiKeyVerifier.generate(configuration.applicationConfig.inntektApiKey)
 
     val inntektKlassifiserer = InntektKlassifiserer(
-        inntektHttpClient = SpesifisertInntektHttpClient(
+        inntektHttpClient = InntektHttpClient(
             configuration.applicationConfig.inntektApiUrl,
             apiKey
         ))

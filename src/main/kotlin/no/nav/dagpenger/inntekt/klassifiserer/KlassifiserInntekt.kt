@@ -1,28 +1,71 @@
 package no.nav.dagpenger.inntekt.klassifiserer
 
+import com.github.rawls238.scientist4j.Experiment
+import com.github.rawls238.scientist4j.metrics.MicrometerMetricsProvider
+import io.micrometer.core.instrument.Clock
+import io.micrometer.prometheus.PrometheusConfig
+import io.micrometer.prometheus.PrometheusMeterRegistry
+import io.prometheus.client.CollectorRegistry
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.YearMonth
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.function.BiFunction
 import no.nav.dagpenger.events.inntekt.v1.Avvik
 import no.nav.dagpenger.events.inntekt.v1.Inntekt
 import no.nav.dagpenger.events.inntekt.v1.KlassifisertInntekt
 import no.nav.dagpenger.events.inntekt.v1.KlassifisertInntektMåned
 import no.nav.dagpenger.events.inntekt.v1.SpesifisertInntekt
 
-class InntektKlassifiserer(private val inntektHttpClient: SpesifisertInntektHttpClient) {
+class InntektKlassifiserer(private val inntektHttpClient: InntektHttpClient) {
+
+    companion object {
+        private val executorService: ExecutorService = Executors.newFixedThreadPool(5)
+        private val comparator = BiFunction<Inntekt, Inntekt, Boolean> { control: Inntekt, candidate: Inntekt -> control.manueltRedigert == candidate.manueltRedigert &&
+            control.inntektsId == candidate.inntektsId &&
+            control.inntektsListe == candidate.inntektsListe &&
+            control.sisteAvsluttendeKalenderMåned == candidate.sisteAvsluttendeKalenderMåned }
+
+        val experiment: Experiment<Inntekt> = Experiment(
+            "klassifiserer",
+            emptyMap(),
+            false,
+            MicrometerMetricsProvider(PrometheusMeterRegistry(PrometheusConfig.DEFAULT, CollectorRegistry.defaultRegistry, Clock.SYSTEM)),
+            comparator,
+            executorService
+        )
+    }
+
     fun getInntekt(
         aktørId: String,
         vedtakId: String,
         beregningsDato: LocalDate,
         fødselsnummer: String? = null
-    ): Inntekt = klassifiserOgMapInntekt(
-        inntektHttpClient.getSpesifisertInntekt(
-            aktørId = aktørId,
-            vedtakId = vedtakId,
-            beregningsDato = beregningsDato,
-            fødselsnummer = fødselsnummer
+    ): Inntekt {
+
+        return experiment.runAsync(
+            {
+                klassifiserOgMapInntekt(
+                    inntektHttpClient.getSpesifisertInntekt(
+                        aktørId = aktørId,
+                        vedtakId = vedtakId,
+                        beregningsDato = beregningsDato,
+                        fødselsnummer = fødselsnummer
+                    )
+                )
+            },
+            {
+                inntektHttpClient.getKlassifisertInntekt(
+                    aktørId = aktørId,
+                    vedtakId = vedtakId,
+                    beregningsDato = beregningsDato,
+                    fødselsnummer = fødselsnummer
+                )
+            }
+
         )
-    )
+    }
 }
 
 internal fun klassifiserOgMapInntekt(spesifisertInntekt: SpesifisertInntekt): Inntekt {

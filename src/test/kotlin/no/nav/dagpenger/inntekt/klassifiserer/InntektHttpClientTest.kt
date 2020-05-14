@@ -15,7 +15,7 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-class SpesifisertInntektHttpClientTest {
+class InntektHttpClientTest {
 
     companion object {
         val server: WireMockServer = WireMockServer(WireMockConfiguration.options().dynamicPort())
@@ -41,7 +41,7 @@ class SpesifisertInntektHttpClientTest {
     @Test
     fun `fetch spesifisert inntekt on 200 ok`() {
 
-        val responseBodyJson = SpesifisertInntektHttpClientTest::class.java
+        val responseBodyJson = InntektHttpClientTest::class.java
             .getResource("/test-data/example-spesifisert-inntekt-payload.json").readText()
 
         WireMock.stubFor(
@@ -63,13 +63,13 @@ class SpesifisertInntektHttpClientTest {
                 )
         )
 
-        val spesifisertInntektHttpClient = SpesifisertInntektHttpClient(
+        val inntektHttpClient = InntektHttpClient(
             server.url(""),
             "api-key"
         )
 
         val spesifisertInntekt =
-            spesifisertInntektHttpClient.getSpesifisertInntekt(
+            inntektHttpClient.getSpesifisertInntekt(
                 "45456",
                 "123",
                 LocalDate.now(),
@@ -83,7 +83,7 @@ class SpesifisertInntektHttpClientTest {
     @Test
     fun `fetch spesifisert inntekt on 200 ok with fødselsnummer`() {
 
-        val responseBodyJson = SpesifisertInntektHttpClientTest::class.java
+        val responseBodyJson = InntektHttpClientTest::class.java
             .getResource("/test-data/example-spesifisert-inntekt-payload.json").readText()
 
         WireMock.stubFor(
@@ -108,13 +108,13 @@ class SpesifisertInntektHttpClientTest {
                 )
         )
 
-        val spesifisertInntektHttpClient = SpesifisertInntektHttpClient(
+        val inntektHttpClient = InntektHttpClient(
             server.url(""),
             "api-key"
         )
 
         val spesifisertInntekt =
-            spesifisertInntektHttpClient.getSpesifisertInntekt(
+            inntektHttpClient.getSpesifisertInntekt(
                 "45456",
                 "123",
                 LocalDate.now(),
@@ -123,6 +123,51 @@ class SpesifisertInntektHttpClientTest {
 
         assertEquals("01D8G6FS9QGRT3JKBTA5KEE64C", spesifisertInntekt.inntektId.id)
         assertEquals(4, spesifisertInntekt.posteringer.size)
+    }
+
+    @Test
+    fun `fetch klassifisert inntekt on 200 ok with fødselsnummer`() {
+
+        val responseBodyJson = InntektHttpClientTest::class.java
+            .getResource("/test-data/example-klassifisert-inntekt-payload.json").readText()
+
+        WireMock.stubFor(
+            WireMock.post(WireMock.urlEqualTo("/v1/inntekt/klassifisert"))
+                .withHeader("X-API-KEY", EqualToPattern("api-key"))
+                .withRequestBody(
+                    matchingJsonPath("aktørId", equalTo("45456"))
+                )
+                .withRequestBody(
+                    matchingJsonPath("vedtakId", equalTo("123"))
+                )
+                .withRequestBody(
+                    matchingJsonPath("beregningsDato", matching("^\\d{4}-\\d{2}-\\d{2}\$"))
+                )
+                .withRequestBody(
+                    matchingJsonPath("fødselsnummer", equalTo("12345678901"))
+                )
+                .willReturn(
+                    WireMock.aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(responseBodyJson)
+                )
+        )
+
+        val inntektHttpClient = InntektHttpClient(
+            server.url(""),
+            "api-key"
+        )
+
+        val klassifisertInntekt =
+            inntektHttpClient.getKlassifisertInntekt(
+                "45456",
+                "123",
+                LocalDate.now(),
+                "12345678901"
+            )
+
+        assertEquals("12345", klassifisertInntekt.inntektsId)
+        assertEquals(2, klassifisertInntekt.inntektsListe.size)
     }
 
     @Test
@@ -148,7 +193,7 @@ class SpesifisertInntektHttpClientTest {
                 )
         )
 
-        val spesifisertInntektHttpClient = SpesifisertInntektHttpClient(
+        val spesifisertInntektHttpClient = InntektHttpClient(
             server.url(""),
             "api-key"
         )
@@ -179,7 +224,7 @@ class SpesifisertInntektHttpClientTest {
                 )
         )
 
-        val spesifisertInntektHttpClient = SpesifisertInntektHttpClient(
+        val spesifisertInntektHttpClient = InntektHttpClient(
             server.url(""),
             "api-"
         )

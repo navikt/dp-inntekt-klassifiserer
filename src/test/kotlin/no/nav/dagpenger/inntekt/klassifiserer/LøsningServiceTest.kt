@@ -1,10 +1,6 @@
 package no.nav.dagpenger.inntekt.klassifiserer
 
-import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.ints.shouldBeExactly
@@ -25,13 +21,9 @@ import org.junit.jupiter.api.Test
 internal class LøsningServiceTest {
 
     companion object {
-        private val objectMapper = jacksonObjectMapper()
-            .registerModule(JavaTimeModule())
-            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-
+        private val inntektsId = "221212"
         private val inntekt = Inntekt(
-            inntektsId = "inntektsid",
+            inntektsId = inntektsId,
             manueltRedigert = false,
             inntektsListe = listOf(
                 KlassifisertInntektMåned(
@@ -63,7 +55,7 @@ internal class LøsningServiceTest {
     }
 
     @Test
-    fun ` Skal innhente løsning for inntekstbehov`() {
+    fun ` Skal innhente løsning for inntektsbehov`() {
         rapid.sendTestMessage(
             """
              {
@@ -83,17 +75,7 @@ internal class LøsningServiceTest {
             inspektør.size shouldBeExactly 1
             inspektør.field(0, "@behov").map(JsonNode::asText) shouldContain INNTEKT
             inspektør.field(0, "@løsning").hasNonNull(INNTEKT)
-            inspektør.field(0, "@løsning")[INNTEKT].hasNonNull("inntektsId")
-            inspektør.field(0, "@løsning")[INNTEKT].hasNonNull("inntektsListe")
-            inspektør.field(0, "@løsning")[INNTEKT].hasNonNull("sisteAvsluttendeKalenderMåned")
-
-            val inntektFraPacket: Inntekt =
-                objectMapper.treeToValue(inspektør.field(0, "@løsning")[INNTEKT], Inntekt::class.java)
-
-            inntekt.inntektsId shouldBe inntektFraPacket.inntektsId
-            inntekt.inntektsListe shouldBe inntektFraPacket.inntektsListe
-            inntekt.manueltRedigert shouldBe inntektFraPacket.manueltRedigert
-            inntekt.sisteAvsluttendeKalenderMåned shouldBe inntektFraPacket.sisteAvsluttendeKalenderMåned
+            inspektør.field(0, "@løsning")[INNTEKT].asText() shouldBe inntektsId
         }
     }
 }
