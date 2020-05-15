@@ -184,7 +184,7 @@ class InntektHttpClientTest {
 
         """.trimIndent()
         WireMock.stubFor(
-            WireMock.post(WireMock.urlEqualTo("/v1/inntekt/spesifisert"))
+            WireMock.post(WireMock.urlEqualTo("/v1/inntekt/klassifisert"))
                 .withHeader("X-API-KEY", EqualToPattern("api-key"))
                 .willReturn(
                     WireMock.serverError()
@@ -199,7 +199,7 @@ class InntektHttpClientTest {
         )
 
         val inntektApiHttpClientException = assertFailsWith<InntektApiHttpClientException> {
-            spesifisertInntektHttpClient.getSpesifisertInntekt(
+            spesifisertInntektHttpClient.getKlassifisertInntekt(
                 "",
                 "123",
                 LocalDate.now(),
@@ -218,7 +218,7 @@ class InntektHttpClientTest {
     fun `fetch spesifisert inntekt fails on error and no body`() {
 
         WireMock.stubFor(
-            WireMock.post(WireMock.urlEqualTo("/v1/inntekt/spesifisert"))
+            WireMock.post(WireMock.urlEqualTo("/v1/inntekt/klassifisert"))
                 .willReturn(
                     WireMock.serviceUnavailable()
                 )
@@ -230,7 +230,7 @@ class InntektHttpClientTest {
         )
 
         val inntektApiHttpClientException = assertFailsWith<InntektApiHttpClientException> {
-            spesifisertInntektHttpClient.getSpesifisertInntekt(
+            spesifisertInntektHttpClient.getKlassifisertInntekt(
                 "",
                 "123",
                 LocalDate.now(),

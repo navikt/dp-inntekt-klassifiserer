@@ -12,6 +12,11 @@ import no.nav.dagpenger.events.moshiInstance
 
 class InntektHttpClient(private val inntektApiUrl: String, private val apiKey: String) {
 
+    companion object {
+        val spesifisertInntektJsonAdapter: JsonAdapter<SpesifisertInntekt> = moshiInstance.adapter(SpesifisertInntekt::class.java)
+        val klassifisertInntektJsonAdapter: JsonAdapter<Inntekt> = moshiInstance.adapter(Inntekt::class.java)
+    }
+
     private val jsonRequestRequestAdapter = moshiInstance.adapter(InntektRequest::class.java)
     private val problemAdapter = moshiInstance.adapter(Problem::class.java)!!
 

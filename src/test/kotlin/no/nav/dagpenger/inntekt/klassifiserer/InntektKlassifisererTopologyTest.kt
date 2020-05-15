@@ -65,7 +65,7 @@ class InntektKlassifisererTopologyTest {
 
         val app = Application(
             configuration = Configuration(),
-            inntektKlassifiserer = mockk(),
+            inntektHttpClient = mockk(),
             healthCheck = mockk(relaxed = true)
         )
 
@@ -93,9 +93,9 @@ class InntektKlassifisererTopologyTest {
            }
         """.trimIndent()
 
-        val inntektKlassifiserer: InntektKlassifiserer = mockk()
+        val inntektHttpClient: InntektHttpClient = mockk()
         every {
-            inntektKlassifiserer.getInntekt(
+            inntektHttpClient.getKlassifisertInntekt(
                 "12345",
                 "123",
                 LocalDate.of(2019, 1, 25),
@@ -105,7 +105,7 @@ class InntektKlassifisererTopologyTest {
 
         val app = Application(
             configuration = Configuration(),
-            inntektKlassifiserer = inntektKlassifiserer,
+            inntektHttpClient = inntektHttpClient,
             healthCheck = mockk(relaxed = true)
         )
         TopologyTestDriver(app.buildTopology(), config).use { topologyTestDriver ->
@@ -135,9 +135,9 @@ class InntektKlassifisererTopologyTest {
            }
         """.trimIndent()
 
-        val inntektKlassifiserer: InntektKlassifiserer = mockk()
+        val inntektHttpClient: InntektHttpClient = mockk()
         every {
-            inntektKlassifiserer.getInntekt(
+            inntektHttpClient.getKlassifisertInntekt(
                 "12345",
                 "123",
                 LocalDate.of(2019, 1, 25),
@@ -147,7 +147,7 @@ class InntektKlassifisererTopologyTest {
 
         val app = Application(
             configuration = Configuration(),
-            inntektKlassifiserer = inntektKlassifiserer,
+            inntektHttpClient = inntektHttpClient,
             healthCheck = mockk(relaxed = true)
         )
         TopologyTestDriver(app.buildTopology(), config).use { topologyTestDriver ->
