@@ -13,7 +13,6 @@ import no.nav.dagpenger.events.inntekt.v1.Inntekt
 import no.nav.dagpenger.events.inntekt.v1.InntektKlasse
 import no.nav.dagpenger.events.inntekt.v1.KlassifisertInntekt
 import no.nav.dagpenger.events.inntekt.v1.KlassifisertInntektMåned
-import no.nav.dagpenger.inntekt.klassifiserer.LøsningService.Companion.INNTEKT
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -59,11 +58,11 @@ internal class LøsningServiceTest {
         rapid.sendTestMessage(
             """
              {
-                "@behov": ["$INNTEKT"],
+                "@behov": ["InntektId"],
                 "@id" : "12345", 
                 "aktørId" : "1234",
                 "fødselsnummer" : "1234",
-                "vedtakId" : "vedtakId122423231ljnds",
+                "vedtakId" : "12345",
                 "beregningsdato": "2020-04-21"
              }
             """.trimIndent()
@@ -73,9 +72,9 @@ internal class LøsningServiceTest {
 
             val inspektør = rapid.inspektør
             inspektør.size shouldBeExactly 1
-            inspektør.field(0, "@behov").map(JsonNode::asText) shouldContain INNTEKT
-            inspektør.field(0, "@løsning").hasNonNull(INNTEKT)
-            inspektør.field(0, "@løsning")[INNTEKT].asText() shouldBe inntektsId
+            inspektør.field(0, "@behov").map(JsonNode::asText) shouldContain "InntektId"
+            inspektør.field(0, "@løsning").hasNonNull("InntektId")
+            inspektør.field(0, "@løsning")["InntektId"].asText() shouldBe inntektsId
         }
     }
 }

@@ -13,31 +13,25 @@ class LøsningService(
     private val inntektHttpClient: InntektHttpClient
 ) : River.PacketListener {
 
-    private val log = KotlinLogging.logger {}
-    private val sikkerlogg = KotlinLogging.logger("tjenestekall")
+    companion object {
+        val log = KotlinLogging.logger {}
+        val sikkerlogg = KotlinLogging.logger("tjenestekall")
+    }
 
     init {
         River(rapidsConnection).apply {
-            validate { it.demandAll("@behov", listOf(INNTEKT)) }
+            validate { it.demandAll("@behov", listOf("InntektId")) }
             validate { it.rejectKey("@løsning") }
-            validate { it.requireKey("@id", BEREGNINGSDATO, AKTØRID, FØDSELSNUNMER, VEDTAK_ID) }
+            validate { it.requireKey("@id") }
+            validate { it.requireKey("beregningsdato", "aktørId", "fødselsnummer", "vedtakId") }
         }.register(this)
     }
 
-    companion object {
-        const val INNTEKT: String = "Inntekt"
-        const val BEREGNINGSDATO: String = "beregningsdato"
-        const val AKTØRID: String = "aktørId"
-        const val FØDSELSNUNMER: String = "fødselsnummer"
-        const val VEDTAK_ID: String = "vedtakId"
-        private val logger = KotlinLogging.logger {}
-    }
-
     override fun onPacket(packet: JsonMessage, context: RapidsConnection.MessageContext) {
-        val aktørId = packet[AKTØRID].asText()
-        val vedtakId = packet[VEDTAK_ID].asText()
-        val fødselsnummer = packet[FØDSELSNUNMER].asText()
-        val beregningsDato = packet[BEREGNINGSDATO].asLocalDate()
+        val aktørId = packet["aktørId"].asText()
+        val vedtakId = packet["vedtakId"].asText()
+        val fødselsnummer = packet["fødselsnummer"].asText()
+        val beregningsDato = packet["beregningsdato"].asLocalDate()
 
         withLoggingContext(
             "behovId" to packet["@id"].asText(),
@@ -51,18 +45,18 @@ class LøsningService(
                     fødselsnummer = fødselsnummer
                 )
                 packet["@løsning"] = mapOf(
-                    INNTEKT to inntekt.inntektsId
+                    "InntektId" to inntekt.inntektsId
                 )
                 context.send(packet.toJson())
-                logger.info { "løser behov for ${packet["@id"].asText()}" }
+                log.info { "løser behov for ${packet["@id"].asText()}" }
             } catch (err: Exception) {
-                logger.error(err) { "feil ved innhenting av inntekt: ${err.message} for ${packet["@id"].asText()}" }
+                log.error(err) { "feil ved innhenting av inntekt: ${err.message} for ${packet["@id"].asText()}" }
             }
         }
     }
 
     override fun onError(problems: MessageProblems, context: RapidsConnection.MessageContext) {
-        log.info { problems.toString() }
-        sikkerlogg.info { problems.toExtendedReport() }
+        log.error { problems.toString() }
+        sikkerlogg.error { problems.toExtendedReport() }
     }
 }

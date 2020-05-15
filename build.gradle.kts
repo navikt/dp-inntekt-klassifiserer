@@ -92,6 +92,7 @@ tasks.withType<Test> {
         showStackTraces = true
         exceptionFormat = TestExceptionFormat.FULL
         events("passed", "skipped", "failed")
+        showStandardStreams = true
     }
 }
 
