@@ -87,6 +87,10 @@ fun main() {
         apiKey = apiKey
     )
 
+    Runtime.getRuntime().addShutdownHook(Thread {
+        inntektGrpcClient.close()
+    })
+
     val inntektHttpClient = InntektHttpClient(
             configuration.applicationConfig.inntektApiUrl,
             apiKey
