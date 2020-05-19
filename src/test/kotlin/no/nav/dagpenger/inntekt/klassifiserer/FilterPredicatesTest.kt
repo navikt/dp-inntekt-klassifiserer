@@ -48,7 +48,8 @@ class OnPacketTest {
         val app = Application(
             configuration = Configuration(),
             inntektHttpClient = inntektHttpClient,
-            healthCheck = mockk(relaxed = true)
+            healthCheck = mockk(relaxed = true),
+            inntektHenter = mockk(relaxed = true)
         )
 
         val inputPacket = Packet()
@@ -69,7 +70,12 @@ class FilterPredicatesTest {
         val packet = Packet().apply {
             putValue("manueltGrunnlag", 1000)
         }
-        val app = Application(configuration = Configuration(), inntektHttpClient = mockk(), healthCheck = mockk(relaxed = true))
+        val app = Application(
+            configuration = Configuration(),
+            inntektHttpClient = mockk(),
+            healthCheck = mockk(relaxed = true),
+            inntektHenter = mockk(relaxed = true)
+        )
         app.filterPredicates().all { it.test("", packet) } shouldBe false
     }
 
@@ -77,7 +83,12 @@ class FilterPredicatesTest {
     fun `Skal legge på inntekt der det er ikke er manuelt grunnlag`() {
         val packet = Packet()
         packet.putValue("vedtakId", 123)
-        val app = Application(configuration = Configuration(), inntektHttpClient = mockk(), healthCheck = mockk(relaxed = true))
+        val app = Application(
+            configuration = Configuration(),
+            inntektHttpClient = mockk(),
+            healthCheck = mockk(relaxed = true),
+            inntektHenter = mockk(relaxed = true)
+        )
         app.filterPredicates().all { it.test("", packet) } shouldBe true
     }
 }
