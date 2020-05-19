@@ -2,7 +2,10 @@ package no.nav.dagpenger.inntekt.klassifiserer
 
 import java.time.LocalDateTime
 import java.util.Properties
+import kotlinx.coroutines.runBlocking
 import no.nav.dagpenger.events.Packet
+import no.nav.dagpenger.inntekt.rpc.InntektHenter
+import no.nav.dagpenger.inntekt.rpc.InntektHenterWrapper
 import no.nav.dagpenger.ktor.auth.ApiKeyVerifier
 import no.nav.dagpenger.streams.HealthCheck
 import no.nav.dagpenger.streams.HealthStatus
@@ -16,7 +19,8 @@ import org.apache.kafka.streams.kstream.Predicate
 class Application(
     private val configuration: Configuration,
     private val inntektHttpClient: InntektHttpClient,
-    private val healthCheck: HealthCheck
+    private val healthCheck: HealthCheck,
+    private val inntektHenter: InntektHenter
 ) : River(configuration.kafka.behovTopic) {
 
     override val healthChecks: List<HealthCheck> = listOf(healthCheck)
@@ -28,6 +32,7 @@ class Application(
         const val VEDTAKID = "vedtakId"
         const val MANUELT_GRUNNLAG = "manueltGrunnlag"
         const val BEREGNINGSDATO = "beregningsDato"
+        const val INNTEKTS_ID = "inntektsId"
     }
 
     override fun getConfig(): Properties {
@@ -50,13 +55,21 @@ class Application(
             packet.getNullableStringValue("system_started")
                 ?.let { runCatching { LocalDateTime.parse(it) }.getOrNull() }
 
+        val inntektsId = packet.getNullableStringValue(INNTEKTS_ID)
         if (started?.isBefore(LocalDateTime.now().minusSeconds(30)) == true) {
             throw RuntimeException("Denne pakka er for gammal!")
         } else {
-            val aktørId = packet.getStringValue(AKTØRID)
-            val vedtakId = packet.getIntValue(VEDTAKID)
-            val beregningsDato = packet.getLocalDate(BEREGNINGSDATO)
-            val klassifisertInntekt = inntektHttpClient.getKlassifisertInntekt(aktørId, vedtakId.toString(), beregningsDato, null)
+
+            val klassifisertInntekt = when (inntektsId) {
+                is String -> runBlocking { inntektHenter.hentKlassifisertInntekt(inntektsId) }
+                else -> {
+                    val aktørId = packet.getStringValue(AKTØRID)
+                    val vedtakId = packet.getIntValue(VEDTAKID)
+                    val beregningsDato = packet.getLocalDate(BEREGNINGSDATO)
+                    inntektHttpClient.getKlassifisertInntekt(aktørId, vedtakId.toString(), beregningsDato, null)
+                }
+            }
+
             packet.putValue(INNTEKT, klassifisertInntekt)
             return packet
         }
@@ -69,6 +82,15 @@ fun main() {
     val apiKeyVerifier = ApiKeyVerifier(configuration.applicationConfig.inntektApiSecret)
     val apiKey = apiKeyVerifier.generate(configuration.applicationConfig.inntektApiKey)
 
+    val inntektGrpcClient = InntektHenterWrapper(
+        serveraddress = configuration.applicationConfig.inntektGrpcAddress,
+        apiKey = apiKey
+    )
+
+    Runtime.getRuntime().addShutdownHook(Thread {
+        inntektGrpcClient.close()
+    })
+
     val inntektHttpClient = InntektHttpClient(
             configuration.applicationConfig.inntektApiUrl,
             apiKey
@@ -77,6 +99,7 @@ fun main() {
     Application(
         configuration = configuration,
         inntektHttpClient = inntektHttpClient,
+        inntektHenter = inntektGrpcClient,
         healthCheck = RapidHealthCheck as HealthCheck
     ).start()
 

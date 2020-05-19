@@ -3,21 +3,26 @@ package no.nav.dagpenger.inntekt.klassifiserer
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.YearMonth
 import java.util.Properties
+import kotlinx.coroutines.runBlocking
 import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.events.inntekt.v1.Inntekt
 import no.nav.dagpenger.events.inntekt.v1.InntektKlasse
 import no.nav.dagpenger.events.inntekt.v1.KlassifisertInntekt
 import no.nav.dagpenger.events.inntekt.v1.KlassifisertInntektMåned
+import no.nav.dagpenger.inntekt.rpc.InntektHenter
 import no.nav.dagpenger.streams.Topics
 import org.apache.kafka.streams.StreamsConfig
 import org.apache.kafka.streams.TopologyTestDriver
 import org.apache.kafka.streams.test.ConsumerRecordFactory
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class InntektKlassifisererTopologyTest {
@@ -55,6 +60,52 @@ class InntektKlassifisererTopologyTest {
     }
 
     @Test
+    fun `Should add klassifisert inntekt by inntektsId to packet`() {
+        val inntektHenter = mockk<InntektHenter>(relaxed = true)
+        every { runBlocking { inntektHenter.hentKlassifisertInntekt("ULID") } } returns inntekt
+        val inntektHttpClient = mockk<InntektHttpClient>()
+
+        val app = Application(
+            configuration = Configuration(),
+            inntektHttpClient = inntektHttpClient,
+            healthCheck = mockk(relaxed = true),
+            inntektHenter = inntektHenter
+        )
+
+        val packetJson = """
+            {
+                "aktørId": "12345",
+                "vedtakId": 123,
+                "beregningsDato": 2019-01-25,
+                "inntektsId": "ULID",
+                "otherField": "should be unchanged"
+            }
+        """.trimIndent()
+
+        TopologyTestDriver(app.buildTopology(), config).use { topologyTestDriver ->
+            val inputRecord = factory.create(Packet(packetJson))
+            topologyTestDriver.pipeInput(inputRecord)
+            val ut = topologyTestDriver.readOutput(
+                Topics.DAGPENGER_BEHOV_PACKET_EVENT.name,
+                Topics.DAGPENGER_BEHOV_PACKET_EVENT.keySerde.deserializer(),
+                Topics.DAGPENGER_BEHOV_PACKET_EVENT.valueSerde.deserializer()
+            )
+
+            assertTrue { ut != null }
+            assertTrue(ut.value().hasField("inntektV1"))
+
+            assertEquals("12345", ut.value().getStringValue("aktørId"))
+            assertEquals(123, ut.value().getIntValue("vedtakId"))
+            assertEquals(LocalDate.of(2019, 1, 25), ut.value().getLocalDate("beregningsDato"))
+            assertEquals("ULID", ut.value().getStringValue("inntektsId"))
+            assertEquals("should be unchanged", ut.value().getStringValue("otherField"))
+
+            verify(exactly = 1) { runBlocking { inntektHenter.hentKlassifisertInntekt("ULID") } }
+            verify(exactly = 0) { inntektHttpClient.getKlassifisertInntekt(any(), any(), any(), any()) }
+        }
+    }
+
+    @Test
     fun `Do not process packets with klassifisert inntekt`() {
         val packetWithKlassifisertInntekt = """
             {
@@ -66,7 +117,8 @@ class InntektKlassifisererTopologyTest {
         val app = Application(
             configuration = Configuration(),
             inntektHttpClient = mockk(),
-            healthCheck = mockk(relaxed = true)
+            healthCheck = mockk(relaxed = true),
+            inntektHenter = mockk(relaxed = true)
         )
 
         TopologyTestDriver(app.buildTopology(), config).use { topologyTestDriver ->
@@ -106,7 +158,8 @@ class InntektKlassifisererTopologyTest {
         val app = Application(
             configuration = Configuration(),
             inntektHttpClient = inntektHttpClient,
-            healthCheck = mockk(relaxed = true)
+            healthCheck = mockk(relaxed = true),
+            inntektHenter = mockk(relaxed = true)
         )
         TopologyTestDriver(app.buildTopology(), config).use { topologyTestDriver ->
 
@@ -148,7 +201,8 @@ class InntektKlassifisererTopologyTest {
         val app = Application(
             configuration = Configuration(),
             inntektHttpClient = inntektHttpClient,
-            healthCheck = mockk(relaxed = true)
+            healthCheck = mockk(relaxed = true),
+            inntektHenter = mockk(relaxed = true)
         )
         TopologyTestDriver(app.buildTopology(), config).use { topologyTestDriver ->
 
