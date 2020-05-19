@@ -38,15 +38,16 @@ class LøsningService(
             "vedtakId" to packet["vedtakId"].asText()
         ) {
             try {
-                val inntekt = inntektHttpClient.getKlassifisertInntekt(
+                inntektHttpClient.getKlassifisertInntekt(
                     aktørId = aktørId,
                     vedtakId = vedtakId,
                     beregningsDato = beregningsDato,
                     fødselsnummer = fødselsnummer
-                )
-                packet["@løsning"] = mapOf(
-                    "Inntekt" to mapOf("id" to inntekt.inntektsId)
-                )
+                ).also {
+                    packet["@løsning"] = mapOf(
+                        "Inntekt" to mapOf("id" to it.inntektsId)
+                    )
+                }
                 context.send(packet.toJson())
                 log.info { "løser behov for ${packet["@id"].asText()}" }
             } catch (err: Exception) {
