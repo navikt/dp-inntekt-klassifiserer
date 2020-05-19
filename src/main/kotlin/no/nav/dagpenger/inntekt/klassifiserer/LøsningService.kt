@@ -49,9 +49,11 @@ class LøsningService(
                     )
                 }
                 context.send(packet.toJson())
+
                 log.info { "løser behov for ${packet["@id"].asText()}" }
             } catch (err: Exception) {
                 log.error(err) { "feil ved innhenting av inntekt: ${err.message} for ${packet["@id"].asText()}" }
+                sikkerlogg.error(err) { "feil ved innhenting av inntekt: ${err.message} for fødselsnummer $fødselsnummer. Packet: ${packet.toJson()}" }
             }
         }
     }
