@@ -20,7 +20,7 @@ class LøsningService(
 
     init {
         River(rapidsConnection).apply {
-            validate { it.demandAll("@behov", listOf("InntektId")) }
+            validate { it.demandAll("@behov", listOf("Inntekt")) }
             validate { it.rejectKey("@løsning") }
             validate { it.requireKey("@id") }
             validate { it.requireKey("beregningsdato", "aktørId", "fødselsnummer", "vedtakId") }
@@ -45,7 +45,7 @@ class LøsningService(
                     fødselsnummer = fødselsnummer
                 )
                 packet["@løsning"] = mapOf(
-                    "InntektId" to inntekt.inntektsId
+                    "Inntekt" to mapOf("id" to inntekt.inntektsId)
                 )
                 context.send(packet.toJson())
                 log.info { "løser behov for ${packet["@id"].asText()}" }

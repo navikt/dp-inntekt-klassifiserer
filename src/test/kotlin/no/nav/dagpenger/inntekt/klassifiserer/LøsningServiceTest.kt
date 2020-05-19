@@ -58,7 +58,7 @@ internal class LøsningServiceTest {
         rapid.sendTestMessage(
             """
              {
-                "@behov": ["InntektId"],
+                "@behov": ["Inntekt"],
                 "@id" : "12345", 
                 "aktørId" : "1234",
                 "fødselsnummer" : "1234",
@@ -72,9 +72,9 @@ internal class LøsningServiceTest {
 
             val inspektør = rapid.inspektør
             inspektør.size shouldBeExactly 1
-            inspektør.field(0, "@behov").map(JsonNode::asText) shouldContain "InntektId"
-            inspektør.field(0, "@løsning").hasNonNull("InntektId")
-            inspektør.field(0, "@løsning")["InntektId"].asText() shouldBe inntektsId
+            inspektør.field(0, "@behov").map(JsonNode::asText) shouldContain "Inntekt"
+            inspektør.field(0, "@løsning").hasNonNull("Inntekt")
+            inspektør.field(0, "@løsning")["Inntekt"]["id"].asText() shouldBe inntektsId
         }
     }
 }
