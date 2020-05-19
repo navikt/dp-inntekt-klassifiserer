@@ -66,6 +66,7 @@ data class Configuration(
     val applicationConfig: ApplicationConfig = ApplicationConfig(),
     val kafka: Kafka = Kafka(),
     val rapidApplication: Map<String, String> = mapOf(
+        "RAPID_APP_NAME" to applicationConfig.id,
         "KAFKA_BOOTSTRAP_SERVERS" to config()[Key("kafka.bootstrap.servers", stringType)],
         "KAFKA_CONSUMER_GROUP_ID" to "dp-inntekt-klassifiserer-rapid",
         "KAFKA_RAPID_TOPIC" to config()[Key("kafka.topic", stringType)],
