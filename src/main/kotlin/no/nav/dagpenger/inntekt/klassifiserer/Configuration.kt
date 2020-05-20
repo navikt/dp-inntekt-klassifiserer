@@ -74,7 +74,7 @@ data class Configuration(
         "NAV_TRUSTSTORE_PATH" to config()[Key("nav.truststore.path", stringType)],
         "NAV_TRUSTSTORE_PASSWORD" to config()[Key("nav.truststore.password", stringType)],
         "HTTP_PORT" to "8088" // @todo - to avoid port clash with dagpenger River
-    )
+    ) + System.getenv().filter { it.key.startsWith("NAIS_") }
 )
 
 data class Kafka(
