@@ -3,12 +3,12 @@ package no.nav.dagpenger.inntekt.klassifiserer
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.fuel.moshi.moshiDeserializerOf
 import com.squareup.moshi.JsonAdapter
-import java.net.URI
-import java.time.LocalDate
 import no.nav.dagpenger.events.Problem
 import no.nav.dagpenger.events.inntekt.v1.Inntekt
 import no.nav.dagpenger.events.inntekt.v1.SpesifisertInntekt
 import no.nav.dagpenger.events.moshiInstance
+import java.net.URI
+import java.time.LocalDate
 
 class InntektHttpClient(private val inntektApiUrl: String, private val apiKey: String) {
 
@@ -77,7 +77,8 @@ class InntektHttpClient(private val inntektApiUrl: String, private val apiKey: S
                     problem,
                     error.exception
                 )
-            })
+            }
+        )
     }
 
     fun getKlassifisertInntekt(

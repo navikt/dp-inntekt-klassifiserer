@@ -7,8 +7,6 @@ import io.kotest.matchers.ints.shouldBeExactly
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import java.math.BigDecimal
-import java.time.YearMonth
 import no.nav.dagpenger.events.inntekt.v1.Inntekt
 import no.nav.dagpenger.events.inntekt.v1.InntektKlasse
 import no.nav.dagpenger.events.inntekt.v1.KlassifisertInntekt
@@ -16,6 +14,8 @@ import no.nav.dagpenger.events.inntekt.v1.KlassifisertInntektMåned
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.math.BigDecimal
+import java.time.YearMonth
 
 internal class LøsningServiceTest {
 
