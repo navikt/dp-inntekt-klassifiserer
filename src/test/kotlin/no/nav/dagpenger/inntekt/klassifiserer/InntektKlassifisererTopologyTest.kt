@@ -4,10 +4,6 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import java.math.BigDecimal
-import java.time.LocalDate
-import java.time.YearMonth
-import java.util.Properties
 import kotlinx.coroutines.runBlocking
 import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.events.inntekt.v1.Inntekt
@@ -24,6 +20,10 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import java.math.BigDecimal
+import java.time.LocalDate
+import java.time.YearMonth
+import java.util.Properties
 
 class InntektKlassifisererTopologyTest {
 
@@ -72,7 +72,8 @@ class InntektKlassifisererTopologyTest {
             inntektHenter = inntektHenter
         )
 
-        val packetJson = """
+        val packetJson =
+            """
             {
                 "aktørId": "12345",
                 "vedtakId": 123,
@@ -80,7 +81,7 @@ class InntektKlassifisererTopologyTest {
                 "inntektsId": "ULID",
                 "otherField": "should be unchanged"
             }
-        """.trimIndent()
+            """.trimIndent()
 
         TopologyTestDriver(app.buildTopology(), config).use { topologyTestDriver ->
             val inputRecord = factory.create(Packet(packetJson))
@@ -107,12 +108,13 @@ class InntektKlassifisererTopologyTest {
 
     @Test
     fun `Do not process packets with klassifisert inntekt`() {
-        val packetWithKlassifisertInntekt = """
+        val packetWithKlassifisertInntekt =
+            """
             {
                 "spesifisertInntektV1" : "something",
                 "inntektV1" : "something"
             }
-        """.trimIndent()
+            """.trimIndent()
 
         val app = Application(
             configuration = Configuration(),
@@ -137,13 +139,14 @@ class InntektKlassifisererTopologyTest {
 
     @Test
     fun `Skal legge på inntekt på pakka `() {
-        val packetWithSpesifisertInntektJson = """
+        val packetWithSpesifisertInntektJson =
+            """
             {
                 "aktørId": "12345",
                 "vedtakId": 123,
                 "beregningsDato": 2019-01-25
            }
-        """.trimIndent()
+            """.trimIndent()
 
         val inntektHttpClient: InntektHttpClient = mockk()
         every {
@@ -179,14 +182,15 @@ class InntektKlassifisererTopologyTest {
 
     @Test
     fun `Skal ikke behandle pakker over 30 sekunder`() {
-        val packetWithSpesifisertInntektJson = """
+        val packetWithSpesifisertInntektJson =
+            """
             {
                 "system_started": "2020-03-28T12:35:53.082955",
                 "aktørId": "12345",
                 "vedtakId": 123,
                 "beregningsDato": 2019-01-25
            }
-        """.trimIndent()
+            """.trimIndent()
 
         val inntektHttpClient: InntektHttpClient = mockk()
         every {

@@ -3,15 +3,15 @@ package no.nav.dagpenger.inntekt.klassifiserer
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import java.math.BigDecimal
-import java.time.LocalDate
-import java.time.YearMonth
 import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.events.inntekt.v1.Inntekt
 import no.nav.dagpenger.events.inntekt.v1.InntektKlasse
 import no.nav.dagpenger.events.inntekt.v1.KlassifisertInntekt
 import no.nav.dagpenger.events.inntekt.v1.KlassifisertInntektMåned
 import org.junit.jupiter.api.Test
+import java.math.BigDecimal
+import java.time.LocalDate
+import java.time.YearMonth
 
 class OnPacketTest {
 
@@ -31,7 +31,8 @@ class OnPacketTest {
                     harAvvik = false
                 )
             ),
-            sisteAvsluttendeKalenderMåned = YearMonth.now())
+            sisteAvsluttendeKalenderMåned = YearMonth.now()
+        )
     }
     @Test
     fun `Add klassifisert inntekt to behov`() {

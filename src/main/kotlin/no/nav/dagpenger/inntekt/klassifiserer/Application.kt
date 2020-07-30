@@ -1,7 +1,5 @@
 package no.nav.dagpenger.inntekt.klassifiserer
 
-import java.time.LocalDateTime
-import java.util.Properties
 import kotlinx.coroutines.runBlocking
 import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.inntekt.rpc.InntektHenter
@@ -15,6 +13,8 @@ import no.nav.dagpenger.streams.streamConfig
 import no.nav.helse.rapids_rivers.RapidApplication
 import no.nav.helse.rapids_rivers.RapidsConnection
 import org.apache.kafka.streams.kstream.Predicate
+import java.time.LocalDateTime
+import java.util.Properties
 
 class Application(
     private val configuration: Configuration,
@@ -87,14 +87,16 @@ fun main() {
         apiKey = apiKey
     )
 
-    Runtime.getRuntime().addShutdownHook(Thread {
-        inntektGrpcClient.close()
-    })
+    Runtime.getRuntime().addShutdownHook(
+        Thread {
+            inntektGrpcClient.close()
+        }
+    )
 
     val inntektHttpClient = InntektHttpClient(
-            configuration.applicationConfig.inntektApiUrl,
-            apiKey
-        )
+        configuration.applicationConfig.inntektApiUrl,
+        apiKey
+    )
 
     Application(
         configuration = configuration,

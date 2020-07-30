@@ -7,13 +7,13 @@ import com.github.tomakehurst.wiremock.client.WireMock.matching
 import com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import com.github.tomakehurst.wiremock.matching.EqualToPattern
-import java.time.LocalDate
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class InntektHttpClientTest {
 
@@ -173,7 +173,8 @@ class InntektHttpClientTest {
     @Test
     fun `fetch spesifisert inntekt fails on 500 server error`() {
 
-        val responseBodyJson = """
+        val responseBodyJson =
+            """
 
          {
             "type": "urn:dp:error:inntektskomponenten",
@@ -182,7 +183,7 @@ class InntektHttpClientTest {
             "detail": "Innhenting av inntekt mot inntektskomponenten feilet."
          }
 
-        """.trimIndent()
+            """.trimIndent()
         WireMock.stubFor(
             WireMock.post(WireMock.urlEqualTo("/v1/inntekt/klassifisert"))
                 .withHeader("X-API-KEY", EqualToPattern("api-key"))
