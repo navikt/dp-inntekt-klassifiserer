@@ -1,8 +1,31 @@
+# Example https://github.com/nais/naiserator/blob/master/examples/nais-max.yaml
 apiVersion: nais.io/v1alpha1
 kind: Application
 metadata:
-  name: dp-inntekt-klassifiserer
+  name: {{app}}
+  namespace: {{namespace}}
+  labels:
+    team: {{team}}
 spec:
+  image: {{ image }}
+  port: 8080
+  liveness:
+    path: /isAlive
+  readiness:
+    path: /isReady
+  prometheus:
+    enabled: true
+    path: /metrics
+  replicas:
+    min: 2
+    max: 4
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
   env:
     - name: BEHOV_TOPIC
       value: "privat-dagpenger-behov-v1-q2"
@@ -11,8 +34,9 @@ spec:
     - name: KAFKA_TOPIC
       value: "privat-dagpenger-behov-v2-q2"
   vault:
+    enabled: true
     paths:
-      - kvPath: "serviceuser/data/dev/srvdp-inntekt-klas"
+      - kvPath: "serviceuser/data/dev/{{service_user}}"
         mountPath: "/var/run/secrets/nais.io/service_user"
       - kvPath: "kv/preprod/fss/dp-inntekt-klassifiserer/q2"
         mountPath: "/var/run/secrets/nais.io/vault/"
