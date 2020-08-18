@@ -122,7 +122,7 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-fss
-          RESOURCE: nais/alerts.yaml,nais/grpc-svc.yaml,nais/prod/nais.yaml
+          RESOURCE: nais/alerts.yaml,nais/prod/nais.yaml
           VARS: nais/vars.yaml
           VAR: alerts_slack_channel=#team-dagpenger-alerts
           PRINT_PAYLOAD: true
