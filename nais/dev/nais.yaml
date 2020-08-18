@@ -31,7 +31,7 @@ spec:
     paths:
       - kvPath: "serviceuser/data/dev/{{service_user}}"
         mountPath: "/var/run/secrets/nais.io/service_user"
-      - kvPath: "kv/preprod/fss/dp-inntekt-klassifiserer/default"
+      - kvPath: "kv/preprod/fss/dp-inntekt-klassifiserer/teamdagpenger"
         mountPath: "/var/run/secrets/nais.io/vault/"
   secureLogs:
     enabled: true
