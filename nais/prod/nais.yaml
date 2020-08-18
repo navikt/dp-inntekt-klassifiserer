@@ -1,16 +1,36 @@
-apiVersion: "nais.io/v1alpha1"
-kind: "Application"
+# Example https://github.com/nais/naiserator/blob/master/examples/nais-max.yaml
+apiVersion: nais.io/v1alpha1
+kind: Application
 metadata:
-  name: dp-inntekt-klassifiserer
+  name: {{app}}
+  namespace: {{namespace}}
+  labels:
+    team: {{team}}
 spec:
-  vault:
-    paths:
-      - kvPath: "serviceuser/data/prod/srvdp-inntekt-klas"
-        mountPath: "/var/run/secrets/nais.io/service_user"
-      - kvPath: "kv/prod/fss/dp-inntekt-klassifiserer/default"
-        mountPath: "/var/run/secrets/nais.io/vault/"
+  image: {{ image }}
+  port: 8080
+  liveness:
+    path: /isAlive
+  readiness:
+    path: /isReady
+  prometheus:
+    enabled: true
+    path: /metrics
   replicas:
     min: 4
     max: 6
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  vault:
+    paths:
+      - kvPath: "serviceuser/data/prod/{{service_user}}"
+        mountPath: "/var/run/secrets/nais.io/service_user"
+      - kvPath: "kv/prod/fss/dp-inntekt-klassifiserer/default"
+        mountPath: "/var/run/secrets/nais.io/vault/"
   secureLogs:
     enabled: true
