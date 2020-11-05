@@ -10,7 +10,6 @@ import no.nav.dagpenger.streams.HealthStatus
 import no.nav.dagpenger.streams.KafkaCredential
 import no.nav.dagpenger.streams.River
 import no.nav.dagpenger.streams.streamConfig
-import no.nav.helse.rapids_rivers.RapidApplication
 import no.nav.helse.rapids_rivers.RapidsConnection
 import org.apache.kafka.streams.kstream.Predicate
 import java.time.LocalDateTime
@@ -19,11 +18,10 @@ import java.util.Properties
 class Application(
     private val configuration: Configuration,
     private val inntektHttpClient: InntektHttpClient,
-    private val healthCheck: HealthCheck,
+    private val healthCheck: HealthCheck? = null,
     private val inntektHenter: InntektHenter
 ) : River(configuration.kafka.behovTopic) {
 
-    override val healthChecks: List<HealthCheck> = listOf(healthCheck)
     override val SERVICE_APP_ID: String = configuration.applicationConfig.id
 
     companion object {
@@ -101,20 +99,19 @@ fun main() {
     Application(
         configuration = configuration,
         inntektHttpClient = inntektHttpClient,
-        inntektHenter = inntektGrpcClient,
-        healthCheck = RapidHealthCheck as HealthCheck
+        inntektHenter = inntektGrpcClient
     ).start()
 
-    RapidApplication.create(
-        Configuration().rapidApplication
-    ).apply {
-        LøsningService(
-            this,
-            inntektHttpClient = inntektHttpClient
-        )
-    }.also {
-        it.register(RapidHealthCheck)
-    }.start()
+    // RapidApplication.create(
+    //     Configuration().rapidApplication
+    // ).apply {
+    //     LøsningService(
+    //         this,
+    //         inntektHttpClient = inntektHttpClient
+    //     )
+    // }.also {
+    //     it.register(RapidHealthCheck)
+    // }.start()
 }
 
 object RapidHealthCheck : RapidsConnection.StatusListener, HealthCheck {
