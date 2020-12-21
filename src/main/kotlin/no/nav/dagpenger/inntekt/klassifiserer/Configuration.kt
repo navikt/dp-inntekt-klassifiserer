@@ -29,7 +29,6 @@ private val localProperties = ConfigurationMap(
         "nav.truststore.password" to "changeme",
         "srvdp.inntekt.klassifiserer.username" to "srvdp-inntekt-kl",
         "srvdp.inntekt.klassifiserer.password" to "srvdp-passord",
-        "unleash.url" to "https://localhost"
     )
 )
 
@@ -43,7 +42,6 @@ private val devProperties = ConfigurationMap(
         "kafka.bootstrap.servers" to "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443",
         "kafka.topic" to TOPIC,
         "kafka.reset.policy" to "earliest",
-        "unleash.url" to "https://unleash.nais.preprod.local/api/"
 
     )
 )
@@ -58,7 +56,6 @@ private val prodProperties = ConfigurationMap(
         "kafka.bootstrap.servers" to "a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00149.adeo.no:8443",
         "kafka.topic" to TOPIC,
         "kafka.reset.policy" to "earliest",
-        "unleash.url" to "https://unleash.nais.adeo.no/api/"
     )
 )
 
@@ -93,7 +90,6 @@ data class ApplicationConfig(
     val inntektApiUrl: String = config()[Key("dp.inntekt.api.url", stringType)],
     val inntektApiKey: String = config()[Key("dp.inntekt.api.key", stringType)],
     val inntektApiSecret: String = config()[Key("dp.inntekt.api.secret", stringType)],
-    val unleashUrl: String = config()[Key("unleash.url", stringType)],
     val inntektGrpcAddress: String = config()[Key("inntekt.grpc.address", stringType)]
 )
 
