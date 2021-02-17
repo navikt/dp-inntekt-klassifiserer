@@ -15,7 +15,6 @@ import no.nav.dagpenger.streams.Topics
 import org.apache.kafka.streams.StreamsConfig
 import org.apache.kafka.streams.TopologyTestDriver
 import org.apache.kafka.streams.test.ConsumerRecordFactory
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -175,8 +174,8 @@ class InntektKlassifisererTopologyTest {
                 Topics.DAGPENGER_BEHOV_PACKET_EVENT.valueSerde.deserializer()
             )
 
-            Assertions.assertTrue { processedOutput != null }
-            Assertions.assertTrue(processedOutput.value().hasField("inntektV1"))
+            assertTrue { processedOutput != null }
+            assertTrue(processedOutput.value().hasField("inntektV1"))
         }
     }
 
@@ -219,7 +218,7 @@ class InntektKlassifisererTopologyTest {
                 Topics.DAGPENGER_BEHOV_PACKET_EVENT.valueSerde.deserializer()
             )
 
-            Assertions.assertTrue { processedOutput != null }
+            assertTrue { processedOutput != null }
             processedOutput.value().hasProblem() shouldBe true
         }
     }

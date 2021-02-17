@@ -1,6 +1,7 @@
 package no.nav.dagpenger.inntekt.klassifiserer
 
 import kotlinx.coroutines.runBlocking
+import mu.KotlinLogging
 import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.inntekt.rpc.InntektHenter
 import no.nav.dagpenger.inntekt.rpc.InntektHenterWrapper
@@ -14,6 +15,8 @@ import no.nav.helse.rapids_rivers.RapidsConnection
 import org.apache.kafka.streams.kstream.Predicate
 import java.time.LocalDateTime
 import java.util.Properties
+
+private val logger = KotlinLogging.logger { }
 
 class Application(
     private val configuration: Configuration,
@@ -59,7 +62,10 @@ class Application(
         } else {
 
             val klassifisertInntekt = when (inntektsId) {
-                is String -> runBlocking { inntektHenter.hentKlassifisertInntekt(inntektsId) }
+                is String -> {
+                    logger.info { "Henter inntekt basert på inntektsId: $inntektsId" }
+                    runBlocking { inntektHenter.hentKlassifisertInntekt(inntektsId) }
+                }
                 else -> {
                     val aktørId = packet.getStringValue(AKTØRID)
                     val vedtakId = packet.getIntValue(VEDTAKID)
@@ -68,6 +74,7 @@ class Application(
                 }
             }
 
+            logger.info { "Hentet med inntektsId: ${klassifisertInntekt.inntektsId}" }
             packet.putValue(INNTEKT, klassifisertInntekt)
             return packet
         }
