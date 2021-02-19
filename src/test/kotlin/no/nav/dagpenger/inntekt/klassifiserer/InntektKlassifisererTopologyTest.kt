@@ -13,10 +13,10 @@ import no.nav.dagpenger.events.inntekt.v1.KlassifisertInntektMåned
 import no.nav.dagpenger.inntekt.rpc.InntektHenter
 import no.nav.dagpenger.streams.Topics
 import org.apache.kafka.streams.StreamsConfig
+import org.apache.kafka.streams.TestInputTopic
+import org.apache.kafka.streams.TestOutputTopic
 import org.apache.kafka.streams.TopologyTestDriver
-import org.apache.kafka.streams.test.ConsumerRecordFactory
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
@@ -27,13 +27,6 @@ import java.util.Properties
 class InntektKlassifisererTopologyTest {
 
     companion object {
-
-        val factory = ConsumerRecordFactory<String, Packet>(
-            Topics.DAGPENGER_BEHOV_PACKET_EVENT.name,
-            Topics.DAGPENGER_BEHOV_PACKET_EVENT.keySerde.serializer(),
-            Topics.DAGPENGER_BEHOV_PACKET_EVENT.valueSerde.serializer()
-        )
-
         val config = Properties().apply {
             this[StreamsConfig.APPLICATION_ID_CONFIG] = "test"
             this[StreamsConfig.BOOTSTRAP_SERVERS_CONFIG] = "dummy:1234"
@@ -83,22 +76,16 @@ class InntektKlassifisererTopologyTest {
             """.trimIndent()
 
         TopologyTestDriver(app.buildTopology(), config).use { topologyTestDriver ->
-            val inputRecord = factory.create(Packet(packetJson))
-            topologyTestDriver.pipeInput(inputRecord)
-            val ut = topologyTestDriver.readOutput(
-                Topics.DAGPENGER_BEHOV_PACKET_EVENT.name,
-                Topics.DAGPENGER_BEHOV_PACKET_EVENT.keySerde.deserializer(),
-                Topics.DAGPENGER_BEHOV_PACKET_EVENT.valueSerde.deserializer()
-            )
+            topologyTestDriver.behovInputTopic().also { it.pipeInput(Packet(packetJson)) }
+            val ut = topologyTestDriver.behovOutputTopic().readValue()
 
-            assertTrue { ut != null }
-            assertTrue(ut.value().hasField("inntektV1"))
+            assertTrue(ut.hasField("inntektV1"))
 
-            assertEquals("12345", ut.value().getStringValue("aktørId"))
-            assertEquals(123, ut.value().getIntValue("vedtakId"))
-            assertEquals(LocalDate.of(2019, 1, 25), ut.value().getLocalDate("beregningsDato"))
-            assertEquals("ULID", ut.value().getStringValue("inntektsId"))
-            assertEquals("should be unchanged", ut.value().getStringValue("otherField"))
+            assertEquals("12345", ut.getStringValue("aktørId"))
+            assertEquals(123, ut.getIntValue("vedtakId"))
+            assertEquals(LocalDate.of(2019, 1, 25), ut.getLocalDate("beregningsDato"))
+            assertEquals("ULID", ut.getStringValue("inntektsId"))
+            assertEquals("should be unchanged", ut.getStringValue("otherField"))
 
             verify(exactly = 1) { runBlocking { inntektHenter.hentKlassifisertInntekt("ULID") } }
             verify(exactly = 0) { inntektHttpClient.getKlassifisertInntekt(any(), any(), any(), any()) }
@@ -123,16 +110,8 @@ class InntektKlassifisererTopologyTest {
         )
 
         TopologyTestDriver(app.buildTopology(), config).use { topologyTestDriver ->
-            val input = factory.create(Packet(packetWithKlassifisertInntekt))
-            topologyTestDriver.pipeInput(input)
-
-            val emptyResult = topologyTestDriver.readOutput(
-                Topics.DAGPENGER_BEHOV_PACKET_EVENT.name,
-                Topics.DAGPENGER_BEHOV_PACKET_EVENT.keySerde.deserializer(),
-                Topics.DAGPENGER_BEHOV_PACKET_EVENT.valueSerde.deserializer()
-            )
-
-            assertNull(emptyResult)
+            topologyTestDriver.behovInputTopic().also { it.pipeInput(Packet(packetWithKlassifisertInntekt)) }
+            assertTrue(topologyTestDriver.behovOutputTopic().isEmpty)
         }
     }
 
@@ -164,18 +143,9 @@ class InntektKlassifisererTopologyTest {
             inntektHenter = mockk(relaxed = true)
         )
         TopologyTestDriver(app.buildTopology(), config).use { topologyTestDriver ->
-
-            val inputWithSpesfisertInntekt = factory.create(Packet(packetWithSpesifisertInntektJson))
-            topologyTestDriver.pipeInput(inputWithSpesfisertInntekt)
-
-            val processedOutput = topologyTestDriver.readOutput(
-                Topics.DAGPENGER_BEHOV_PACKET_EVENT.name,
-                Topics.DAGPENGER_BEHOV_PACKET_EVENT.keySerde.deserializer(),
-                Topics.DAGPENGER_BEHOV_PACKET_EVENT.valueSerde.deserializer()
-            )
-
-            assertTrue { processedOutput != null }
-            assertTrue(processedOutput.value().hasField("inntektV1"))
+            topologyTestDriver.behovInputTopic().also { it.pipeInput(Packet(packetWithSpesifisertInntektJson)) }
+            val ut = topologyTestDriver.behovOutputTopic().readValue()
+            assertTrue(ut.hasField("inntektV1"))
         }
     }
 
@@ -208,18 +178,23 @@ class InntektKlassifisererTopologyTest {
             inntektHenter = mockk(relaxed = true)
         )
         TopologyTestDriver(app.buildTopology(), config).use { topologyTestDriver ->
-
-            val inputWithSpesfisertInntekt = factory.create(Packet(packetWithSpesifisertInntektJson))
-            topologyTestDriver.pipeInput(inputWithSpesfisertInntekt)
-
-            val processedOutput = topologyTestDriver.readOutput(
-                Topics.DAGPENGER_BEHOV_PACKET_EVENT.name,
-                Topics.DAGPENGER_BEHOV_PACKET_EVENT.keySerde.deserializer(),
-                Topics.DAGPENGER_BEHOV_PACKET_EVENT.valueSerde.deserializer()
-            )
-
-            assertTrue { processedOutput != null }
-            processedOutput.value().hasProblem() shouldBe true
+            topologyTestDriver.behovInputTopic().also { it.pipeInput(Packet(packetWithSpesifisertInntektJson)) }
+            val ut = topologyTestDriver.behovOutputTopic().readValue()
+            ut.hasProblem() shouldBe true
         }
     }
 }
+
+private fun TopologyTestDriver.behovInputTopic(): TestInputTopic<String, Packet> =
+    this.createInputTopic(
+        Topics.DAGPENGER_BEHOV_PACKET_EVENT.name,
+        Topics.DAGPENGER_BEHOV_PACKET_EVENT.keySerde.serializer(),
+        Topics.DAGPENGER_BEHOV_PACKET_EVENT.valueSerde.serializer()
+    )
+
+private fun TopologyTestDriver.behovOutputTopic(): TestOutputTopic<String, Packet> =
+    this.createOutputTopic(
+        Topics.DAGPENGER_BEHOV_PACKET_EVENT.name,
+        Topics.DAGPENGER_BEHOV_PACKET_EVENT.keySerde.deserializer(),
+        Topics.DAGPENGER_BEHOV_PACKET_EVENT.valueSerde.deserializer()
+    )
