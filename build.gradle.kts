@@ -30,9 +30,6 @@ dependencies {
     // gRpc
     implementation("com.github.navikt:dp-inntekt:2020.05.18-11.33.279ab2f32a2c")
 
-    // rapid and rivers
-    implementation(RapidAndRivers)
-
     // json
     implementation(Moshi.moshiAdapters)
 

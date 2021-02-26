@@ -7,11 +7,9 @@ import no.nav.dagpenger.inntekt.rpc.InntektHenter
 import no.nav.dagpenger.inntekt.rpc.InntektHenterWrapper
 import no.nav.dagpenger.ktor.auth.ApiKeyVerifier
 import no.nav.dagpenger.streams.HealthCheck
-import no.nav.dagpenger.streams.HealthStatus
 import no.nav.dagpenger.streams.KafkaCredential
 import no.nav.dagpenger.streams.River
 import no.nav.dagpenger.streams.streamConfig
-import no.nav.helse.rapids_rivers.RapidsConnection
 import org.apache.kafka.streams.kstream.Predicate
 import java.time.LocalDateTime
 import java.util.Properties
@@ -108,40 +106,4 @@ fun main() {
         inntektHttpClient = inntektHttpClient,
         inntektHenter = inntektGrpcClient
     ).start()
-
-    // RapidApplication.create(
-    //     Configuration().rapidApplication
-    // ).apply {
-    //     LøsningService(
-    //         this,
-    //         inntektHttpClient = inntektHttpClient
-    //     )
-    // }.also {
-    //     it.register(RapidHealthCheck)
-    // }.start()
-}
-
-object RapidHealthCheck : RapidsConnection.StatusListener, HealthCheck {
-    var healthy: Boolean = false
-
-    override fun onStartup(rapidsConnection: RapidsConnection) {
-        healthy = true
-    }
-
-    override fun onReady(rapidsConnection: RapidsConnection) {
-        healthy = true
-    }
-
-    override fun onNotReady(rapidsConnection: RapidsConnection) {
-        healthy = false
-    }
-
-    override fun onShutdown(rapidsConnection: RapidsConnection) {
-        healthy = false
-    }
-
-    override fun status(): HealthStatus = when (healthy) {
-        true -> HealthStatus.UP
-        false -> HealthStatus.DOWN
-    }
 }
