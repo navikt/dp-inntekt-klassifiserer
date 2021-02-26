@@ -68,7 +68,7 @@ class InntektKlassifisererTopologyTest {
             """
             {
                 "aktørId": "12345",
-                "vedtakId": 123,
+                "kontekstId": "123",
                 "beregningsDato": 2019-01-25,
                 "inntektsId": "ULID",
                 "otherField": "should be unchanged"
@@ -82,7 +82,7 @@ class InntektKlassifisererTopologyTest {
             assertTrue(ut.hasField("inntektV1"))
 
             assertEquals("12345", ut.getStringValue("aktørId"))
-            assertEquals(123, ut.getIntValue("vedtakId"))
+            assertEquals("123", ut.getStringValue("kontekstId"))
             assertEquals(LocalDate.of(2019, 1, 25), ut.getLocalDate("beregningsDato"))
             assertEquals("ULID", ut.getStringValue("inntektsId"))
             assertEquals("should be unchanged", ut.getStringValue("otherField"))
@@ -121,7 +121,7 @@ class InntektKlassifisererTopologyTest {
             """
             {
                 "aktørId": "12345",
-                "vedtakId": 123,
+                "kontekstId": "123",
                 "beregningsDato": 2019-01-25
            }
             """.trimIndent()
@@ -156,7 +156,7 @@ class InntektKlassifisererTopologyTest {
             {
                 "system_started": "2020-03-28T12:35:53.082955",
                 "aktørId": "12345",
-                "vedtakId": 123,
+                "kontekstId": "123",
                 "beregningsDato": 2019-01-25
            }
             """.trimIndent()
