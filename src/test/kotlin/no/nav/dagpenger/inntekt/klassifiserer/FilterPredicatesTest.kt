@@ -40,7 +40,7 @@ class OnPacketTest {
         every {
             inntektHttpClient.getKlassifisertInntekt(
                 "123",
-                "12345",
+                RegelKontekst("12345"),
                 LocalDate.of(2020, 1, 1),
                 null
             )

@@ -71,7 +71,7 @@ class InntektHttpClientTest {
         val spesifisertInntekt =
             inntektHttpClient.getSpesifisertInntekt(
                 "45456",
-                "123",
+                RegelKontekst("123"),
                 LocalDate.now(),
                 null
             )
@@ -116,7 +116,7 @@ class InntektHttpClientTest {
         val spesifisertInntekt =
             inntektHttpClient.getSpesifisertInntekt(
                 "45456",
-                "123",
+                RegelKontekst("123"),
                 LocalDate.now(),
                 "12345678901"
             )
@@ -161,7 +161,7 @@ class InntektHttpClientTest {
         val klassifisertInntekt =
             inntektHttpClient.getKlassifisertInntekt(
                 "45456",
-                "123",
+                RegelKontekst("123"),
                 LocalDate.now(),
                 "12345678901"
             )
@@ -202,7 +202,7 @@ class InntektHttpClientTest {
         val inntektApiHttpClientException = assertFailsWith<InntektApiHttpClientException> {
             spesifisertInntektHttpClient.getKlassifisertInntekt(
                 "",
-                "123",
+                RegelKontekst("123"),
                 LocalDate.now(),
                 null
             )
@@ -233,7 +233,7 @@ class InntektHttpClientTest {
         val inntektApiHttpClientException = assertFailsWith<InntektApiHttpClientException> {
             spesifisertInntektHttpClient.getKlassifisertInntekt(
                 "",
-                "123",
+                RegelKontekst("123"),
                 LocalDate.now(),
                 null
             )

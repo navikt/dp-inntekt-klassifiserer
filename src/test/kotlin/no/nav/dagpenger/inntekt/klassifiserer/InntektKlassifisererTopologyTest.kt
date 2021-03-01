@@ -130,7 +130,7 @@ class InntektKlassifisererTopologyTest {
         every {
             inntektHttpClient.getKlassifisertInntekt(
                 "12345",
-                "123",
+                RegelKontekst("123"),
                 LocalDate.of(2019, 1, 25),
                 null
             )
@@ -165,7 +165,7 @@ class InntektKlassifisererTopologyTest {
         every {
             inntektHttpClient.getKlassifisertInntekt(
                 "12345",
-                "123",
+                RegelKontekst("123"),
                 LocalDate.of(2019, 1, 25),
                 null
             )

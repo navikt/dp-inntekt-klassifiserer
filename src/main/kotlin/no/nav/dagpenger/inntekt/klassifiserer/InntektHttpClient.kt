@@ -22,12 +22,12 @@ class InntektHttpClient(private val inntektApiUrl: String, private val apiKey: S
 
     fun getSpesifisertInntekt(
         aktørId: String,
-        vedtakId: String,
+        regelkontekst: RegelKontekst,
         beregningsDato: LocalDate,
         fødselsnummer: String?
     ): SpesifisertInntekt = getInntekt(
         aktørId = aktørId,
-        vedtakId = vedtakId,
+        regelkontekst = regelkontekst,
         beregningsDato = beregningsDato,
         fødselsnummer = fødselsnummer,
         url = "${inntektApiUrl}v1/inntekt/spesifisert",
@@ -36,7 +36,7 @@ class InntektHttpClient(private val inntektApiUrl: String, private val apiKey: S
 
     private inline fun <reified T : Any> getInntekt(
         aktørId: String,
-        vedtakId: String,
+        regelkontekst: RegelKontekst,
         beregningsDato: LocalDate,
         fødselsnummer: String?,
         url: String,
@@ -46,7 +46,8 @@ class InntektHttpClient(private val inntektApiUrl: String, private val apiKey: S
         val requestBody = InntektRequest(
             aktørId = aktørId,
             fødselsnummer = fødselsnummer,
-            vedtakId = vedtakId,
+            regelkontekst = regelkontekst,
+            vedtakId = regelkontekst.id, // TODO: fjern når dp-inntekt støtter at man fjerner den
             beregningsDato = beregningsDato
         )
         val jsonBody = jsonRequestRequestAdapter.toJson(requestBody)
@@ -83,12 +84,12 @@ class InntektHttpClient(private val inntektApiUrl: String, private val apiKey: S
 
     fun getKlassifisertInntekt(
         aktørId: String,
-        vedtakId: String,
+        regelKontekst: RegelKontekst,
         beregningsDato: LocalDate,
         fødselsnummer: String?
     ): Inntekt = getInntekt(
         aktørId = aktørId,
-        vedtakId = vedtakId,
+        regelkontekst = regelKontekst,
         beregningsDato = beregningsDato,
         fødselsnummer = fødselsnummer,
         url = "${inntektApiUrl}v1/inntekt/klassifisert",
@@ -99,6 +100,7 @@ class InntektHttpClient(private val inntektApiUrl: String, private val apiKey: S
 private data class InntektRequest(
     val aktørId: String,
     val fødselsnummer: String? = null,
+    val regelkontekst: RegelKontekst,
     val vedtakId: String,
     val beregningsDato: LocalDate
 )

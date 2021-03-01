@@ -33,6 +33,7 @@ class Application(
         const val BEREGNINGSDATO = "beregningsDato"
         const val INNTEKTS_ID = "inntektsId"
         const val KONTEKST_ID = "kontekstId"
+        const val KONTEKST_TYPE = "kontekstType"
     }
 
     override fun getConfig(): Properties {
@@ -67,9 +68,9 @@ class Application(
                 }
                 else -> {
                     val aktørId = packet.getStringValue(AKTØRID)
-                    val kontekstId = packet.hentKontekstId()
+                    val regelkontekst = packet.hentRegelkontekst()
                     val beregningsDato = packet.getLocalDate(BEREGNINGSDATO)
-                    inntektHttpClient.getKlassifisertInntekt(aktørId, kontekstId, beregningsDato, null)
+                    inntektHttpClient.getKlassifisertInntekt(aktørId, regelkontekst, beregningsDato, null)
                 }
             }
 
@@ -80,11 +81,20 @@ class Application(
     }
 }
 
-internal fun Packet.hentKontekstId(): String {
-    val kontekstId = this.getNullableStringValue(Application.KONTEKST_ID) ?: this.getNullableIntValue(Application.VEDTAKID)?.toString()
+internal fun Packet.hentRegelkontekst() =
+    RegelKontekst(
+        id = this.hentKontekstId(),
+        type = this.getNullableStringValue(Application.KONTEKST_TYPE) ?: "UKJENT"
+    )
+
+private fun Packet.hentKontekstId(): String {
+    val kontekstId =
+        this.getNullableStringValue(Application.KONTEKST_ID) ?: this.getNullableIntValue(Application.VEDTAKID)
+            ?.toString()
     requireNotNull(kontekstId) { "Fant hverken vedtakId eller kontekstId" }
     return kontekstId
 }
+
 fun main() {
     val configuration = Configuration()
 
