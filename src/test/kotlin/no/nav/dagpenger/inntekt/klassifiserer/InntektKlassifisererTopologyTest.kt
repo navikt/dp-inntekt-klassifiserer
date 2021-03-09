@@ -10,6 +10,8 @@ import no.nav.dagpenger.events.inntekt.v1.Inntekt
 import no.nav.dagpenger.events.inntekt.v1.InntektKlasse
 import no.nav.dagpenger.events.inntekt.v1.KlassifisertInntekt
 import no.nav.dagpenger.events.inntekt.v1.KlassifisertInntektMåned
+import no.nav.dagpenger.inntekt.klassifiserer.Application.Companion.KONTEKST_ID
+import no.nav.dagpenger.inntekt.klassifiserer.Application.Companion.KONTEKST_TYPE
 import no.nav.dagpenger.inntekt.rpc.InntektHenter
 import no.nav.dagpenger.streams.Topics
 import org.apache.kafka.streams.StreamsConfig
@@ -60,7 +62,6 @@ class InntektKlassifisererTopologyTest {
         val app = Application(
             configuration = Configuration(),
             inntektHttpClient = inntektHttpClient,
-            healthCheck = mockk(relaxed = true),
             inntektHenter = inntektHenter
         )
 
@@ -105,7 +106,6 @@ class InntektKlassifisererTopologyTest {
         val app = Application(
             configuration = Configuration(),
             inntektHttpClient = mockk(),
-            healthCheck = mockk(relaxed = true),
             inntektHenter = mockk(relaxed = true)
         )
 
@@ -121,7 +121,8 @@ class InntektKlassifisererTopologyTest {
             """
             {
                 "aktørId": "12345",
-                "kontekstId": "123",
+                "$KONTEKST_ID": "123",
+                "$KONTEKST_TYPE": "vedtak",
                 "beregningsDato": 2019-01-25
            }
             """.trimIndent()
@@ -130,7 +131,7 @@ class InntektKlassifisererTopologyTest {
         every {
             inntektHttpClient.getKlassifisertInntekt(
                 "12345",
-                RegelKontekst("123"),
+                RegelKontekst("123", "vedtak"),
                 LocalDate.of(2019, 1, 25),
                 null
             )
@@ -139,7 +140,6 @@ class InntektKlassifisererTopologyTest {
         val app = Application(
             configuration = Configuration(),
             inntektHttpClient = inntektHttpClient,
-            healthCheck = mockk(relaxed = true),
             inntektHenter = mockk(relaxed = true)
         )
         TopologyTestDriver(app.buildTopology(), config).use { topologyTestDriver ->
@@ -156,7 +156,8 @@ class InntektKlassifisererTopologyTest {
             {
                 "system_started": "2020-03-28T12:35:53.082955",
                 "aktørId": "12345",
-                "kontekstId": "123",
+                "$KONTEKST_ID": "123",
+                "$KONTEKST_TYPE": "vedtak",
                 "beregningsDato": 2019-01-25
            }
             """.trimIndent()
@@ -165,7 +166,7 @@ class InntektKlassifisererTopologyTest {
         every {
             inntektHttpClient.getKlassifisertInntekt(
                 "12345",
-                RegelKontekst("123"),
+                RegelKontekst("123", "vedtak"),
                 LocalDate.of(2019, 1, 25),
                 null
             )
@@ -174,7 +175,6 @@ class InntektKlassifisererTopologyTest {
         val app = Application(
             configuration = Configuration(),
             inntektHttpClient = inntektHttpClient,
-            healthCheck = mockk(relaxed = true),
             inntektHenter = mockk(relaxed = true)
         )
         TopologyTestDriver(app.buildTopology(), config).use { topologyTestDriver ->

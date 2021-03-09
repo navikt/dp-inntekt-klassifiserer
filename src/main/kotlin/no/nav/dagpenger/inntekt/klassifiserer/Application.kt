@@ -6,7 +6,6 @@ import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.inntekt.rpc.InntektHenter
 import no.nav.dagpenger.inntekt.rpc.InntektHenterWrapper
 import no.nav.dagpenger.ktor.auth.ApiKeyVerifier
-import no.nav.dagpenger.streams.HealthCheck
 import no.nav.dagpenger.streams.KafkaCredential
 import no.nav.dagpenger.streams.River
 import no.nav.dagpenger.streams.streamConfig
@@ -19,7 +18,6 @@ private val logger = KotlinLogging.logger { }
 class Application(
     private val configuration: Configuration,
     private val inntektHttpClient: InntektHttpClient,
-    private val healthCheck: HealthCheck? = null,
     private val inntektHenter: InntektHenter
 ) : River(configuration.kafka.behovTopic) {
 
@@ -28,7 +26,6 @@ class Application(
     companion object {
         const val INNTEKT = "inntektV1"
         const val AKTØRID = "aktørId"
-        const val VEDTAKID = "vedtakId"
         const val MANUELT_GRUNNLAG = "manueltGrunnlag"
         const val BEREGNINGSDATO = "beregningsDato"
         const val INNTEKTS_ID = "inntektsId"
@@ -84,16 +81,10 @@ class Application(
 internal fun Packet.hentRegelkontekst() =
     RegelKontekst(
         id = this.hentKontekstId(),
-        type = this.getNullableStringValue(Application.KONTEKST_TYPE) ?: "UKJENT"
+        type = this.getStringValue(Application.KONTEKST_TYPE)
     )
 
-private fun Packet.hentKontekstId(): String {
-    val kontekstId =
-        this.getNullableStringValue(Application.KONTEKST_ID) ?: this.getNullableIntValue(Application.VEDTAKID)
-            ?.toString()
-    requireNotNull(kontekstId) { "Fant hverken vedtakId eller kontekstId" }
-    return kontekstId
-}
+private fun Packet.hentKontekstId(): String = getStringValue(Application.KONTEKST_ID)
 
 fun main() {
     val configuration = Configuration()

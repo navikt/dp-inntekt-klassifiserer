@@ -8,6 +8,8 @@ import no.nav.dagpenger.events.inntekt.v1.Inntekt
 import no.nav.dagpenger.events.inntekt.v1.InntektKlasse
 import no.nav.dagpenger.events.inntekt.v1.KlassifisertInntekt
 import no.nav.dagpenger.events.inntekt.v1.KlassifisertInntektMåned
+import no.nav.dagpenger.inntekt.klassifiserer.Application.Companion.KONTEKST_ID
+import no.nav.dagpenger.inntekt.klassifiserer.Application.Companion.KONTEKST_TYPE
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -40,7 +42,7 @@ class OnPacketTest {
         every {
             inntektHttpClient.getKlassifisertInntekt(
                 "123",
-                RegelKontekst("12345"),
+                RegelKontekst("12345", "vedtak"),
                 LocalDate.of(2020, 1, 1),
                 null
             )
@@ -49,13 +51,13 @@ class OnPacketTest {
         val app = Application(
             configuration = Configuration(),
             inntektHttpClient = inntektHttpClient,
-            healthCheck = mockk(relaxed = true),
             inntektHenter = mockk(relaxed = true)
         )
 
         val inputPacket = Packet()
         inputPacket.putValue("aktørId", "123")
-        inputPacket.putValue("vedtakId", 12345)
+        inputPacket.putValue(KONTEKST_ID, "12345")
+        inputPacket.putValue(KONTEKST_TYPE, "vedtak")
         inputPacket.putValue("beregningsDato", "2020-01-01")
 
         val resultPacket = app.onPacket(inputPacket)
@@ -74,7 +76,6 @@ class FilterPredicatesTest {
         val app = Application(
             configuration = Configuration(),
             inntektHttpClient = mockk(),
-            healthCheck = mockk(relaxed = true),
             inntektHenter = mockk(relaxed = true)
         )
         app.filterPredicates().all { it.test("", packet) } shouldBe false
@@ -83,11 +84,9 @@ class FilterPredicatesTest {
     @Test
     fun `Skal legge på inntekt der det er ikke er manuelt grunnlag`() {
         val packet = Packet()
-        packet.putValue("vedtakId", 123)
         val app = Application(
             configuration = Configuration(),
             inntektHttpClient = mockk(),
-            healthCheck = mockk(relaxed = true),
             inntektHenter = mockk(relaxed = true)
         )
         app.filterPredicates().all { it.test("", packet) } shouldBe true
