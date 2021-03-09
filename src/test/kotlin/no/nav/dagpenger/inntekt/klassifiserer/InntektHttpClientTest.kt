@@ -51,7 +51,10 @@ class InntektHttpClientTest {
                     matchingJsonPath("aktørId", equalTo("45456"))
                 )
                 .withRequestBody(
-                    matchingJsonPath("vedtakId", equalTo("123"))
+                    matchingJsonPath("regelkontekst.id", equalTo("123"))
+                )
+                .withRequestBody(
+                    matchingJsonPath("regelkontekst.type", equalTo("vedtak"))
                 )
                 .withRequestBody(
                     matchingJsonPath("beregningsDato", matching("^\\d{4}-\\d{2}-\\d{2}\$"))
@@ -71,7 +74,7 @@ class InntektHttpClientTest {
         val spesifisertInntekt =
             inntektHttpClient.getSpesifisertInntekt(
                 "45456",
-                RegelKontekst("123"),
+                RegelKontekst("123", "vedtak"),
                 LocalDate.now(),
                 null
             )
@@ -93,7 +96,10 @@ class InntektHttpClientTest {
                     matchingJsonPath("aktørId", equalTo("45456"))
                 )
                 .withRequestBody(
-                    matchingJsonPath("vedtakId", equalTo("123"))
+                    matchingJsonPath("regelkontekst.id", equalTo("123"))
+                )
+                .withRequestBody(
+                    matchingJsonPath("regelkontekst.type", equalTo("vedtak"))
                 )
                 .withRequestBody(
                     matchingJsonPath("beregningsDato", matching("^\\d{4}-\\d{2}-\\d{2}\$"))
@@ -116,7 +122,7 @@ class InntektHttpClientTest {
         val spesifisertInntekt =
             inntektHttpClient.getSpesifisertInntekt(
                 "45456",
-                RegelKontekst("123"),
+                RegelKontekst("123", "vedtak"),
                 LocalDate.now(),
                 "12345678901"
             )
@@ -138,7 +144,10 @@ class InntektHttpClientTest {
                     matchingJsonPath("aktørId", equalTo("45456"))
                 )
                 .withRequestBody(
-                    matchingJsonPath("vedtakId", equalTo("123"))
+                    matchingJsonPath("regelkontekst.id", equalTo("123"))
+                )
+                .withRequestBody(
+                    matchingJsonPath("regelkontekst.type", equalTo("vedtak"))
                 )
                 .withRequestBody(
                     matchingJsonPath("beregningsDato", matching("^\\d{4}-\\d{2}-\\d{2}\$"))
@@ -161,7 +170,7 @@ class InntektHttpClientTest {
         val klassifisertInntekt =
             inntektHttpClient.getKlassifisertInntekt(
                 "45456",
-                RegelKontekst("123"),
+                RegelKontekst("123", "vedtak"),
                 LocalDate.now(),
                 "12345678901"
             )
@@ -202,7 +211,7 @@ class InntektHttpClientTest {
         val inntektApiHttpClientException = assertFailsWith<InntektApiHttpClientException> {
             spesifisertInntektHttpClient.getKlassifisertInntekt(
                 "",
-                RegelKontekst("123"),
+                RegelKontekst("123", "vedtak"),
                 LocalDate.now(),
                 null
             )
@@ -233,7 +242,7 @@ class InntektHttpClientTest {
         val inntektApiHttpClientException = assertFailsWith<InntektApiHttpClientException> {
             spesifisertInntektHttpClient.getKlassifisertInntekt(
                 "",
-                RegelKontekst("123"),
+                RegelKontekst("123", "vedtak"),
                 LocalDate.now(),
                 null
             )

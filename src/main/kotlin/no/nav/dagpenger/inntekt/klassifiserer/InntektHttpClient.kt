@@ -47,7 +47,6 @@ class InntektHttpClient(private val inntektApiUrl: String, private val apiKey: S
             aktørId = aktørId,
             fødselsnummer = fødselsnummer,
             regelkontekst = regelkontekst,
-            vedtakId = regelkontekst.id, // TODO: fjern når dp-inntekt støtter at man fjerner den
             beregningsDato = beregningsDato
         )
         val jsonBody = jsonRequestRequestAdapter.toJson(requestBody)
@@ -101,7 +100,6 @@ private data class InntektRequest(
     val aktørId: String,
     val fødselsnummer: String? = null,
     val regelkontekst: RegelKontekst,
-    val vedtakId: String,
     val beregningsDato: LocalDate
 )
 
