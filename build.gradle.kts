@@ -48,8 +48,10 @@ dependencies {
 
     // Logging
     implementation(Kotlin.Logging.kotlinLogging)
-    // logback (brought in by rapid-rivers)
-    implementation("ch.qos.logback:logback-classic:1.2.3")
+    implementation(Log4j2.api)
+    implementation(Log4j2.core)
+    implementation(Log4j2.slf4j)
+    implementation(Log4j2.Logstash.logstashLayout)
 
     // prometheus
     implementation(Prometheus.common)
