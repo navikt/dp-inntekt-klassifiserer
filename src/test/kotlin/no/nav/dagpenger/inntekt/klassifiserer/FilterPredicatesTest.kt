@@ -82,6 +82,19 @@ class FilterPredicatesTest {
     }
 
     @Test
+    fun `Skal ikke legge på inntekt der det er forrige grunnlag`() {
+        val packet = Packet().apply {
+            putValue("forrigeGrunnlag", 2000)
+        }
+        val app = Application(
+            configuration = Configuration(),
+            inntektHttpClient = mockk(),
+            inntektHenter = mockk(relaxed = true)
+        )
+        app.filterPredicates().all { it.test("", packet) } shouldBe false
+    }
+
+    @Test
     fun `Skal legge på inntekt der det er ikke er manuelt grunnlag`() {
         val packet = Packet()
         val app = Application(

@@ -27,6 +27,7 @@ class Application(
         const val INNTEKT = "inntektV1"
         const val AKTØRID = "aktørId"
         const val MANUELT_GRUNNLAG = "manueltGrunnlag"
+        const val FORRIGE_GRUNNLAG = "forrigeGrunnlag"
         const val BEREGNINGSDATO = "beregningsDato"
         const val INNTEKTS_ID = "inntektsId"
         const val KONTEKST_ID = "kontekstId"
@@ -44,7 +45,8 @@ class Application(
     override fun filterPredicates(): List<Predicate<String, Packet>> {
         return listOf(
             Predicate { _, packet -> !packet.hasField(INNTEKT) },
-            Predicate { _, packet -> !packet.hasField(MANUELT_GRUNNLAG) }
+            Predicate { _, packet -> !packet.hasField(MANUELT_GRUNNLAG) },
+            Predicate { _, packet -> !packet.hasField(FORRIGE_GRUNNLAG) }
         )
     }
 
