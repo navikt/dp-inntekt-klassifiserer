@@ -49,7 +49,6 @@ class OnPacketTest {
         } returns inntekt
 
         val app = Application(
-            configuration = Configuration(),
             inntektHttpClient = inntektHttpClient,
             inntektHenter = mockk(relaxed = true)
         )
@@ -74,7 +73,6 @@ class FilterPredicatesTest {
             putValue("manueltGrunnlag", 1000)
         }
         val app = Application(
-            configuration = Configuration(),
             inntektHttpClient = mockk(),
             inntektHenter = mockk(relaxed = true)
         )
@@ -87,7 +85,6 @@ class FilterPredicatesTest {
             putValue("forrigeGrunnlag", 2000)
         }
         val app = Application(
-            configuration = Configuration(),
             inntektHttpClient = mockk(),
             inntektHenter = mockk(relaxed = true)
         )
@@ -98,7 +95,6 @@ class FilterPredicatesTest {
     fun `Skal legge på inntekt der det er ikke er manuelt grunnlag`() {
         val packet = Packet()
         val app = Application(
-            configuration = Configuration(),
             inntektHttpClient = mockk(),
             inntektHenter = mockk(relaxed = true)
         )

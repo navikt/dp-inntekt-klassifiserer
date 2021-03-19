@@ -13,7 +13,6 @@ import no.nav.dagpenger.events.inntekt.v1.KlassifisertInntektMåned
 import no.nav.dagpenger.inntekt.klassifiserer.Application.Companion.KONTEKST_ID
 import no.nav.dagpenger.inntekt.klassifiserer.Application.Companion.KONTEKST_TYPE
 import no.nav.dagpenger.inntekt.rpc.InntektHenter
-import no.nav.dagpenger.streams.Topics
 import org.apache.kafka.streams.StreamsConfig
 import org.apache.kafka.streams.TestInputTopic
 import org.apache.kafka.streams.TestOutputTopic
@@ -60,7 +59,6 @@ class InntektKlassifisererTopologyTest {
         val inntektHttpClient = mockk<InntektHttpClient>()
 
         val app = Application(
-            configuration = Configuration(),
             inntektHttpClient = inntektHttpClient,
             inntektHenter = inntektHenter
         )
@@ -77,8 +75,8 @@ class InntektKlassifisererTopologyTest {
             """.trimIndent()
 
         TopologyTestDriver(app.buildTopology(), config).use { topologyTestDriver ->
-            topologyTestDriver.behovInputTopic().also { it.pipeInput(Packet(packetJson)) }
-            val ut = topologyTestDriver.behovOutputTopic().readValue()
+            topologyTestDriver.regelInputTopic().also { it.pipeInput(Packet(packetJson)) }
+            val ut = topologyTestDriver.regelOutputTopic().readValue()
 
             assertTrue(ut.hasField("inntektV1"))
 
@@ -104,14 +102,13 @@ class InntektKlassifisererTopologyTest {
             """.trimIndent()
 
         val app = Application(
-            configuration = Configuration(),
             inntektHttpClient = mockk(),
             inntektHenter = mockk(relaxed = true)
         )
 
         TopologyTestDriver(app.buildTopology(), config).use { topologyTestDriver ->
-            topologyTestDriver.behovInputTopic().also { it.pipeInput(Packet(packetWithKlassifisertInntekt)) }
-            assertTrue(topologyTestDriver.behovOutputTopic().isEmpty)
+            topologyTestDriver.regelInputTopic().also { it.pipeInput(Packet(packetWithKlassifisertInntekt)) }
+            assertTrue(topologyTestDriver.regelOutputTopic().isEmpty)
         }
     }
 
@@ -138,13 +135,12 @@ class InntektKlassifisererTopologyTest {
         } returns inntekt
 
         val app = Application(
-            configuration = Configuration(),
             inntektHttpClient = inntektHttpClient,
             inntektHenter = mockk(relaxed = true)
         )
         TopologyTestDriver(app.buildTopology(), config).use { topologyTestDriver ->
-            topologyTestDriver.behovInputTopic().also { it.pipeInput(Packet(packetWithSpesifisertInntektJson)) }
-            val ut = topologyTestDriver.behovOutputTopic().readValue()
+            topologyTestDriver.regelInputTopic().also { it.pipeInput(Packet(packetWithSpesifisertInntektJson)) }
+            val ut = topologyTestDriver.regelOutputTopic().readValue()
             assertTrue(ut.hasField("inntektV1"))
         }
     }
@@ -173,28 +169,27 @@ class InntektKlassifisererTopologyTest {
         } returns inntekt
 
         val app = Application(
-            configuration = Configuration(),
             inntektHttpClient = inntektHttpClient,
             inntektHenter = mockk(relaxed = true)
         )
         TopologyTestDriver(app.buildTopology(), config).use { topologyTestDriver ->
-            topologyTestDriver.behovInputTopic().also { it.pipeInput(Packet(packetWithSpesifisertInntektJson)) }
-            val ut = topologyTestDriver.behovOutputTopic().readValue()
+            topologyTestDriver.regelInputTopic().also { it.pipeInput(Packet(packetWithSpesifisertInntektJson)) }
+            val ut = topologyTestDriver.regelOutputTopic().readValue()
             ut.hasProblem() shouldBe true
         }
     }
 }
 
-private fun TopologyTestDriver.behovInputTopic(): TestInputTopic<String, Packet> =
+private fun TopologyTestDriver.regelInputTopic(): TestInputTopic<String, Packet> =
     this.createInputTopic(
-        Topics.DAGPENGER_BEHOV_PACKET_EVENT.name,
-        Topics.DAGPENGER_BEHOV_PACKET_EVENT.keySerde.serializer(),
-        Topics.DAGPENGER_BEHOV_PACKET_EVENT.valueSerde.serializer()
+        Configuration.kafka.regelTopic.name,
+        Configuration.kafka.regelTopic.keySerde.serializer(),
+        Configuration.kafka.regelTopic.valueSerde.serializer()
     )
 
-private fun TopologyTestDriver.behovOutputTopic(): TestOutputTopic<String, Packet> =
+private fun TopologyTestDriver.regelOutputTopic(): TestOutputTopic<String, Packet> =
     this.createOutputTopic(
-        Topics.DAGPENGER_BEHOV_PACKET_EVENT.name,
-        Topics.DAGPENGER_BEHOV_PACKET_EVENT.keySerde.deserializer(),
-        Topics.DAGPENGER_BEHOV_PACKET_EVENT.valueSerde.deserializer()
+        Configuration.kafka.regelTopic.name,
+        Configuration.kafka.regelTopic.keySerde.deserializer(),
+        Configuration.kafka.regelTopic.valueSerde.deserializer()
     )

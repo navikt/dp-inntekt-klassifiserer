@@ -30,8 +30,5 @@ spec:
       memory: 256Mi
   vault:
     enabled: true
-    paths:
-      - kvPath: "serviceuser/data/dev/{{service_user}}"
-        mountPath: "/var/run/secrets/nais.io/service_user"
   secureLogs:
     enabled: true

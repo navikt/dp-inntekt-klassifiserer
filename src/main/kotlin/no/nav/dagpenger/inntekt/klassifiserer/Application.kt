@@ -7,10 +7,8 @@ import no.nav.dagpenger.inntekt.rpc.InntektHenter
 import no.nav.dagpenger.inntekt.rpc.InntektHenterWrapper
 import no.nav.dagpenger.ktor.auth.ApiKeyVerifier
 import no.nav.dagpenger.streams.KafkaAivenCredentials
-import no.nav.dagpenger.streams.KafkaCredential
 import no.nav.dagpenger.streams.River
 import no.nav.dagpenger.streams.Topic
-import no.nav.dagpenger.streams.streamConfig
 import no.nav.dagpenger.streams.streamConfigAiven
 import org.apache.kafka.streams.kstream.Predicate
 import java.time.LocalDateTime
@@ -18,28 +16,11 @@ import java.util.Properties
 
 private val logger = KotlinLogging.logger { }
 
-class AivenApplication(
-    private val configuration: Configuration,
+internal class Application(
+    private val configuration: Configuration = Configuration,
     private val inntektHttpClient: InntektHttpClient,
     private val inntektHenter: InntektHenter,
     topic: Topic<String, Packet> = configuration.kafka.regelTopic
-) : Application(configuration, inntektHttpClient, inntektHenter, topic) {
-    override val withHealthChecks: Boolean
-        get() = false
-
-    override fun getConfig(): Properties {
-        return streamConfigAiven(
-            appId = SERVICE_APP_ID,
-            bootStapServerUrl = configuration.kafka.aivenBrokers,
-            aivenCredentials = KafkaAivenCredentials()
-        )
-    }
-}
-open class Application(
-    private val configuration: Configuration,
-    private val inntektHttpClient: InntektHttpClient,
-    private val inntektHenter: InntektHenter,
-    topic: Topic<String, Packet> = configuration.kafka.behovTopic
 ) : River(topic) {
 
     override val SERVICE_APP_ID: String = configuration.applicationConfig.id
@@ -56,10 +37,10 @@ open class Application(
     }
 
     override fun getConfig(): Properties {
-        return streamConfig(
-            SERVICE_APP_ID,
-            configuration.kafka.bootstrapServer,
-            KafkaCredential(configuration.kafka.username, configuration.kafka.password)
+        return streamConfigAiven(
+            appId = SERVICE_APP_ID,
+            bootStapServerUrl = configuration.kafka.aivenBrokers,
+            aivenCredentials = KafkaAivenCredentials()
         )
     }
 
@@ -110,13 +91,12 @@ internal fun Packet.hentRegelkontekst() =
 private fun Packet.hentKontekstId(): String = getStringValue(Application.KONTEKST_ID)
 
 fun main() {
-    val configuration = Configuration()
 
-    val apiKeyVerifier = ApiKeyVerifier(configuration.applicationConfig.inntektApiSecret)
-    val apiKey = apiKeyVerifier.generate(configuration.applicationConfig.inntektApiKey)
+    val apiKeyVerifier = ApiKeyVerifier(Configuration.applicationConfig.inntektApiSecret)
+    val apiKey = apiKeyVerifier.generate(Configuration.applicationConfig.inntektApiKey)
 
     val inntektGrpcClient = InntektHenterWrapper(
-        serveraddress = configuration.applicationConfig.inntektGrpcAddress,
+        serveraddress = Configuration.applicationConfig.inntektGrpcAddress,
         apiKey = apiKey
     )
 
@@ -127,18 +107,12 @@ fun main() {
     )
 
     val inntektHttpClient = InntektHttpClient(
-        configuration.applicationConfig.inntektApiUrl,
+        Configuration.applicationConfig.inntektApiUrl,
         apiKey
     )
 
     Application(
-        configuration = configuration,
-        inntektHttpClient = inntektHttpClient,
-        inntektHenter = inntektGrpcClient
-    ).start()
-
-    AivenApplication(
-        configuration = configuration,
+        configuration = Configuration,
         inntektHttpClient = inntektHttpClient,
         inntektHenter = inntektGrpcClient
     ).start()
