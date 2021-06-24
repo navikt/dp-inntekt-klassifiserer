@@ -10,7 +10,7 @@ plugins {
 
 repositories {
     jcenter()
-    maven("http://packages.confluent.io/maven/")
+    maven("https://packages.confluent.io/maven/")
     maven("https://jitpack.io")
 }
 
@@ -60,7 +60,9 @@ dependencies {
 
     // testing
     testImplementation(kotlin("test"))
-    testImplementation(Ktor.ktorTest)
+    testImplementation(Ktor.ktorTest) {
+        exclude("org.jetbrains.kotlin", "kotlin-test-junit")
+    }
     testImplementation(Junit5.api)
     testRuntimeOnly(Junit5.engine)
     testImplementation(KoTest.runner)
@@ -115,10 +117,6 @@ spotless {
 }
 
 tasks.named("shadowJar") {
-    dependsOn("test")
-}
-
-tasks.named("jar") {
     dependsOn("test")
 }
 
