@@ -9,7 +9,6 @@ plugins {
 }
 
 repositories {
-    jcenter()
     maven("https://packages.confluent.io/maven/")
     maven("https://jitpack.io")
 }
