@@ -71,7 +71,7 @@ internal class Application(
                     val aktørId = packet.getStringValue(AKTØRID)
                     val regelkontekst = packet.hentRegelkontekst()
                     val beregningsDato = packet.getLocalDate(BEREGNINGSDATO)
-                    inntektHttpClient.getKlassifisertInntekt(aktørId, regelkontekst, beregningsDato, null)
+                    runBlocking { inntektHttpClient.getKlassifisertInntekt(aktørId, regelkontekst, beregningsDato, null) }
                 }
             }
 
@@ -108,7 +108,7 @@ fun main() {
 
     val inntektHttpClient = InntektHttpClient(
         Configuration.applicationConfig.inntektApiUrl,
-        apiKey
+        tokenProvider = { Configuration.oauth2Client.clientCredentials(Configuration.dpInntektApiScope).accessToken }
     )
 
     Application(
