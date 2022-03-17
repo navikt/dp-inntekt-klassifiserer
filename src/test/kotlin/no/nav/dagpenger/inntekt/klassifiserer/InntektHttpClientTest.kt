@@ -10,7 +10,9 @@ import com.github.tomakehurst.wiremock.matching.EqualToPattern
 import com.squareup.moshi.JsonAdapter
 import kotlinx.coroutines.runBlocking
 import no.nav.dagpenger.events.inntekt.v1.Inntekt
+import no.nav.dagpenger.events.inntekt.v1.InntektKlasse
 import no.nav.dagpenger.events.inntekt.v1.SpesifisertInntekt
+import no.nav.dagpenger.events.inntekt.v1.sumInntekt
 import no.nav.dagpenger.events.moshiInstance
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
@@ -202,6 +204,8 @@ class InntektHttpClientTest {
         assertEquals(klassifisertInntekt.inntektsListe, moshiSerialisertInntekt.inntektsListe)
         assertEquals(klassifisertInntekt.manueltRedigert, moshiSerialisertInntekt.manueltRedigert)
         assertEquals(klassifisertInntekt.sisteAvsluttendeKalenderMåned, moshiSerialisertInntekt.sisteAvsluttendeKalenderMåned)
+        assertEquals(klassifisertInntekt.inntektsListe.sumInntekt(enumValues<InntektKlasse>().toList()), moshiSerialisertInntekt.inntektsListe.sumInntekt(enumValues<InntektKlasse>().toList()))
+
         assertEquals("12345", klassifisertInntekt.inntektsId)
         assertEquals(2, klassifisertInntekt.inntektsListe.size)
     }
