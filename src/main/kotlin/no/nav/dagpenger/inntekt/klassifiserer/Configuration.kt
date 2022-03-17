@@ -1,7 +1,5 @@
 package no.nav.dagpenger.inntekt.klassifiserer
 
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.databind.DeserializationFeature
 import com.natpryce.konfig.ConfigurationMap
 import com.natpryce.konfig.ConfigurationProperties
 import com.natpryce.konfig.EnvironmentVariables
@@ -9,14 +7,7 @@ import com.natpryce.konfig.Key
 import com.natpryce.konfig.intType
 import com.natpryce.konfig.overriding
 import com.natpryce.konfig.stringType
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.ProxyBuilder
-import io.ktor.client.engine.http
-import io.ktor.client.features.json.JacksonSerializer
-import io.ktor.client.features.json.JsonFeature
 import no.nav.dagpenger.events.Packet
-import no.nav.dagpenger.oauth2.CachedOauth2Client
-import no.nav.dagpenger.oauth2.OAuth2Config
 import no.nav.dagpenger.streams.PacketDeserializer
 import no.nav.dagpenger.streams.PacketSerializer
 import no.nav.dagpenger.streams.Topic
@@ -61,29 +52,6 @@ private val prodProperties = ConfigurationMap(
 object Configuration {
     val applicationConfig: ApplicationConfig = ApplicationConfig()
     val kafka: Kafka = Kafka()
-
-    val oauth2Client: CachedOauth2Client by lazy {
-        val azureAd = OAuth2Config.AzureAd(config())
-        CachedOauth2Client(
-            tokenEndpointUrl = azureAd.tokenEndpointUrl,
-            authType = azureAd.clientSecret(),
-            httpClient = HttpClient() {
-                install(JsonFeature) {
-                    serializer = JacksonSerializer {
-                        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                        setSerializationInclusion(JsonInclude.Include.NON_NULL)
-                    }
-                }
-                engine {
-                    System.getenv("HTTP_PROXY")?.let {
-                        this.proxy = ProxyBuilder.http(it)
-                    }
-                }
-            }
-        )
-    }
-
-    val dpInntektApiScope by lazy { config()[Key("DP_INNTEKT_API_SCOPE", stringType)] }
 }
 
 data class Kafka(

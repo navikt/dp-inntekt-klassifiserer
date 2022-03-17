@@ -9,14 +9,13 @@ plugins {
 }
 
 repositories {
-    mavenCentral()
     maven("https://packages.confluent.io/maven/")
     maven("https://jitpack.io")
 }
 
 application {
     applicationName = "dp-inntekt-klassifiserer"
-    mainClass.set("no.nav.dagpenger.inntekt.klassifiserer.ApplicationKt")
+    mainClassName = "no.nav.dagpenger.inntekt.klassifiserer.ApplicationKt"
 }
 
 dependencies {
@@ -30,21 +29,18 @@ dependencies {
     // gRpc
     implementation("com.github.navikt:dp-inntekt:2020.05.18-11.33.279ab2f32a2c")
 
+    // json
+    implementation(Moshi.moshiAdapters)
+
     // kafka
     implementation(Kafka.streams)
 
     // ktor
     implementation(Ktor.serverNetty)
 
-    // ktor http client
-    implementation(Dagpenger.Biblioteker.Ktor.Client.metrics)
-    implementation("com.github.navikt.dp-biblioteker:oauth2-klient:2022.02.05-16.32.da1deab37b31")
-    implementation(Ktor.library("client-auth-jvm"))
-    implementation(Ktor.library("client-cio"))
-    implementation(Ktor.library("client-core"))
-    implementation(Ktor.library("client-logging-jvm"))
-    implementation(Ktor.library("client-jackson"))
-    implementation(Jackson.jsr310)
+    // http client
+    implementation(Fuel.fuel)
+    implementation(Fuel.fuelMoshi)
 
     // Miljøkonfigurasjon
     implementation(Konfig.konfig)
@@ -67,10 +63,6 @@ dependencies {
         exclude("org.jetbrains.kotlin", "kotlin-test-junit")
     }
     testImplementation(Junit5.api)
-
-    // sanity check mot jackson json
-    testImplementation(Moshi.moshiAdapters)
-
     testRuntimeOnly(Junit5.engine)
     testImplementation(KoTest.runner)
     testImplementation(KoTest.assertions)

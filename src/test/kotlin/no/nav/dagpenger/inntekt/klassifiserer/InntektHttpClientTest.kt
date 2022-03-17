@@ -7,11 +7,6 @@ import com.github.tomakehurst.wiremock.client.WireMock.matching
 import com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import com.github.tomakehurst.wiremock.matching.EqualToPattern
-import com.squareup.moshi.JsonAdapter
-import kotlinx.coroutines.runBlocking
-import no.nav.dagpenger.events.inntekt.v1.Inntekt
-import no.nav.dagpenger.events.inntekt.v1.SpesifisertInntekt
-import no.nav.dagpenger.events.moshiInstance
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
@@ -23,13 +18,6 @@ import kotlin.test.assertFailsWith
 class InntektHttpClientTest {
 
     companion object {
-        private val tokenProvider = { "token" }
-
-        private val client = httpClient(httpMetricsBasename = "test")
-
-        val spesifisertInntektJsonAdapter: JsonAdapter<SpesifisertInntekt> = moshiInstance.adapter(SpesifisertInntekt::class.java)
-        val klassifisertInntektJsonAdapter: JsonAdapter<Inntekt> = moshiInstance.adapter(Inntekt::class.java)
-
         val server: WireMockServer = WireMockServer(WireMockConfiguration.options().dynamicPort())
 
         @BeforeAll
@@ -57,8 +45,8 @@ class InntektHttpClientTest {
             .getResource("/test-data/example-spesifisert-inntekt-payload.json").readText()
 
         WireMock.stubFor(
-            WireMock.post(WireMock.urlEqualTo("/v2/inntekt/spesifisert"))
-                .withHeader("Authorization", EqualToPattern("Bearer token"))
+            WireMock.post(WireMock.urlEqualTo("/v1/inntekt/spesifisert"))
+                .withHeader("X-API-KEY", EqualToPattern("api-key"))
                 .withRequestBody(
                     matchingJsonPath("aktørId", equalTo("45456"))
                 )
@@ -79,20 +67,17 @@ class InntektHttpClientTest {
         )
 
         val inntektHttpClient = InntektHttpClient(
-            inntektApiUrl = server.url(""),
-            httpKlient = client,
-            tokenProvider = tokenProvider,
+            server.url(""),
+            "api-key"
         )
 
         val spesifisertInntekt =
-            runBlocking {
-                inntektHttpClient.getSpesifisertInntekt(
-                    "45456",
-                    RegelKontekst("123", "vedtak"),
-                    LocalDate.now(),
-                    null
-                )
-            }
+            inntektHttpClient.getSpesifisertInntekt(
+                "45456",
+                RegelKontekst("123", "vedtak"),
+                LocalDate.now(),
+                null
+            )
 
         assertEquals("01D8G6FS9QGRT3JKBTA5KEE64C", spesifisertInntekt.inntektId.id)
         assertEquals(4, spesifisertInntekt.posteringer.size)
@@ -105,8 +90,8 @@ class InntektHttpClientTest {
             .getResource("/test-data/example-spesifisert-inntekt-payload.json").readText()
 
         WireMock.stubFor(
-            WireMock.post(WireMock.urlEqualTo("/v2/inntekt/spesifisert"))
-                .withHeader("Authorization", EqualToPattern("Bearer token"))
+            WireMock.post(WireMock.urlEqualTo("/v1/inntekt/spesifisert"))
+                .withHeader("X-API-KEY", EqualToPattern("api-key"))
                 .withRequestBody(
                     matchingJsonPath("aktørId", equalTo("45456"))
                 )
@@ -130,22 +115,18 @@ class InntektHttpClientTest {
         )
 
         val inntektHttpClient = InntektHttpClient(
-            inntektApiUrl = server.url(""),
-            httpKlient = client,
-            tokenProvider = tokenProvider,
+            server.url(""),
+            "api-key"
         )
 
         val spesifisertInntekt =
-            runBlocking {
-                inntektHttpClient.getSpesifisertInntekt(
-                    "45456",
-                    RegelKontekst("123", "vedtak"),
-                    LocalDate.now(),
-                    "12345678901"
-                )
-            }
+            inntektHttpClient.getSpesifisertInntekt(
+                "45456",
+                RegelKontekst("123", "vedtak"),
+                LocalDate.now(),
+                "12345678901"
+            )
 
-        assertEquals(spesifisertInntekt, spesifisertInntektJsonAdapter.fromJson(responseBodyJson))
         assertEquals("01D8G6FS9QGRT3JKBTA5KEE64C", spesifisertInntekt.inntektId.id)
         assertEquals(4, spesifisertInntekt.posteringer.size)
     }
@@ -157,8 +138,8 @@ class InntektHttpClientTest {
             .getResource("/test-data/example-klassifisert-inntekt-payload.json").readText()
 
         WireMock.stubFor(
-            WireMock.post(WireMock.urlEqualTo("/v2/inntekt/klassifisert"))
-                .withHeader("Authorization", EqualToPattern("Bearer token"))
+            WireMock.post(WireMock.urlEqualTo("/v1/inntekt/klassifisert"))
+                .withHeader("X-API-KEY", EqualToPattern("api-key"))
                 .withRequestBody(
                     matchingJsonPath("aktørId", equalTo("45456"))
                 )
@@ -182,26 +163,18 @@ class InntektHttpClientTest {
         )
 
         val inntektHttpClient = InntektHttpClient(
-            inntektApiUrl = server.url(""),
-            httpKlient = client,
-            tokenProvider = tokenProvider,
+            server.url(""),
+            "api-key"
         )
 
-        val klassifisertInntekt: Inntekt =
-            runBlocking {
-                inntektHttpClient.getKlassifisertInntekt(
-                    "45456",
-                    RegelKontekst("123", "vedtak"),
-                    LocalDate.now(),
-                    "12345678901"
-                )
-            }
+        val klassifisertInntekt =
+            inntektHttpClient.getKlassifisertInntekt(
+                "45456",
+                RegelKontekst("123", "vedtak"),
+                LocalDate.now(),
+                "12345678901"
+            )
 
-        val moshiSerialisertInntekt = klassifisertInntektJsonAdapter.fromJson(responseBodyJson)!!
-        assertEquals(klassifisertInntekt.inntektsId, moshiSerialisertInntekt.inntektsId)
-        assertEquals(klassifisertInntekt.inntektsListe, moshiSerialisertInntekt.inntektsListe)
-        assertEquals(klassifisertInntekt.manueltRedigert, moshiSerialisertInntekt.manueltRedigert)
-        assertEquals(klassifisertInntekt.sisteAvsluttendeKalenderMåned, moshiSerialisertInntekt.sisteAvsluttendeKalenderMåned)
         assertEquals("12345", klassifisertInntekt.inntektsId)
         assertEquals(2, klassifisertInntekt.inntektsListe.size)
     }
@@ -221,8 +194,8 @@ class InntektHttpClientTest {
 
             """.trimIndent()
         WireMock.stubFor(
-            WireMock.post(WireMock.urlEqualTo("/v2/inntekt/klassifisert"))
-                .withHeader("Authorization", EqualToPattern("Bearer token"))
+            WireMock.post(WireMock.urlEqualTo("/v1/inntekt/klassifisert"))
+                .withHeader("X-API-KEY", EqualToPattern("api-key"))
                 .willReturn(
                     WireMock.serverError()
                         .withHeader("Content-Type", "application/json")
@@ -230,21 +203,18 @@ class InntektHttpClientTest {
                 )
         )
 
-        val inntektHttpClient = InntektHttpClient(
-            inntektApiUrl = server.url(""),
-            httpKlient = client,
-            tokenProvider = tokenProvider,
+        val spesifisertInntektHttpClient = InntektHttpClient(
+            server.url(""),
+            "api-key"
         )
 
         val inntektApiHttpClientException = assertFailsWith<InntektApiHttpClientException> {
-            runBlocking {
-                inntektHttpClient.getKlassifisertInntekt(
-                    "",
-                    RegelKontekst("123", "vedtak"),
-                    LocalDate.now(),
-                    null
-                )
-            }
+            spesifisertInntektHttpClient.getKlassifisertInntekt(
+                "",
+                RegelKontekst("123", "vedtak"),
+                LocalDate.now(),
+                null
+            )
         }
 
         val problem = inntektApiHttpClientException.problem
@@ -258,27 +228,24 @@ class InntektHttpClientTest {
     fun `fetch spesifisert inntekt fails on error and no body`() {
 
         WireMock.stubFor(
-            WireMock.post(WireMock.urlEqualTo("/v2/inntekt/klassifisert"))
+            WireMock.post(WireMock.urlEqualTo("/v1/inntekt/klassifisert"))
                 .willReturn(
                     WireMock.serviceUnavailable()
                 )
         )
 
-        val inntektHttpClient = InntektHttpClient(
-            inntektApiUrl = server.url(""),
-            httpKlient = client,
-            tokenProvider = tokenProvider,
+        val spesifisertInntektHttpClient = InntektHttpClient(
+            server.url(""),
+            "api-"
         )
 
         val inntektApiHttpClientException = assertFailsWith<InntektApiHttpClientException> {
-            runBlocking {
-                inntektHttpClient.getKlassifisertInntekt(
-                    "",
-                    RegelKontekst("123", "vedtak"),
-                    LocalDate.now(),
-                    null
-                )
-            }
+            spesifisertInntektHttpClient.getKlassifisertInntekt(
+                "",
+                RegelKontekst("123", "vedtak"),
+                LocalDate.now(),
+                null
+            )
         }
 
         val problem = inntektApiHttpClientException.problem

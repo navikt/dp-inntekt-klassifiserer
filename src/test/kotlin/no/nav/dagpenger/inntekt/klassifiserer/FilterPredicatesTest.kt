@@ -1,7 +1,7 @@
 package no.nav.dagpenger.inntekt.klassifiserer
 
 import io.kotest.matchers.shouldBe
-import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.mockk
 import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.events.inntekt.v1.Inntekt
@@ -39,7 +39,7 @@ class OnPacketTest {
     @Test
     fun `Add klassifisert inntekt to behov`() {
         val inntektHttpClient: InntektHttpClient = mockk()
-        coEvery {
+        every {
             inntektHttpClient.getKlassifisertInntekt(
                 "123",
                 RegelKontekst("12345", "vedtak"),
