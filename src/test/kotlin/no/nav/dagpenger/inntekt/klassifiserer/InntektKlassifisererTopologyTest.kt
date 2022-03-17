@@ -1,9 +1,10 @@
 package no.nav.dagpenger.inntekt.klassifiserer
 
 import io.kotest.matchers.shouldBe
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.events.inntekt.v1.Inntekt
@@ -86,8 +87,8 @@ class InntektKlassifisererTopologyTest {
             assertEquals("ULID", ut.getStringValue("inntektsId"))
             assertEquals("should be unchanged", ut.getStringValue("otherField"))
 
-            verify(exactly = 1) { runBlocking { inntektHenter.hentKlassifisertInntekt("ULID") } }
-            verify(exactly = 0) { inntektHttpClient.getKlassifisertInntekt(any(), any(), any(), any()) }
+            coVerify(exactly = 1) { runBlocking { inntektHenter.hentKlassifisertInntekt("ULID") } }
+            coVerify(exactly = 0) { inntektHttpClient.getKlassifisertInntekt(any(), any(), any(), any()) }
         }
     }
 
@@ -125,7 +126,7 @@ class InntektKlassifisererTopologyTest {
             """.trimIndent()
 
         val inntektHttpClient: InntektHttpClient = mockk()
-        every {
+        coEvery {
             inntektHttpClient.getKlassifisertInntekt(
                 "12345",
                 RegelKontekst("123", "vedtak"),
@@ -159,7 +160,7 @@ class InntektKlassifisererTopologyTest {
             """.trimIndent()
 
         val inntektHttpClient: InntektHttpClient = mockk()
-        every {
+        coEvery {
             inntektHttpClient.getKlassifisertInntekt(
                 "12345",
                 RegelKontekst("123", "vedtak"),
