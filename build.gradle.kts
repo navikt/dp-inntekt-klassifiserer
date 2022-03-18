@@ -106,11 +106,11 @@ tasks.withType<Test> {
 
 val compileKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions {
-    jvmTarget = "1.8"
+    jvmTarget = JavaVersion.VERSION_17.toString()
 }
 val compileTestKotlin: KotlinCompile by tasks
 compileTestKotlin.kotlinOptions {
-    jvmTarget = "1.8"
+    jvmTarget = JavaVersion.VERSION_17.toString()
 }
 
 spotless {
