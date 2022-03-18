@@ -1,10 +1,10 @@
-import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 
 plugins {
     application
-    kotlin("jvm") version Kotlin.version
-    id(Spotless.spotless) version Spotless.version
+    kotlin("jvm")
+    id("dagpenger.common")
+    id("dagpenger.spotless")
     id(Shadow.shadow) version Shadow.version
 }
 
@@ -78,49 +78,6 @@ dependencies {
     testImplementation(Mockk.mockk)
     testImplementation(Kafka.streamTestUtils)
     testImplementation(Wiremock.standalone)
-}
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-}
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
-}
-
-tasks.named<KotlinCompile>("compileTestKotlin") {
-    kotlinOptions.jvmTarget = "1.8"
-}
-
-tasks.withType<Test> {
-    useJUnitPlatform()
-    testLogging {
-        showExceptions = true
-        showStackTraces = true
-        exceptionFormat = TestExceptionFormat.FULL
-        events("passed", "skipped", "failed")
-        showStandardStreams = true
-    }
-}
-
-val compileKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions {
-    jvmTarget = JavaVersion.VERSION_17.toString()
-}
-val compileTestKotlin: KotlinCompile by tasks
-compileTestKotlin.kotlinOptions {
-    jvmTarget = JavaVersion.VERSION_17.toString()
-}
-
-spotless {
-    kotlin {
-        ktlint(Ktlint.version)
-    }
-    kotlinGradle {
-        target("*.gradle.kts")
-        ktlint(Ktlint.version)
-    }
 }
 
 tasks.named("shadowJar") {
