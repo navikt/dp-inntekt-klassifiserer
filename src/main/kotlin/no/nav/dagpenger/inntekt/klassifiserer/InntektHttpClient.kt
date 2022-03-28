@@ -10,8 +10,6 @@ import io.ktor.client.features.HttpTimeout
 import io.ktor.client.features.ResponseException
 import io.ktor.client.features.json.JacksonSerializer
 import io.ktor.client.features.json.JsonFeature
-import io.ktor.client.features.logging.LogLevel
-import io.ktor.client.features.logging.Logging
 import io.ktor.client.request.accept
 import io.ktor.client.request.header
 import io.ktor.client.request.post
@@ -121,10 +119,6 @@ internal fun httpClient(
             connectTimeoutMillis = Duration.ofSeconds(30).toMillis()
             requestTimeoutMillis = Duration.ofSeconds(30).toMillis()
             socketTimeoutMillis = Duration.ofSeconds(30).toMillis()
-        }
-
-        install(Logging) {
-            level = LogLevel.INFO
         }
 
         install(JsonFeature) {
