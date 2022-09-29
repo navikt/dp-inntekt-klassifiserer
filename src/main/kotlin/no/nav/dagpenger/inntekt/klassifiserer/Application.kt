@@ -67,7 +67,7 @@ internal class Application(
             "kontekstType" to regelkontekst?.type,
             "kontekstId" to regelkontekst?.id
         ) {
-            packet.getNullableStringValue("@behov")?.let { logger.info { "Har behovId $it" } }
+            packet.getNullableStringValue("behov")?.let { logger.info { "Har behovId $it" } }
                 ?: logger.info { "Mangler behovId" }
 
             if (started?.isBefore(LocalDateTime.now().minusSeconds(30)) == true) {
