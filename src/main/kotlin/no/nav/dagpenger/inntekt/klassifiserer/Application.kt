@@ -61,11 +61,15 @@ internal class Application(
         val inntektsId = packet.getNullableStringValue(INNTEKTS_ID)
         val regelkontekst = runCatching { packet.hentRegelkontekst() }.getOrNull()
         val beregningsDato = packet.getLocalDate(BEREGNINGSDATO)
+
         withLoggingContext(
             "callId" to callId,
             "kontekstType" to regelkontekst?.type,
             "kontekstId" to regelkontekst?.id
         ) {
+            packet.getNullableStringValue("@behov")?.let { logger.info { "Har behovId $it" } }
+                ?: logger.info { "Mangler behovId" }
+
             if (started?.isBefore(LocalDateTime.now().minusSeconds(30)) == true) {
                 throw RuntimeException("Denne pakka er for gammal!")
             }
