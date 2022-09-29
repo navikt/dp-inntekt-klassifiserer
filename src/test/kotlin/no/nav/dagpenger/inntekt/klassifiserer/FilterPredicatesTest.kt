@@ -44,7 +44,8 @@ class OnPacketTest {
                 "123",
                 RegelKontekst("12345", "vedtak"),
                 LocalDate.of(2020, 1, 1),
-                null
+                null,
+                any()
             )
         } returns inntekt
 

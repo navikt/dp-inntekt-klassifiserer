@@ -88,7 +88,7 @@ class InntektKlassifisererTopologyTest {
             assertEquals("should be unchanged", ut.getStringValue("otherField"))
 
             coVerify(exactly = 1) { runBlocking { inntektHenter.hentKlassifisertInntekt("ULID") } }
-            coVerify(exactly = 0) { inntektHttpClient.getKlassifisertInntekt(any(), any(), any(), any()) }
+            coVerify(exactly = 0) { inntektHttpClient.getKlassifisertInntekt(any(), any(), any(), any(), any()) }
         }
     }
 
@@ -131,7 +131,8 @@ class InntektKlassifisererTopologyTest {
                 "12345",
                 RegelKontekst("123", "vedtak"),
                 LocalDate.of(2019, 1, 25),
-                null
+                null,
+                any()
             )
         } returns inntekt
 

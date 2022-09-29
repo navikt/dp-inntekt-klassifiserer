@@ -59,12 +59,12 @@ internal class Application(
             packet.getNullableStringValue("system_started")
                 ?.let { runCatching { LocalDateTime.parse(it) }.getOrNull() }
         val inntektsId = packet.getNullableStringValue(INNTEKTS_ID)
-        val regelkontekst = packet.hentRegelkontekst()
+        val regelkontekst = runCatching { packet.hentRegelkontekst() }.getOrNull()
         val beregningsDato = packet.getLocalDate(BEREGNINGSDATO)
         withLoggingContext(
             "callId" to callId,
-            "kontekstType" to regelkontekst.type,
-            "kontekstId" to regelkontekst.id
+            "kontekstType" to regelkontekst?.type,
+            "kontekstId" to regelkontekst?.id
         ) {
             if (started?.isBefore(LocalDateTime.now().minusSeconds(30)) == true) {
                 throw RuntimeException("Denne pakka er for gammal!")
@@ -76,12 +76,15 @@ internal class Application(
                 }
                 else -> {
                     val aktørId = packet.getStringValue(AKTØRID)
+                    requireNotNull(regelkontekst) { "Må ha en kontekst for å hente inntekt" }
+
                     runBlocking {
                         inntektHttpClient.getKlassifisertInntekt(
                             aktørId,
                             regelkontekst,
                             beregningsDato,
-                            null
+                            null,
+                            callId
                         )
                     }
                 }

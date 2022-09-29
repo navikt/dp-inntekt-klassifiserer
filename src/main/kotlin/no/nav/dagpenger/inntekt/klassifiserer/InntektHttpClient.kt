@@ -18,7 +18,6 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import no.nav.dagpenger.events.Problem
 import no.nav.dagpenger.events.inntekt.v1.Inntekt
-import no.nav.dagpenger.events.inntekt.v1.SpesifisertInntekt
 import no.nav.dagpenger.ktor.client.metrics.PrometheusMetrics
 import java.net.URI
 import java.time.Duration
@@ -27,36 +26,22 @@ import java.time.LocalDate
 internal class InntektHttpClient(
     private val inntektApiUrl: String,
     private val httpKlient: HttpClient = httpClient(httpMetricsBasename = "ktor_client_inntekt_klassifiserer_metrics"),
-    private val tokenProvider: () -> String,
+    private val tokenProvider: () -> String
 ) {
-
-    suspend fun getSpesifisertInntekt(
-        aktørId: String,
-        regelkontekst: RegelKontekst,
-        beregningsDato: LocalDate,
-        fødselsnummer: String?
-    ): SpesifisertInntekt {
-        return getInntekt(
-            aktørId,
-            regelkontekst,
-            beregningsDato,
-            fødselsnummer,
-            url = "${inntektApiUrl}v2/inntekt/spesifisert"
-        )
-    }
-
     suspend fun getKlassifisertInntekt(
         aktørId: String,
         regelkontekst: RegelKontekst,
         beregningsDato: LocalDate,
-        fødselsnummer: String?
+        fødselsnummer: String?,
+        callId: String? = null
     ): Inntekt {
         return getInntekt(
             aktørId,
             regelkontekst,
             beregningsDato,
             fødselsnummer,
-            url = "${inntektApiUrl}v2/inntekt/klassifisert"
+            url = "${inntektApiUrl}v2/inntekt/klassifisert",
+            callId
         )
     }
 
@@ -66,6 +51,7 @@ internal class InntektHttpClient(
         beregningsDato: LocalDate,
         fødselsnummer: String?,
         url: String,
+        callId: String?
     ): T {
         val requestBody = InntektRequest(
             aktørId = aktørId,
@@ -75,10 +61,10 @@ internal class InntektHttpClient(
         )
 
         return try {
-
             httpKlient.post(url) {
                 header("Content-Type", "application/json")
                 header(HttpHeaders.Authorization, "Bearer ${tokenProvider.invoke()}")
+                header(HttpHeaders.XRequestId, callId)
                 body = requestBody
                 accept(ContentType.Application.Json)
             }
