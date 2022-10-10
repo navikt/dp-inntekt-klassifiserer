@@ -55,6 +55,7 @@ internal class Application(
 
     override fun onPacket(packet: Packet): Packet {
         val callId = "dp-inntekt-klassifiserer-${UUID.randomUUID()}"
+        val behovId = packet.getNullableStringValue("behovId")
         val started: LocalDateTime? =
             packet.getNullableStringValue("system_started")
                 ?.let { runCatching { LocalDateTime.parse(it) }.getOrNull() }
@@ -64,12 +65,10 @@ internal class Application(
 
         withLoggingContext(
             "callId" to callId,
+            "behovId" to behovId,
             "kontekstType" to regelkontekst?.type,
             "kontekstId" to regelkontekst?.id
         ) {
-            packet.getNullableStringValue("behovId")?.let { logger.info { "Har behovId $it" } }
-                ?: logger.info { "Mangler behovId" }
-
             if (started?.isBefore(LocalDateTime.now().minusSeconds(30)) == true) {
                 throw RuntimeException("Denne pakka er for gammal!")
             }
