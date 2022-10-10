@@ -54,8 +54,8 @@ internal class Application(
     }
 
     override fun onPacket(packet: Packet): Packet {
-        val callId = "dp-inntekt-klassifiserer-${UUID.randomUUID()}"
         val behovId = packet.getNullableStringValue("behovId")
+        val callId = "dp-inntekt-klassifiserer-${behovId ?: UUID.randomUUID()}"
         val started: LocalDateTime? =
             packet.getNullableStringValue("system_started")
                 ?.let { runCatching { LocalDateTime.parse(it) }.getOrNull() }
