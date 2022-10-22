@@ -1,5 +1,3 @@
-
-
 plugins {
     application
     kotlin("jvm")
@@ -20,12 +18,13 @@ application {
 }
 
 dependencies {
+    val dpBibliotekerVersion = "2022.10.22-09.05.6fcf3395aa4f"
     implementation(kotlin("stdlib-jdk8"))
 
     // Dagpenger
     implementation(Dagpenger.Streams)
     implementation(Dagpenger.Events)
-    implementation(Dagpenger.Biblioteker.ktorUtils)
+    implementation("com.github.navikt.dp-biblioteker:ktor-utils:$dpBibliotekerVersion")
 
     // gRpc
     implementation("com.github.navikt:dp-inntekt:2020.05.18-11.33.279ab2f32a2c")
@@ -37,13 +36,14 @@ dependencies {
     implementation(Ktor.serverNetty)
 
     // ktor http client
-    implementation(Dagpenger.Biblioteker.Ktor.Client.metrics)
-    implementation("com.github.navikt.dp-biblioteker:oauth2-klient:2022.02.05-16.32.da1deab37b31")
-    implementation(Ktor.library("client-auth-jvm"))
-    implementation(Ktor.library("client-cio"))
-    implementation(Ktor.library("client-core"))
-    implementation(Ktor.library("client-logging-jvm"))
-    implementation(Ktor.library("client-jackson"))
+    implementation("com.github.navikt.dp-biblioteker:ktor-client-metrics:$dpBibliotekerVersion")
+    implementation("com.github.navikt.dp-biblioteker:oauth2-klient:$dpBibliotekerVersion")
+    implementation(Ktor2.Client.library("auth-jvm"))
+    implementation(Ktor2.Client.library("cio"))
+    implementation(Ktor2.Client.library("core"))
+    implementation(Ktor2.Client.library("logging-jvm"))
+    implementation(Ktor2.Client.library("content-negotiation"))
+    implementation("io.ktor:ktor-serialization-jackson:${Ktor2.version}")
     implementation(Jackson.jsr310)
 
     // Miljøkonfigurasjon
