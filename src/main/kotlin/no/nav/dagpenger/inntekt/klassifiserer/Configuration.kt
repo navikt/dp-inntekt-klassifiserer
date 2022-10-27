@@ -12,8 +12,8 @@ import com.natpryce.konfig.stringType
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.ProxyBuilder
 import io.ktor.client.engine.http
-import io.ktor.client.features.json.JacksonSerializer
-import io.ktor.client.features.json.JsonFeature
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.serialization.jackson.jackson
 import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.oauth2.CachedOauth2Client
 import no.nav.dagpenger.oauth2.OAuth2Config
@@ -67,9 +67,9 @@ object Configuration {
         CachedOauth2Client(
             tokenEndpointUrl = azureAd.tokenEndpointUrl,
             authType = azureAd.clientSecret(),
-            httpClient = HttpClient() {
-                install(JsonFeature) {
-                    serializer = JacksonSerializer {
+            httpClient = HttpClient {
+                install(ContentNegotiation) {
+                    jackson {
                         configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                         setSerializationInclusion(JsonInclude.Include.NON_NULL)
                     }
