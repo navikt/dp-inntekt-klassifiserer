@@ -4,23 +4,21 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.HttpClient
-import io.ktor.client.call.body
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.cio.CIO
-import io.ktor.client.plugins.HttpTimeout
-import io.ktor.client.plugins.ResponseException
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.features.HttpTimeout
+import io.ktor.client.features.ResponseException
+import io.ktor.client.features.json.JacksonSerializer
+import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.request.accept
 import io.ktor.client.request.header
 import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.client.statement.bodyAsText
+import io.ktor.client.statement.readText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
-import io.ktor.serialization.jackson.JacksonConverter
 import no.nav.dagpenger.events.Problem
 import no.nav.dagpenger.events.inntekt.v1.Inntekt
-import no.nav.dagpenger.ktor.client.metrics.PrometheusMetricsPlugin
+import no.nav.dagpenger.ktor.client.metrics.PrometheusMetrics
 import java.net.URI
 import java.time.Duration
 import java.time.LocalDate
@@ -67,21 +65,20 @@ internal class InntektHttpClient(
                 header("Content-Type", "application/json")
                 header(HttpHeaders.Authorization, "Bearer ${tokenProvider.invoke()}")
                 header(HttpHeaders.XRequestId, callId)
-                setBody(requestBody)
+                body = requestBody
                 accept(ContentType.Application.Json)
-            }.body()
+            }
         } catch (error: ResponseException) {
-            val problem =
-                kotlin.runCatching { objectMapper.readValue(error.response.bodyAsText(), Problem::class.java) }
-                    .getOrDefault(
-                        Problem(
-                            URI.create("urn:dp:error:inntektskomponenten"),
-                            "Klarte ikke å hente inntekt"
-                        )
+            val problem = kotlin.runCatching { objectMapper.readValue(error.response.readText(), Problem::class.java) }
+                .getOrDefault(
+                    Problem(
+                        URI.create("urn:dp:error:inntektskomponenten"),
+                        "Klarte ikke å hente inntekt"
                     )
+                )
 
             throw InntektApiHttpClientException(
-                "Failed to fetch inntekt. Problem: ${problem.title}. Response code: ${error.response.status}, message: ${error.response.bodyAsText()}",
+                "Failed to fetch inntekt. Problem: ${problem.title}. Response code: ${error.response.status}, message: ${error.response.readText()}",
                 problem,
                 error
             )
@@ -104,21 +101,18 @@ internal fun httpClient(
     httpMetricsBasename: String? = null
 ): HttpClient {
     return HttpClient(engine) {
-        expectSuccess = true
         install(HttpTimeout) {
             connectTimeoutMillis = Duration.ofSeconds(30).toMillis()
             requestTimeoutMillis = Duration.ofSeconds(30).toMillis()
             socketTimeoutMillis = Duration.ofSeconds(30).toMillis()
         }
 
-        install(ContentNegotiation) {
-            register(
-                ContentType.Application.Json,
-                JacksonConverter(objectMapper)
-            )
+        install(JsonFeature) {
+            accept(ContentType.Application.Json)
+            serializer = JacksonSerializer(objectMapper)
         }
 
-        install(PrometheusMetricsPlugin) {
+        install(PrometheusMetrics) {
             httpMetricsBasename?.let {
                 baseName = it
             }
