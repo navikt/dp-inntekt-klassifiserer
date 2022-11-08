@@ -14,6 +14,7 @@ import no.nav.dagpenger.events.inntekt.v1.InntektKlasse
 import no.nav.dagpenger.events.inntekt.v1.SpesifisertInntekt
 import no.nav.dagpenger.events.inntekt.v1.sumInntekt
 import no.nav.dagpenger.events.moshiInstance
+import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
@@ -111,16 +112,15 @@ class InntektHttpClientTest {
 
     @Test
     fun `fetch spesifisert inntekt fails on 500 server error`() {
+        @Language("JSON")
         val responseBodyJson =
             """
-
-         {
-            "type": "urn:dp:error:inntektskomponenten",
-            "title": "Klarte ikke å hente inntekt for beregningen",
-            "status": 500,
-            "detail": "Innhenting av inntekt mot inntektskomponenten feilet."
-         }
-
+            { 
+                "type": "urn:dp:error:inntektskomponenten",
+                "title": "Klarte ikke å hente inntekt for beregningen",
+                "status": 500,
+                "detail": "Innhenting av inntekt mot inntektskomponenten feilet."
+            }
             """.trimIndent()
         WireMock.stubFor(
             WireMock.post(WireMock.urlEqualTo("/v2/inntekt/klassifisert"))

@@ -73,7 +73,8 @@ internal class InntektHttpClient(
                 .getOrDefault(
                     Problem(
                         URI.create("urn:dp:error:inntektskomponenten"),
-                        "Klarte ikke å hente inntekt"
+                        "Klarte ikke å hente inntekt",
+                        detail = error.response.readText()
                     )
                 )
 
