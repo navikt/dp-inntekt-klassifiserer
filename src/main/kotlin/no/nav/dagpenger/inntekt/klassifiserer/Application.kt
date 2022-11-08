@@ -77,18 +77,25 @@ internal class Application(
                     logger.info { "Henter inntekt basert på inntektsId: $inntektsId" }
                     runBlocking { inntektHenter.hentKlassifisertInntekt(inntektsId) }
                 }
+
                 else -> {
                     val aktørId = packet.getStringValue(AKTØRID)
                     requireNotNull(regelkontekst) { "Må ha en kontekst for å hente inntekt" }
 
-                    runBlocking {
-                        inntektHttpClient.getKlassifisertInntekt(
-                            aktørId,
-                            regelkontekst,
-                            beregningsDato,
-                            null,
-                            callId
-                        )
+                    try {
+                        runBlocking {
+                            inntektHttpClient.getKlassifisertInntekt(
+                                aktørId,
+                                regelkontekst,
+                                beregningsDato,
+                                null,
+                                callId
+                            )
+                        }
+                    } catch (e: InntektApiHttpClientException) {
+                        logger.error(e) { "Kunne ikke hente inntekt fra dp-inntekt-api" }
+                        packet.putValue("system_problem", e.problem)
+                        return packet
                     }
                 }
             }
