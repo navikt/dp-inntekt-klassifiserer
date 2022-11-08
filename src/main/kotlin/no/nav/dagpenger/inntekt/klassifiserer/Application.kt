@@ -94,7 +94,7 @@ internal class Application(
                         }
                     } catch (e: InntektApiHttpClientException) {
                         logger.error(e) { "Kunne ikke hente inntekt fra dp-inntekt-api" }
-                        packet.putValue("system_problem", e.problem)
+                        packet.addProblem(e.problem)
                         return packet
                     }
                 }
