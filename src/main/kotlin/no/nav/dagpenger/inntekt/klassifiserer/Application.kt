@@ -55,7 +55,7 @@ internal class Application(
 
     override fun onPacket(packet: Packet): Packet {
         val behovId = packet.getNullableStringValue("behovId")
-        val callId = behovId ?: UUID.randomUUID()
+        val callId = (behovId ?: UUID.randomUUID()).toString()
         val started: LocalDateTime? =
             packet.getNullableStringValue("system_started")
                 ?.let { runCatching { LocalDateTime.parse(it) }.getOrNull() }
@@ -64,7 +64,7 @@ internal class Application(
         val beregningsDato = packet.getLocalDate(BEREGNINGSDATO)
 
         withLoggingContext(
-            "callId" to callId.toString(),
+            "callId" to callId,
             "behovId" to behovId,
             "kontekstType" to regelkontekst?.type,
             "kontekstId" to regelkontekst?.id
