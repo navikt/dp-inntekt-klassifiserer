@@ -28,22 +28,24 @@ dependencies {
     implementation(Dagpenger.Biblioteker.ktorUtils)
 
     // gRpc
-    implementation("com.github.navikt:dp-inntekt:2020.05.18-11.33.279ab2f32a2c")
+    implementation("com.github.navikt:dp-inntekt:2023.01.11-12.56.a8fde01194fb")
 
     // kafka
     implementation(Kafka.streams)
 
     // ktor
-    implementation(Ktor.serverNetty)
+    implementation(Ktor2.Server.library("netty"))
 
     // ktor http client
     implementation(Dagpenger.Biblioteker.Ktor.Client.metrics)
     implementation("com.github.navikt.dp-biblioteker:oauth2-klient:2022.02.05-16.32.da1deab37b31")
-    implementation(Ktor.library("client-auth-jvm"))
-    implementation(Ktor.library("client-cio"))
-    implementation(Ktor.library("client-core"))
-    implementation(Ktor.library("client-logging-jvm"))
-    implementation(Ktor.library("client-jackson"))
+    implementation(Ktor2.Client.library("auth-jvm"))
+    implementation(Ktor2.Client.library("cio"))
+    implementation(Ktor2.Client.library("core"))
+    implementation(Ktor2.Client.library("logging-jvm"))
+    implementation(Ktor2.Client.library("content-negotiation"))
+    implementation(Ktor2.Client.library("jackson"))
+    implementation("io.ktor:ktor-serialization-jackson:${Ktor2.version}")
     implementation(Jackson.jsr310)
 
     // Miljøkonfigurasjon
@@ -63,9 +65,7 @@ dependencies {
 
     // testing
     testImplementation(kotlin("test"))
-    testImplementation(Ktor.ktorTest) {
-        exclude("org.jetbrains.kotlin", "kotlin-test-junit")
-    }
+    testImplementation(Ktor2.Server.library("test-host"))
     testImplementation(Junit5.api)
 
     // sanity check mot jackson json
