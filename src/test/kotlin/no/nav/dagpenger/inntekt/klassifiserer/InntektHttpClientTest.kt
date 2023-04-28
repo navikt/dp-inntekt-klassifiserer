@@ -14,7 +14,6 @@ import no.nav.dagpenger.events.inntekt.v1.InntektKlasse
 import no.nav.dagpenger.events.inntekt.v1.SpesifisertInntekt
 import no.nav.dagpenger.events.inntekt.v1.sumInntekt
 import no.nav.dagpenger.events.moshiInstance
-import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
@@ -59,30 +58,30 @@ class InntektHttpClientTest {
             WireMock.post(WireMock.urlEqualTo("/v2/inntekt/klassifisert"))
                 .withHeader("Authorization", EqualToPattern("Bearer token"))
                 .withRequestBody(
-                    matchingJsonPath("aktørId", equalTo("45456"))
+                    matchingJsonPath("aktørId", equalTo("45456")),
                 )
                 .withRequestBody(
-                    matchingJsonPath("regelkontekst.id", equalTo("123"))
+                    matchingJsonPath("regelkontekst.id", equalTo("123")),
                 )
                 .withRequestBody(
-                    matchingJsonPath("regelkontekst.type", equalTo("vedtak"))
+                    matchingJsonPath("regelkontekst.type", equalTo("vedtak")),
                 )
                 .withRequestBody(
-                    matchingJsonPath("beregningsDato", matching("^\\d{4}-\\d{2}-\\d{2}\$"))
+                    matchingJsonPath("beregningsDato", matching("^\\d{4}-\\d{2}-\\d{2}\$")),
                 )
                 .withRequestBody(
-                    matchingJsonPath("fødselsnummer", equalTo("12345678901"))
+                    matchingJsonPath("fødselsnummer", equalTo("12345678901")),
                 )
                 .willReturn(
                     WireMock.aResponse()
                         .withHeader("Content-Type", "application/json")
-                        .withBody(responseBodyJson)
-                )
+                        .withBody(responseBodyJson),
+                ),
         )
         val inntektHttpClient = InntektHttpClient(
             inntektApiUrl = server.url(""),
             httpKlient = client,
-            tokenProvider = tokenProvider
+            tokenProvider = tokenProvider,
         )
         val klassifisertInntekt: Inntekt =
             runBlocking {
@@ -90,7 +89,7 @@ class InntektHttpClientTest {
                     "45456",
                     RegelKontekst("123", "vedtak"),
                     LocalDate.now(),
-                    "12345678901"
+                    "12345678901",
                 )
             }
         val moshiSerialisertInntekt = klassifisertInntektJsonAdapter.fromJson(responseBodyJson)!!
@@ -99,11 +98,11 @@ class InntektHttpClientTest {
         assertEquals(klassifisertInntekt.manueltRedigert, moshiSerialisertInntekt.manueltRedigert)
         assertEquals(
             klassifisertInntekt.sisteAvsluttendeKalenderMåned,
-            moshiSerialisertInntekt.sisteAvsluttendeKalenderMåned
+            moshiSerialisertInntekt.sisteAvsluttendeKalenderMåned,
         )
         assertEquals(
             klassifisertInntekt.inntektsListe.sumInntekt(enumValues<InntektKlasse>().toList()),
-            moshiSerialisertInntekt.inntektsListe.sumInntekt(enumValues<InntektKlasse>().toList())
+            moshiSerialisertInntekt.inntektsListe.sumInntekt(enumValues<InntektKlasse>().toList()),
         )
 
         assertEquals("12345", klassifisertInntekt.inntektsId)
@@ -112,7 +111,7 @@ class InntektHttpClientTest {
 
     @Test
     fun `fetch spesifisert inntekt fails on 500 server error`() {
-        @Language("JSON")
+        //language=JSON
         val responseBodyJson =
             """
             { 
@@ -128,13 +127,13 @@ class InntektHttpClientTest {
                 .willReturn(
                     WireMock.serverError()
                         .withHeader("Content-Type", "application/json")
-                        .withBody(responseBodyJson)
-                )
+                        .withBody(responseBodyJson),
+                ),
         )
         val inntektHttpClient = InntektHttpClient(
             inntektApiUrl = server.url(""),
             httpKlient = client,
-            tokenProvider = tokenProvider
+            tokenProvider = tokenProvider,
         )
         val inntektApiHttpClientException = assertFailsWith<InntektApiHttpClientException> {
             runBlocking {
@@ -142,7 +141,7 @@ class InntektHttpClientTest {
                     "",
                     RegelKontekst("123", "vedtak"),
                     LocalDate.now(),
-                    null
+                    null,
                 )
             }
         }
@@ -158,13 +157,13 @@ class InntektHttpClientTest {
         WireMock.stubFor(
             WireMock.post(WireMock.urlEqualTo("/v2/inntekt/klassifisert"))
                 .willReturn(
-                    WireMock.serviceUnavailable()
-                )
+                    WireMock.serviceUnavailable(),
+                ),
         )
         val inntektHttpClient = InntektHttpClient(
             inntektApiUrl = server.url(""),
             httpKlient = client,
-            tokenProvider = tokenProvider
+            tokenProvider = tokenProvider,
         )
         val inntektApiHttpClientException = assertFailsWith<InntektApiHttpClientException> {
             runBlocking {
@@ -172,7 +171,7 @@ class InntektHttpClientTest {
                     "",
                     RegelKontekst("123", "vedtak"),
                     LocalDate.now(),
-                    null
+                    null,
                 )
             }
         }

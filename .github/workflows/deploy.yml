@@ -56,6 +56,7 @@ jobs:
     needs: [build]
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
+    environment: dev-fss
     steps:
       - name: Fetch NAIS yaml
         uses: actions/download-artifact@v1
@@ -71,34 +72,13 @@ jobs:
           VARS: nais/vars.yaml
           PRINT_PAYLOAD: true
 
-#  acceptance-tests:
-#    name: Run acceptance tests
-#    needs: [deploy-dev]
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v2
-#        with:
-#          repository: navikt/dagpenger-funksjonelle-tester
-#      - id: repo-name
-#        name: Split owner from repository name
-#        run: |
-#          echo ::set-output name=name::$(echo ${{github.repository}} | sed -e "s/^navikt\///" )
-#      - uses: nais/deploy/actions/deploy@v1
-#        name: Run tests
-#        env:
-#          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-#          CLUSTER: dev-fss
-#          VAR: GITHUB_REPO=${{ steps.repo-name.outputs.name }}
-#          RESOURCE: nais/tests.yml
-#        timeout-minutes: 5
-
   deploy-prod:
     name: Deploy to Production
     needs: [deploy-dev]
     #needs: [deploy-dev]
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
+    environment: prod-fss
     steps:
       - name: Fetch NAIS yaml
         uses: actions/download-artifact@v1

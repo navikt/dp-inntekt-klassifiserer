@@ -4,21 +4,23 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.HttpClient
+import io.ktor.client.call.body
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.cio.CIO
-import io.ktor.client.features.HttpTimeout
-import io.ktor.client.features.ResponseException
-import io.ktor.client.features.json.JacksonSerializer
-import io.ktor.client.features.json.JsonFeature
+import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.ResponseException
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.accept
 import io.ktor.client.request.header
 import io.ktor.client.request.post
-import io.ktor.client.statement.readText
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
+import io.ktor.serialization.jackson.JacksonConverter
 import no.nav.dagpenger.events.Problem
 import no.nav.dagpenger.events.inntekt.v1.Inntekt
-import no.nav.dagpenger.ktor.client.metrics.PrometheusMetrics
+import no.nav.dagpenger.ktor.client.metrics.PrometheusMetricsPlugin
 import java.net.URI
 import java.time.Duration
 import java.time.LocalDate
@@ -26,14 +28,14 @@ import java.time.LocalDate
 internal class InntektHttpClient(
     private val inntektApiUrl: String,
     private val httpKlient: HttpClient = httpClient(httpMetricsBasename = "ktor_client_inntekt_klassifiserer_metrics"),
-    private val tokenProvider: () -> String
+    private val tokenProvider: () -> String,
 ) {
     suspend fun getKlassifisertInntekt(
         aktørId: String,
         regelkontekst: RegelKontekst,
         beregningsDato: LocalDate,
         fødselsnummer: String?,
-        callId: String? = null
+        callId: String? = null,
     ): Inntekt {
         return getInntekt(
             aktørId,
@@ -41,7 +43,7 @@ internal class InntektHttpClient(
             beregningsDato,
             fødselsnummer,
             url = "${inntektApiUrl}v2/inntekt/klassifisert",
-            callId
+            callId,
         )
     }
 
@@ -51,13 +53,13 @@ internal class InntektHttpClient(
         beregningsDato: LocalDate,
         fødselsnummer: String?,
         url: String,
-        callId: String?
+        callId: String?,
     ): T {
         val requestBody = InntektRequest(
             aktørId = aktørId,
             fødselsnummer = fødselsnummer,
             regelkontekst = regelkontekst,
-            beregningsDato = beregningsDato
+            beregningsDato = beregningsDato,
         )
 
         return try {
@@ -65,23 +67,23 @@ internal class InntektHttpClient(
                 header("Content-Type", "application/json")
                 header(HttpHeaders.Authorization, "Bearer ${tokenProvider.invoke()}")
                 header(HttpHeaders.XRequestId, callId)
-                body = requestBody
+                setBody(requestBody)
                 accept(ContentType.Application.Json)
-            }
+            }.body<T>()
         } catch (error: ResponseException) {
-            val problem = kotlin.runCatching { objectMapper.readValue(error.response.readText(), Problem::class.java) }
+            val problem = kotlin.runCatching { objectMapper.readValue(error.response.bodyAsText(), Problem::class.java) }
                 .getOrDefault(
                     Problem(
                         URI.create("urn:dp:error:inntektskomponenten"),
                         "Klarte ikke å hente inntekt",
-                        detail = error.response.readText()
-                    )
+                        detail = error.response.bodyAsText(),
+                    ),
                 )
 
             throw InntektApiHttpClientException(
-                "Failed to fetch inntekt. Problem: ${problem.title}. Response code: ${error.response.status}, message: ${error.response.readText()}",
+                "Failed to fetch inntekt. Problem: ${problem.title}. Response code: ${error.response.status}, message: ${error.response.bodyAsText()}",
                 problem,
-                error
+                error,
             )
         }
     }
@@ -91,7 +93,7 @@ private data class InntektRequest(
     val aktørId: String,
     val fødselsnummer: String? = null,
     val regelkontekst: RegelKontekst,
-    val beregningsDato: LocalDate
+    val beregningsDato: LocalDate,
 )
 
 class InntektApiHttpClientException(override val message: String, val problem: Problem, override val cause: Throwable) :
@@ -99,21 +101,21 @@ class InntektApiHttpClientException(override val message: String, val problem: P
 
 internal fun httpClient(
     engine: HttpClientEngine = CIO.create { requestTimeout = Long.MAX_VALUE },
-    httpMetricsBasename: String? = null
+    httpMetricsBasename: String? = null,
 ): HttpClient {
     return HttpClient(engine) {
+        expectSuccess = true
         install(HttpTimeout) {
             connectTimeoutMillis = Duration.ofSeconds(30).toMillis()
             requestTimeoutMillis = Duration.ofSeconds(30).toMillis()
             socketTimeoutMillis = Duration.ofSeconds(30).toMillis()
         }
 
-        install(JsonFeature) {
-            accept(ContentType.Application.Json)
-            serializer = JacksonSerializer(objectMapper)
+        install(ContentNegotiation) {
+            register(ContentType.Application.Json, JacksonConverter(objectMapper))
         }
 
-        install(PrometheusMetrics) {
+        install(PrometheusMetricsPlugin) {
             httpMetricsBasename?.let {
                 baseName = it
             }

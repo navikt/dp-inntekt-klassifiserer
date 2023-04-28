@@ -4,9 +4,9 @@ import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import mu.withLoggingContext
 import no.nav.dagpenger.events.Packet
+import no.nav.dagpenger.inntekt.apikey.ApiKeyVerifier
 import no.nav.dagpenger.inntekt.rpc.InntektHenter
 import no.nav.dagpenger.inntekt.rpc.InntektHenterWrapper
-import no.nav.dagpenger.ktor.auth.ApiKeyVerifier
 import no.nav.dagpenger.streams.KafkaAivenCredentials
 import no.nav.dagpenger.streams.River
 import no.nav.dagpenger.streams.Topic

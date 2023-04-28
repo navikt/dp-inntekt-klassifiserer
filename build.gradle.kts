@@ -25,25 +25,28 @@ dependencies {
     // Dagpenger
     implementation(Dagpenger.Streams)
     implementation(Dagpenger.Events)
-    implementation(Dagpenger.Biblioteker.ktorUtils)
-
     // gRpc
     implementation("com.github.navikt:dp-inntekt:2020.05.18-11.33.279ab2f32a2c")
+
+    // trengs for api key ApiKeyVerifier
+    implementation("commons-codec:commons-codec:1.15")
 
     // kafka
     implementation(Kafka.streams)
 
-    // ktor
-    implementation(Ktor.serverNetty)
-
     // ktor http client
-    implementation(Dagpenger.Biblioteker.Ktor.Client.metrics)
-    implementation("com.github.navikt.dp-biblioteker:oauth2-klient:2022.02.05-16.32.da1deab37b31")
-    implementation(Ktor.library("client-auth-jvm"))
-    implementation(Ktor.library("client-cio"))
-    implementation(Ktor.library("client-core"))
-    implementation(Ktor.library("client-logging-jvm"))
-    implementation(Ktor.library("client-jackson"))
+    implementation("com.github.navikt.dp-biblioteker:ktor-client-metrics:2023.01.16-10.20.e8450fdff15a")
+    implementation("com.github.navikt.dp-biblioteker:oauth2-klient:2023.01.16-10.20.e8450fdff15a")
+    implementation(Ktor2.Client.library("auth-jvm"))
+    implementation(Ktor2.Client.library("cio"))
+    implementation(Ktor2.Client.library("core"))
+    implementation(Ktor2.Client.library("logging-jvm"))
+    implementation(Ktor2.Client.library("content-negotiation"))
+    implementation(Ktor2.Client.library("jackson"))
+    implementation("io.ktor:ktor-serialization-jackson:${Ktor2.version}")
+
+    // json
+    implementation(Jackson.core)
     implementation(Jackson.jsr310)
 
     // Miljøkonfigurasjon
@@ -63,9 +66,6 @@ dependencies {
 
     // testing
     testImplementation(kotlin("test"))
-    testImplementation(Ktor.ktorTest) {
-        exclude("org.jetbrains.kotlin", "kotlin-test-junit")
-    }
     testImplementation(Junit5.api)
 
     // sanity check mot jackson json

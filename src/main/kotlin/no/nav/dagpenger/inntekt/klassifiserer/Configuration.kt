@@ -12,8 +12,8 @@ import com.natpryce.konfig.stringType
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.ProxyBuilder
 import io.ktor.client.engine.http
-import io.ktor.client.features.json.JacksonSerializer
-import io.ktor.client.features.json.JsonFeature
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.serialization.jackson.jackson
 import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.oauth2.CachedOauth2Client
 import no.nav.dagpenger.oauth2.OAuth2Config
@@ -33,8 +33,8 @@ private val localProperties = ConfigurationMap(
         "dp.inntekt.api.url" to "http://localhost/",
         "inntekt.grpc.address" to "localhost",
         "KAFKA_BROKERS" to "localhost:9092",
-        "kafka.reset.policy" to "earliest"
-    )
+        "kafka.reset.policy" to "earliest",
+    ),
 )
 
 private val devProperties = ConfigurationMap(
@@ -45,7 +45,7 @@ private val devProperties = ConfigurationMap(
         "inntekt.grpc.address" to "dp-inntekt-api-grpc.teamdagpenger.svc.nais.local",
         "kafka.bootstrap.servers" to "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443",
         "kafka.reset.policy" to "earliest",
-    )
+    ),
 )
 
 private val prodProperties = ConfigurationMap(
@@ -55,7 +55,7 @@ private val prodProperties = ConfigurationMap(
         "dp.inntekt.api.url" to "http://dp-inntekt-api.teamdagpenger/",
         "inntekt.grpc.address" to "dp-inntekt-api-grpc.teamdagpenger.svc.nais.local",
         "kafka.reset.policy" to "earliest",
-    )
+    ),
 )
 
 object Configuration {
@@ -68,8 +68,8 @@ object Configuration {
             tokenEndpointUrl = azureAd.tokenEndpointUrl,
             authType = azureAd.clientSecret(),
             httpClient = HttpClient() {
-                install(JsonFeature) {
-                    serializer = JacksonSerializer {
+                install(ContentNegotiation) {
+                    jackson {
                         configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                         setSerializationInclusion(JsonInclude.Include.NON_NULL)
                     }
@@ -79,7 +79,7 @@ object Configuration {
                         this.proxy = ProxyBuilder.http(it)
                     }
                 }
-            }
+            },
         )
     }
 
@@ -91,8 +91,8 @@ data class Kafka(
     val regelTopic: Topic<String, Packet> = Topic(
         name = "teamdagpenger.regel.v1",
         keySerde = Serdes.String(),
-        valueSerde = Serdes.serdeFrom(PacketSerializer(), PacketDeserializer())
-    )
+        valueSerde = Serdes.serdeFrom(PacketSerializer(), PacketDeserializer()),
+    ),
 )
 
 data class ApplicationConfig(
@@ -102,7 +102,7 @@ data class ApplicationConfig(
     val inntektApiUrl: String = config()[Key("dp.inntekt.api.url", stringType)],
     val inntektApiKey: String = config()[Key("dp.inntekt.api.key", stringType)],
     val inntektApiSecret: String = config()[Key("dp.inntekt.api.secret", stringType)],
-    val inntektGrpcAddress: String = config()[Key("inntekt.grpc.address", stringType)]
+    val inntektGrpcAddress: String = config()[Key("inntekt.grpc.address", stringType)],
 )
 
 enum class Profile {
