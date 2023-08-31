@@ -12,6 +12,7 @@ repositories {
     mavenCentral()
     maven("https://packages.confluent.io/maven/")
     maven("https://jitpack.io")
+    maven("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
 }
 
 application {
@@ -23,8 +24,8 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
 
     // Dagpenger
-    implementation(Dagpenger.Streams)
-    implementation(Dagpenger.Events)
+    implementation("com.github.navikt:dagpenger-events:20230831.d11fdb")
+    implementation("com.github.navikt:dagpenger-streams:20230831.f3d785")
     // gRpc
     implementation("com.github.navikt:dp-inntekt:2020.05.18-11.33.279ab2f32a2c")
 
