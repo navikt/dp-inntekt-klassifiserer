@@ -36,7 +36,7 @@ dependencies {
     implementation(Kafka.streams)
 
     // ktor http client
-    implementation("com.github.navikt.dp-biblioteker:ktor-client-metrics:2023.01.16-10.20.e8450fdff15a")
+    implementation("com.github.navikt.dp-biblioteker:ktor-client-metrics:2023.04.27-09.33.fcf0798bf943")
     implementation("com.github.navikt.dp-biblioteker:oauth2-klient:2023.01.16-10.20.e8450fdff15a")
     implementation(Ktor2.Client.library("auth-jvm"))
     implementation(Ktor2.Client.library("cio"))
