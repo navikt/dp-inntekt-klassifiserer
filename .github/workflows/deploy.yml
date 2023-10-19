@@ -59,7 +59,7 @@ jobs:
     environment: dev-fss
     steps:
       - name: Fetch NAIS yaml
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: nais-yaml
           path: nais
@@ -81,7 +81,7 @@ jobs:
     environment: prod-fss
     steps:
       - name: Fetch NAIS yaml
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: nais-yaml
           path: nais
