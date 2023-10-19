@@ -22,8 +22,9 @@ internal class Application(
     private val configuration: Configuration = Configuration,
     private val inntektHttpClient: InntektHttpClient,
     private val inntektHenter: InntektHenter,
-    topic: Topic<String, Packet> = configuration.kafka.regelTopic
+    topic: Topic<String, Packet> = configuration.kafka.regelTopic,
 ) : River(topic) {
+    @Suppress("ktlint:standard:property-naming")
     override val SERVICE_APP_ID: String = configuration.applicationConfig.id
 
     companion object {
@@ -41,7 +42,7 @@ internal class Application(
         return streamConfigAiven(
             appId = SERVICE_APP_ID,
             bootStapServerUrl = configuration.kafka.aivenBrokers,
-            aivenCredentials = KafkaAivenCredentials()
+            aivenCredentials = KafkaAivenCredentials(),
         )
     }
 
@@ -49,7 +50,7 @@ internal class Application(
         return listOf(
             Predicate { _, packet -> !packet.hasField(INNTEKT) },
             Predicate { _, packet -> !packet.hasField(MANUELT_GRUNNLAG) },
-            Predicate { _, packet -> !packet.hasField(FORRIGE_GRUNNLAG) }
+            Predicate { _, packet -> !packet.hasField(FORRIGE_GRUNNLAG) },
         )
     }
 
@@ -67,38 +68,39 @@ internal class Application(
             "callId" to callId,
             "behovId" to behovId,
             "kontekstType" to regelkontekst?.type,
-            "kontekstId" to regelkontekst?.id
+            "kontekstId" to regelkontekst?.id,
         ) {
             if (started?.isBefore(LocalDateTime.now().minusSeconds(30)) == true) {
                 throw RuntimeException("Denne pakka er for gammal!")
             }
-            val klassifisertInntekt = when (inntektsId) {
-                is String -> {
-                    logger.info { "Henter inntekt basert på inntektsId: $inntektsId" }
-                    runBlocking { inntektHenter.hentKlassifisertInntekt(inntektsId) }
-                }
+            val klassifisertInntekt =
+                when (inntektsId) {
+                    is String -> {
+                        logger.info { "Henter inntekt basert på inntektsId: $inntektsId" }
+                        runBlocking { inntektHenter.hentKlassifisertInntekt(inntektsId) }
+                    }
 
-                else -> {
-                    val aktørId = packet.getStringValue(AKTØRID)
-                    requireNotNull(regelkontekst) { "Må ha en kontekst for å hente inntekt" }
+                    else -> {
+                        val aktørId = packet.getStringValue(AKTØRID)
+                        requireNotNull(regelkontekst) { "Må ha en kontekst for å hente inntekt" }
 
-                    try {
-                        runBlocking {
-                            inntektHttpClient.getKlassifisertInntekt(
-                                aktørId,
-                                regelkontekst,
-                                beregningsDato,
-                                null,
-                                callId
-                            )
+                        try {
+                            runBlocking {
+                                inntektHttpClient.getKlassifisertInntekt(
+                                    aktørId,
+                                    regelkontekst,
+                                    beregningsDato,
+                                    null,
+                                    callId,
+                                )
+                            }
+                        } catch (e: InntektApiHttpClientException) {
+                            logger.error(e) { "Kunne ikke hente inntekt fra dp-inntekt-api" }
+                            packet.addProblem(e.problem)
+                            return packet
                         }
-                    } catch (e: InntektApiHttpClientException) {
-                        logger.error(e) { "Kunne ikke hente inntekt fra dp-inntekt-api" }
-                        packet.addProblem(e.problem)
-                        return packet
                     }
                 }
-            }
 
             logger.info { "Hentet med inntektsId: ${klassifisertInntekt.inntektsId}" }
             packet.putValue(INNTEKT, klassifisertInntekt)
@@ -110,7 +112,7 @@ internal class Application(
 internal fun Packet.hentRegelkontekst() =
     RegelKontekst(
         id = this.hentKontekstId(),
-        type = this.getStringValue(Application.KONTEKST_TYPE)
+        type = this.getStringValue(Application.KONTEKST_TYPE),
     )
 
 private fun Packet.hentKontekstId(): String = getStringValue(Application.KONTEKST_ID)
@@ -118,24 +120,26 @@ private fun Packet.hentKontekstId(): String = getStringValue(Application.KONTEKS
 fun main() {
     val apiKeyVerifier = ApiKeyVerifier(Configuration.applicationConfig.inntektApiSecret)
     val apiKey = apiKeyVerifier.generate(Configuration.applicationConfig.inntektApiKey)
-    val inntektGrpcClient = InntektHenterWrapper(
-        serveraddress = Configuration.applicationConfig.inntektGrpcAddress,
-        apiKey = apiKey
-    )
+    val inntektGrpcClient =
+        InntektHenterWrapper(
+            serveraddress = Configuration.applicationConfig.inntektGrpcAddress,
+            apiKey = apiKey,
+        )
 
     Runtime.getRuntime().addShutdownHook(
         Thread {
             inntektGrpcClient.close()
-        }
+        },
     )
-    val inntektHttpClient = InntektHttpClient(
-        Configuration.applicationConfig.inntektApiUrl,
-        tokenProvider = { Configuration.oauth2Client.clientCredentials(Configuration.dpInntektApiScope).accessToken }
-    )
+    val inntektHttpClient =
+        InntektHttpClient(
+            Configuration.applicationConfig.inntektApiUrl,
+            tokenProvider = { Configuration.oauth2Client.clientCredentials(Configuration.dpInntektApiScope).accessToken },
+        )
 
     Application(
         configuration = Configuration,
         inntektHttpClient = inntektHttpClient,
-        inntektHenter = inntektGrpcClient
+        inntektHenter = inntektGrpcClient,
     ).start()
 }

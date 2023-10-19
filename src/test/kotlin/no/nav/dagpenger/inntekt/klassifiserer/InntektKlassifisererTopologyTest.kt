@@ -27,30 +27,33 @@ import java.time.YearMonth
 import java.util.Properties
 
 class InntektKlassifisererTopologyTest {
-
     companion object {
-        val config = Properties().apply {
-            this[StreamsConfig.APPLICATION_ID_CONFIG] = "test"
-            this[StreamsConfig.BOOTSTRAP_SERVERS_CONFIG] = "dummy:1234"
-        }
+        val config =
+            Properties().apply {
+                this[StreamsConfig.APPLICATION_ID_CONFIG] = "test"
+                this[StreamsConfig.BOOTSTRAP_SERVERS_CONFIG] = "dummy:1234"
+            }
 
-        private val inntekt = Inntekt(
-            inntektsId = "inntektsid",
-            manueltRedigert = false,
-            inntektsListe = listOf(
-                KlassifisertInntektMåned(
-                    årMåned = YearMonth.now(),
-                    klassifiserteInntekter = listOf(
-                        KlassifisertInntekt(
-                            beløp = BigDecimal("1000.12"),
-                            inntektKlasse = InntektKlasse.ARBEIDSINNTEKT
-                        )
+        private val inntekt =
+            Inntekt(
+                inntektsId = "inntektsid",
+                manueltRedigert = false,
+                inntektsListe =
+                    listOf(
+                        KlassifisertInntektMåned(
+                            årMåned = YearMonth.now(),
+                            klassifiserteInntekter =
+                                listOf(
+                                    KlassifisertInntekt(
+                                        beløp = BigDecimal("1000.12"),
+                                        inntektKlasse = InntektKlasse.ARBEIDSINNTEKT,
+                                    ),
+                                ),
+                            harAvvik = false,
+                        ),
                     ),
-                    harAvvik = false
-                )
-            ),
-            sisteAvsluttendeKalenderMåned = YearMonth.now()
-        )
+                sisteAvsluttendeKalenderMåned = YearMonth.now(),
+            )
     }
 
     @Test
@@ -59,10 +62,11 @@ class InntektKlassifisererTopologyTest {
         every { runBlocking { inntektHenter.hentKlassifisertInntekt("ULID") } } returns inntekt
         val inntektHttpClient = mockk<InntektHttpClient>()
 
-        val app = Application(
-            inntektHttpClient = inntektHttpClient,
-            inntektHenter = inntektHenter
-        )
+        val app =
+            Application(
+                inntektHttpClient = inntektHttpClient,
+                inntektHenter = inntektHenter,
+            )
 
         val packetJson =
             """
@@ -102,10 +106,11 @@ class InntektKlassifisererTopologyTest {
             }
             """.trimIndent()
 
-        val app = Application(
-            inntektHttpClient = mockk(),
-            inntektHenter = mockk(relaxed = true)
-        )
+        val app =
+            Application(
+                inntektHttpClient = mockk(),
+                inntektHenter = mockk(relaxed = true),
+            )
 
         TopologyTestDriver(app.buildTopology(), config).use { topologyTestDriver ->
             topologyTestDriver.regelInputTopic().also { it.pipeInput(Packet(packetWithKlassifisertInntekt)) }
@@ -117,12 +122,12 @@ class InntektKlassifisererTopologyTest {
     fun `Skal legge på inntekt på pakka `() {
         val packetWithSpesifisertInntektJson =
             """
-            {
-                "aktørId": "12345",
-                "$KONTEKST_ID": "123",
-                "$KONTEKST_TYPE": "vedtak",
-                "beregningsDato": 2019-01-25
-           }
+             {
+                 "aktørId": "12345",
+                 "$KONTEKST_ID": "123",
+                 "$KONTEKST_TYPE": "vedtak",
+                 "beregningsDato": 2019-01-25
+            }
             """.trimIndent()
 
         val inntektHttpClient: InntektHttpClient = mockk()
@@ -132,14 +137,15 @@ class InntektKlassifisererTopologyTest {
                 RegelKontekst("123", "vedtak"),
                 LocalDate.of(2019, 1, 25),
                 null,
-                any()
+                any(),
             )
         } returns inntekt
 
-        val app = Application(
-            inntektHttpClient = inntektHttpClient,
-            inntektHenter = mockk(relaxed = true)
-        )
+        val app =
+            Application(
+                inntektHttpClient = inntektHttpClient,
+                inntektHenter = mockk(relaxed = true),
+            )
         TopologyTestDriver(app.buildTopology(), config).use { topologyTestDriver ->
             topologyTestDriver.regelInputTopic().also { it.pipeInput(Packet(packetWithSpesifisertInntektJson)) }
             val ut = topologyTestDriver.regelOutputTopic().readValue()
@@ -151,13 +157,13 @@ class InntektKlassifisererTopologyTest {
     fun `Skal ikke behandle pakker over 30 sekunder`() {
         val packetWithSpesifisertInntektJson =
             """
-            {
-                "system_started": "2020-03-28T12:35:53.082955",
-                "aktørId": "12345",
-                "$KONTEKST_ID": "123",
-                "$KONTEKST_TYPE": "vedtak",
-                "beregningsDato": 2019-01-25
-           }
+             {
+                 "system_started": "2020-03-28T12:35:53.082955",
+                 "aktørId": "12345",
+                 "$KONTEKST_ID": "123",
+                 "$KONTEKST_TYPE": "vedtak",
+                 "beregningsDato": 2019-01-25
+            }
             """.trimIndent()
 
         val inntektHttpClient: InntektHttpClient = mockk()
@@ -166,14 +172,15 @@ class InntektKlassifisererTopologyTest {
                 "12345",
                 RegelKontekst("123", "vedtak"),
                 LocalDate.of(2019, 1, 25),
-                null
+                null,
             )
         } returns inntekt
 
-        val app = Application(
-            inntektHttpClient = inntektHttpClient,
-            inntektHenter = mockk(relaxed = true)
-        )
+        val app =
+            Application(
+                inntektHttpClient = inntektHttpClient,
+                inntektHenter = mockk(relaxed = true),
+            )
         TopologyTestDriver(app.buildTopology(), config).use { topologyTestDriver ->
             topologyTestDriver.regelInputTopic().also { it.pipeInput(Packet(packetWithSpesifisertInntektJson)) }
             val ut = topologyTestDriver.regelOutputTopic().readValue()
@@ -186,12 +193,12 @@ private fun TopologyTestDriver.regelInputTopic(): TestInputTopic<String, Packet>
     this.createInputTopic(
         Configuration.kafka.regelTopic.name,
         Configuration.kafka.regelTopic.keySerde.serializer(),
-        Configuration.kafka.regelTopic.valueSerde.serializer()
+        Configuration.kafka.regelTopic.valueSerde.serializer(),
     )
 
 private fun TopologyTestDriver.regelOutputTopic(): TestOutputTopic<String, Packet> =
     this.createOutputTopic(
         Configuration.kafka.regelTopic.name,
         Configuration.kafka.regelTopic.keySerde.deserializer(),
-        Configuration.kafka.regelTopic.valueSerde.deserializer()
+        Configuration.kafka.regelTopic.valueSerde.deserializer(),
     )

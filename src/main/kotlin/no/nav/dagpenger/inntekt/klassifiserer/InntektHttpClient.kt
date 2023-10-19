@@ -55,12 +55,13 @@ internal class InntektHttpClient(
         url: String,
         callId: String?,
     ): T {
-        val requestBody = InntektRequest(
-            aktørId = aktørId,
-            fødselsnummer = fødselsnummer,
-            regelkontekst = regelkontekst,
-            beregningsDato = beregningsDato,
-        )
+        val requestBody =
+            InntektRequest(
+                aktørId = aktørId,
+                fødselsnummer = fødselsnummer,
+                regelkontekst = regelkontekst,
+                beregningsDato = beregningsDato,
+            )
 
         return try {
             httpKlient.post(url) {
@@ -71,17 +72,22 @@ internal class InntektHttpClient(
                 accept(ContentType.Application.Json)
             }.body<T>()
         } catch (error: ResponseException) {
-            val problem = kotlin.runCatching { objectMapper.readValue(error.response.bodyAsText(), Problem::class.java) }
-                .getOrDefault(
-                    Problem(
-                        URI.create("urn:dp:error:inntektskomponenten"),
-                        "Klarte ikke å hente inntekt",
-                        detail = error.response.bodyAsText(),
-                    ),
-                )
+            val problem =
+                kotlin.runCatching { objectMapper.readValue(error.response.bodyAsText(), Problem::class.java) }
+                    .getOrDefault(
+                        Problem(
+                            URI.create("urn:dp:error:inntektskomponenten"),
+                            "Klarte ikke å hente inntekt",
+                            detail = error.response.bodyAsText(),
+                        ),
+                    )
 
             throw InntektApiHttpClientException(
-                "Failed to fetch inntekt. Problem: ${problem.title}. Response code: ${error.response.status}, message: ${error.response.bodyAsText()}",
+                """Failed to fetch inntekt. 
+                    |Problem: ${problem.title}. 
+                    |Response code: ${error.response.status}, 
+                    |message: ${error.response.bodyAsText()}
+                """.trimMargin(),
                 problem,
                 error,
             )
@@ -123,6 +129,7 @@ internal fun httpClient(
     }
 }
 
-private val objectMapper = jacksonObjectMapper()
-    .registerModule(JavaTimeModule())
-    .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+private val objectMapper =
+    jacksonObjectMapper()
+        .registerModule(JavaTimeModule())
+        .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)

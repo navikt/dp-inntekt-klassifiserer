@@ -16,26 +16,29 @@ import java.time.LocalDate
 import java.time.YearMonth
 
 class OnPacketTest {
-
     companion object {
-        private val inntekt = Inntekt(
-            inntektsId = "inntektsid",
-            manueltRedigert = false,
-            inntektsListe = listOf(
-                KlassifisertInntektMåned(
-                    årMåned = YearMonth.now(),
-                    klassifiserteInntekter = listOf(
-                        KlassifisertInntekt(
-                            beløp = BigDecimal("1000.12"),
-                            inntektKlasse = InntektKlasse.ARBEIDSINNTEKT
-                        )
+        private val inntekt =
+            Inntekt(
+                inntektsId = "inntektsid",
+                manueltRedigert = false,
+                inntektsListe =
+                    listOf(
+                        KlassifisertInntektMåned(
+                            årMåned = YearMonth.now(),
+                            klassifiserteInntekter =
+                                listOf(
+                                    KlassifisertInntekt(
+                                        beløp = BigDecimal("1000.12"),
+                                        inntektKlasse = InntektKlasse.ARBEIDSINNTEKT,
+                                    ),
+                                ),
+                            harAvvik = false,
+                        ),
                     ),
-                    harAvvik = false
-                )
-            ),
-            sisteAvsluttendeKalenderMåned = YearMonth.now()
-        )
+                sisteAvsluttendeKalenderMåned = YearMonth.now(),
+            )
     }
+
     @Test
     fun `Add klassifisert inntekt to behov`() {
         val inntektHttpClient: InntektHttpClient = mockk()
@@ -45,14 +48,15 @@ class OnPacketTest {
                 RegelKontekst("12345", "vedtak"),
                 LocalDate.of(2020, 1, 1),
                 null,
-                any()
+                any(),
             )
         } returns inntekt
 
-        val app = Application(
-            inntektHttpClient = inntektHttpClient,
-            inntektHenter = mockk(relaxed = true)
-        )
+        val app =
+            Application(
+                inntektHttpClient = inntektHttpClient,
+                inntektHenter = mockk(relaxed = true),
+            )
 
         val inputPacket = Packet()
         inputPacket.putValue("aktørId", "123")
@@ -67,38 +71,42 @@ class OnPacketTest {
 }
 
 class FilterPredicatesTest {
-
     @Test
     fun `Skal ikke legge på inntekt der det er manuelt grunnlag`() {
-        val packet = Packet().apply {
-            putValue("manueltGrunnlag", 1000)
-        }
-        val app = Application(
-            inntektHttpClient = mockk(),
-            inntektHenter = mockk(relaxed = true)
-        )
+        val packet =
+            Packet().apply {
+                putValue("manueltGrunnlag", 1000)
+            }
+        val app =
+            Application(
+                inntektHttpClient = mockk(),
+                inntektHenter = mockk(relaxed = true),
+            )
         app.filterPredicates().all { it.test("", packet) } shouldBe false
     }
 
     @Test
     fun `Skal ikke legge på inntekt der det er forrige grunnlag`() {
-        val packet = Packet().apply {
-            putValue("forrigeGrunnlag", 2000)
-        }
-        val app = Application(
-            inntektHttpClient = mockk(),
-            inntektHenter = mockk(relaxed = true)
-        )
+        val packet =
+            Packet().apply {
+                putValue("forrigeGrunnlag", 2000)
+            }
+        val app =
+            Application(
+                inntektHttpClient = mockk(),
+                inntektHenter = mockk(relaxed = true),
+            )
         app.filterPredicates().all { it.test("", packet) } shouldBe false
     }
 
     @Test
     fun `Skal legge på inntekt der det er ikke er manuelt grunnlag`() {
         val packet = Packet()
-        val app = Application(
-            inntektHttpClient = mockk(),
-            inntektHenter = mockk(relaxed = true)
-        )
+        val app =
+            Application(
+                inntektHttpClient = mockk(),
+                inntektHenter = mockk(relaxed = true),
+            )
         app.filterPredicates().all { it.test("", packet) } shouldBe true
     }
 }

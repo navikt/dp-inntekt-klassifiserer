@@ -23,40 +23,43 @@ import no.nav.dagpenger.streams.Topic
 import no.nav.dagpenger.streams.Topics
 import org.apache.kafka.common.serialization.Serdes
 
-private val localProperties = ConfigurationMap(
-    mapOf(
-        "application.profile" to "LOCAL",
-        "application.httpPort" to "8080",
-        "behov.topic" to Topics.DAGPENGER_BEHOV_PACKET_EVENT.name,
-        "dp.inntekt.api.key" to "dp-datalaster-inntekt",
-        "dp.inntekt.api.secret" to "secret",
-        "dp.inntekt.api.url" to "http://localhost/",
-        "inntekt.grpc.address" to "localhost",
-        "KAFKA_BROKERS" to "localhost:9092",
-        "kafka.reset.policy" to "earliest",
-    ),
-)
+private val localProperties =
+    ConfigurationMap(
+        mapOf(
+            "application.profile" to "LOCAL",
+            "application.httpPort" to "8080",
+            "behov.topic" to Topics.DAGPENGER_BEHOV_PACKET_EVENT.name,
+            "dp.inntekt.api.key" to "dp-datalaster-inntekt",
+            "dp.inntekt.api.secret" to "secret",
+            "dp.inntekt.api.url" to "http://localhost/",
+            "inntekt.grpc.address" to "localhost",
+            "KAFKA_BROKERS" to "localhost:9092",
+            "kafka.reset.policy" to "earliest",
+        ),
+    )
 
-private val devProperties = ConfigurationMap(
-    mapOf(
-        "application.profile" to "DEV",
-        "application.httpPort" to "8080",
-        "dp.inntekt.api.url" to "http://dp-inntekt-api.teamdagpenger/",
-        "inntekt.grpc.address" to "dp-inntekt-api-grpc.teamdagpenger.svc.nais.local",
-        "kafka.bootstrap.servers" to "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443",
-        "kafka.reset.policy" to "earliest",
-    ),
-)
+private val devProperties =
+    ConfigurationMap(
+        mapOf(
+            "application.profile" to "DEV",
+            "application.httpPort" to "8080",
+            "dp.inntekt.api.url" to "http://dp-inntekt-api.teamdagpenger/",
+            "inntekt.grpc.address" to "dp-inntekt-api-grpc.teamdagpenger.svc.nais.local",
+            "kafka.bootstrap.servers" to "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443",
+            "kafka.reset.policy" to "earliest",
+        ),
+    )
 
-private val prodProperties = ConfigurationMap(
-    mapOf(
-        "application.profile" to "PROD",
-        "application.httpPort" to "8080",
-        "dp.inntekt.api.url" to "http://dp-inntekt-api.teamdagpenger/",
-        "inntekt.grpc.address" to "dp-inntekt-api-grpc.teamdagpenger.svc.nais.local",
-        "kafka.reset.policy" to "earliest",
-    ),
-)
+private val prodProperties =
+    ConfigurationMap(
+        mapOf(
+            "application.profile" to "PROD",
+            "application.httpPort" to "8080",
+            "dp.inntekt.api.url" to "http://dp-inntekt-api.teamdagpenger/",
+            "inntekt.grpc.address" to "dp-inntekt-api-grpc.teamdagpenger.svc.nais.local",
+            "kafka.reset.policy" to "earliest",
+        ),
+    )
 
 object Configuration {
     val applicationConfig: ApplicationConfig = ApplicationConfig()
@@ -67,19 +70,20 @@ object Configuration {
         CachedOauth2Client(
             tokenEndpointUrl = azureAd.tokenEndpointUrl,
             authType = azureAd.clientSecret(),
-            httpClient = HttpClient() {
-                install(ContentNegotiation) {
-                    jackson {
-                        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                        setSerializationInclusion(JsonInclude.Include.NON_NULL)
+            httpClient =
+                HttpClient {
+                    install(ContentNegotiation) {
+                        jackson {
+                            configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                            setSerializationInclusion(JsonInclude.Include.NON_NULL)
+                        }
                     }
-                }
-                engine {
-                    System.getenv("HTTP_PROXY")?.let {
-                        this.proxy = ProxyBuilder.http(it)
+                    engine {
+                        System.getenv("HTTP_PROXY")?.let {
+                            this.proxy = ProxyBuilder.http(it)
+                        }
                     }
-                }
-            },
+                },
         )
     }
 
@@ -88,11 +92,12 @@ object Configuration {
 
 data class Kafka(
     val aivenBrokers: String = config()[Key("KAFKA_BROKERS", stringType)],
-    val regelTopic: Topic<String, Packet> = Topic(
-        name = "teamdagpenger.regel.v1",
-        keySerde = Serdes.String(),
-        valueSerde = Serdes.serdeFrom(PacketSerializer(), PacketDeserializer()),
-    ),
+    val regelTopic: Topic<String, Packet> =
+        Topic(
+            name = "teamdagpenger.regel.v1",
+            keySerde = Serdes.String(),
+            valueSerde = Serdes.serdeFrom(PacketSerializer(), PacketDeserializer()),
+        ),
 )
 
 data class ApplicationConfig(
@@ -106,14 +111,17 @@ data class ApplicationConfig(
 )
 
 enum class Profile {
-    LOCAL, DEV, PROD
+    LOCAL,
+    DEV,
+    PROD,
 }
 
-private fun config() = when (getEnvOrProp("NAIS_CLUSTER_NAME")) {
-    "dev-fss" -> ConfigurationProperties.systemProperties() overriding EnvironmentVariables overriding devProperties
-    "prod-fss" -> ConfigurationProperties.systemProperties() overriding EnvironmentVariables overriding prodProperties
-    else -> ConfigurationProperties.systemProperties() overriding EnvironmentVariables overriding localProperties
-}
+private fun config() =
+    when (getEnvOrProp("NAIS_CLUSTER_NAME")) {
+        "dev-fss" -> ConfigurationProperties.systemProperties() overriding EnvironmentVariables overriding devProperties
+        "prod-fss" -> ConfigurationProperties.systemProperties() overriding EnvironmentVariables overriding prodProperties
+        else -> ConfigurationProperties.systemProperties() overriding EnvironmentVariables overriding localProperties
+    }
 
 fun getEnvOrProp(propName: String): String? {
     return System.getenv(propName) ?: System.getProperty(propName)

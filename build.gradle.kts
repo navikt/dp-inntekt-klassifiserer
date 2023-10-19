@@ -27,7 +27,7 @@ dependencies {
     implementation("com.github.navikt:dagpenger-events:2023081713361692272216.01ab7c590338")
     implementation("com.github.navikt:dagpenger-streams:20230831.f3d785")
     // gRpc
-    implementation("com.github.navikt:dp-inntekt:2023.01.11-12.56.a8fde01194fb")
+    implementation("com.github.navikt:dp-inntekt:2023.10.19-13.33.da5e8a6be9b1")
 
     // trengs for api key ApiKeyVerifier
     implementation("commons-codec:commons-codec:1.15")

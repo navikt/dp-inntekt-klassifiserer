@@ -51,8 +51,9 @@ class InntektHttpClientTest {
 
     @Test
     fun `fetch klassifisert inntekt on 200 ok with fødselsnummer`() {
-        val responseBodyJson = InntektHttpClientTest::class.java
-            .getResource("/test-data/example-klassifisert-inntekt-payload.json").readText()
+        val responseBodyJson =
+            InntektHttpClientTest::class.java
+                .getResource("/test-data/example-klassifisert-inntekt-payload.json").readText()
 
         WireMock.stubFor(
             WireMock.post(WireMock.urlEqualTo("/v2/inntekt/klassifisert"))
@@ -78,11 +79,12 @@ class InntektHttpClientTest {
                         .withBody(responseBodyJson),
                 ),
         )
-        val inntektHttpClient = InntektHttpClient(
-            inntektApiUrl = server.url(""),
-            httpKlient = client,
-            tokenProvider = tokenProvider,
-        )
+        val inntektHttpClient =
+            InntektHttpClient(
+                inntektApiUrl = server.url(""),
+                httpKlient = client,
+                tokenProvider = tokenProvider,
+            )
         val klassifisertInntekt: Inntekt =
             runBlocking {
                 inntektHttpClient.getKlassifisertInntekt(
@@ -130,21 +132,23 @@ class InntektHttpClientTest {
                         .withBody(responseBodyJson),
                 ),
         )
-        val inntektHttpClient = InntektHttpClient(
-            inntektApiUrl = server.url(""),
-            httpKlient = client,
-            tokenProvider = tokenProvider,
-        )
-        val inntektApiHttpClientException = assertFailsWith<InntektApiHttpClientException> {
-            runBlocking {
-                inntektHttpClient.getKlassifisertInntekt(
-                    "",
-                    RegelKontekst("123", "vedtak"),
-                    LocalDate.now(),
-                    null,
-                )
+        val inntektHttpClient =
+            InntektHttpClient(
+                inntektApiUrl = server.url(""),
+                httpKlient = client,
+                tokenProvider = tokenProvider,
+            )
+        val inntektApiHttpClientException =
+            assertFailsWith<InntektApiHttpClientException> {
+                runBlocking {
+                    inntektHttpClient.getKlassifisertInntekt(
+                        "",
+                        RegelKontekst("123", "vedtak"),
+                        LocalDate.now(),
+                        null,
+                    )
+                }
             }
-        }
         val problem = inntektApiHttpClientException.problem
         assertEquals("urn:dp:error:inntektskomponenten", problem.type.toASCIIString())
         assertEquals("Klarte ikke å hente inntekt for beregningen", problem.title)
@@ -160,21 +164,23 @@ class InntektHttpClientTest {
                     WireMock.serviceUnavailable(),
                 ),
         )
-        val inntektHttpClient = InntektHttpClient(
-            inntektApiUrl = server.url(""),
-            httpKlient = client,
-            tokenProvider = tokenProvider,
-        )
-        val inntektApiHttpClientException = assertFailsWith<InntektApiHttpClientException> {
-            runBlocking {
-                inntektHttpClient.getKlassifisertInntekt(
-                    "",
-                    RegelKontekst("123", "vedtak"),
-                    LocalDate.now(),
-                    null,
-                )
+        val inntektHttpClient =
+            InntektHttpClient(
+                inntektApiUrl = server.url(""),
+                httpKlient = client,
+                tokenProvider = tokenProvider,
+            )
+        val inntektApiHttpClientException =
+            assertFailsWith<InntektApiHttpClientException> {
+                runBlocking {
+                    inntektHttpClient.getKlassifisertInntekt(
+                        "",
+                        RegelKontekst("123", "vedtak"),
+                        LocalDate.now(),
+                        null,
+                    )
+                }
             }
-        }
         val problem = inntektApiHttpClientException.problem
         assertEquals("urn:dp:error:inntektskomponenten", problem.type.toASCIIString())
         assertEquals("Klarte ikke å hente inntekt", problem.title)
