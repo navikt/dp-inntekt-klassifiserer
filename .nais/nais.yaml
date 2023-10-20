@@ -1,5 +1,5 @@
 # Example https://github.com/nais/naiserator/blob/master/examples/nais-max.yaml
-apiVersion: .nais.io/v1alpha1
+apiVersion: nais.io/v1alpha1
 kind: Application
 metadata:
   name: dp-inntekt-klassifiserer
