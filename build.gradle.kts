@@ -30,7 +30,7 @@ dependencies {
     implementation("com.github.navikt:dp-inntekt:2023.10.19-13.33.da5e8a6be9b1")
 
     // trengs for api key ApiKeyVerifier
-    implementation("commons-codec:commons-codec:1.15")
+    implementation("commons-codec:commons-codec:1.16.0")
 
     // kafka
     implementation(Kafka.streams)
