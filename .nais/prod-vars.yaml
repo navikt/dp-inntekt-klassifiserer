@@ -1,0 +1,8 @@
+kafka:
+  pool: nav-prod
+dp_inntekt:
+  scope: api://dev-fss.teamdagpenger.dp-inntekt-api/.default
+
+replicas:
+  min: 4
+  max: 6

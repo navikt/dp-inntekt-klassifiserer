@@ -12,6 +12,7 @@ jobs:
     permissions:
       contents: write
       packages: write
+      id-token: "write"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -30,29 +31,25 @@ jobs:
         id: buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
+      - name: docker-build-push
+        uses: nais/docker-build-push@v0
+        id: docker-build-push
         with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          builder: ${{ steps.buildx.outputs.name }}
-          tags: ${{ env.IMAGE }}
-          push: true
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          team: teamdagpenger
+          push_image: true # optional, default true
+          dockerfile: Dockerfile # optional, default Dockerfile
+          docker_context: . # optional, default .
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
 
       - name: Archive NAIS yaml
         if: github.ref == 'refs/heads/master'
         uses: actions/upload-artifact@v3
         with:
           name: nais-yaml
-          path: nais
+          path: .nais
+    outputs:
+      image: ${{ steps.docker-build-push.outputs.image }}
 
   deploy-dev:
     name: Deploy to dev
@@ -65,20 +62,20 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: nais-yaml
-          path: nais
+          path: .nais
 
-      - uses: nais/deploy/actions/deploy@v1
+      - uses: .nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-fss
-          RESOURCE: nais/dev/nais.yaml
-          VARS: nais/vars.yaml
+          RESOURCE: .nais/nais.yaml
+          VAR: image=${{ needs.build.outputs.image }}
+          VARS: .nais/dev-vars.yaml
           PRINT_PAYLOAD: true
 
   deploy-prod:
     name: Deploy to Production
     needs: [deploy-dev]
-    #needs: [deploy-dev]
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     environment: prod-fss
@@ -87,12 +84,13 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: nais-yaml
-          path: nais
+          path: .nais
 
-      - uses: nais/deploy/actions/deploy@v1
+      - uses: .nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-fss
-          RESOURCE: nais/prod/nais.yaml
-          VARS: nais/vars.yaml
+          RESOURCE: .nais/nais.yaml
+          VAR: image=${{ needs.build.outputs.image }}
+          VARS: .nais/prod-vars.yaml
           PRINT_PAYLOAD: true

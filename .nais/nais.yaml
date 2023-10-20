@@ -1,11 +1,11 @@
 # Example https://github.com/nais/naiserator/blob/master/examples/nais-max.yaml
-apiVersion: nais.io/v1alpha1
+apiVersion: .nais.io/v1alpha1
 kind: Application
 metadata:
-  name: {{app}}
-  namespace: {{namespace}}
+  name: dp-inntekt-klassifiserer
+  namespace: teamdagpenger
   labels:
-    team: {{team}}
+    team: teamdagpenger
 spec:
   image: {{ image }}
   port: 8080
@@ -21,10 +21,10 @@ spec:
     enabled: true
     path: /metrics
   replicas:
-    min: 4
-    max: 6
+    min: {{replicas.min}}
+    max: {{replicas.max}}
   kafka:
-    pool: nav-prod
+    pool: {{kafka.pool}}
   resources:
     limits:
       cpu: 500m
@@ -42,4 +42,4 @@ spec:
   webproxy: true
   env:
     - name: DP_INNTEKT_API_SCOPE
-      value: api://prod-fss.teamdagpenger.dp-inntekt-api/.default
+      value: {{dp_inntekt.scope}}

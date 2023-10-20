@@ -4,7 +4,7 @@ plugins {
     id("com.diffplug.spotless")
 }
 
-val ktlintVersjon = "1.0.0"
+val ktlintVersjon = "1.0.1"
 spotless {
     kotlin {
         ktlint(ktlintVersjon)
