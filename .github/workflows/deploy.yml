@@ -34,6 +34,7 @@ jobs:
       - name: docker-build-push
         uses: nais/docker-build-push@v0
         id: docker-build-push
+        if: github.ref == 'refs/heads/master'
         with:
           team: teamdagpenger
           push_image: true # optional, default true
@@ -64,7 +65,7 @@ jobs:
           name: nais-yaml
           path: .nais
 
-      - uses: .nais/deploy/actions/deploy@v1
+      - uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-fss
@@ -86,7 +87,7 @@ jobs:
           name: nais-yaml
           path: .nais
 
-      - uses: .nais/deploy/actions/deploy@v1
+      - uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-fss
