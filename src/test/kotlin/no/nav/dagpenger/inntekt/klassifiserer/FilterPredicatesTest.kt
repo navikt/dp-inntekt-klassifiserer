@@ -54,8 +54,7 @@ class OnPacketTest {
 
         val app =
             Application(
-                inntektHttpClient = inntektHttpClient,
-                inntektHenter = mockk(relaxed = true),
+                inntektClient = mockk(relaxed = true),
             )
 
         val inputPacket = Packet()
@@ -79,8 +78,7 @@ class FilterPredicatesTest {
             }
         val app =
             Application(
-                inntektHttpClient = mockk(),
-                inntektHenter = mockk(relaxed = true),
+                inntektClient = mockk(relaxed = true),
             )
         app.filterPredicates().all { it.test("", packet) } shouldBe false
     }
@@ -93,8 +91,7 @@ class FilterPredicatesTest {
             }
         val app =
             Application(
-                inntektHttpClient = mockk(),
-                inntektHenter = mockk(relaxed = true),
+                inntektClient = mockk(relaxed = true),
             )
         app.filterPredicates().all { it.test("", packet) } shouldBe false
     }
@@ -104,8 +101,7 @@ class FilterPredicatesTest {
         val packet = Packet()
         val app =
             Application(
-                inntektHttpClient = mockk(),
-                inntektHenter = mockk(relaxed = true),
+                inntektClient = mockk(relaxed = true),
             )
         app.filterPredicates().all { it.test("", packet) } shouldBe true
     }

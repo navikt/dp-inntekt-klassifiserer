@@ -9,6 +9,9 @@ import com.natpryce.konfig.Key
 import com.natpryce.konfig.intType
 import com.natpryce.konfig.overriding
 import com.natpryce.konfig.stringType
+import io.getunleash.DefaultUnleash
+import io.getunleash.Unleash
+import io.getunleash.util.UnleashConfig
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.ProxyBuilder
 import io.ktor.client.engine.http
@@ -22,6 +25,7 @@ import no.nav.dagpenger.streams.PacketSerializer
 import no.nav.dagpenger.streams.Topic
 import no.nav.dagpenger.streams.Topics
 import org.apache.kafka.common.serialization.Serdes
+import java.net.InetAddress
 
 private val localProperties =
     ConfigurationMap(
@@ -86,6 +90,17 @@ object Configuration {
                 },
         )
     }
+
+    private val unleashConfig: UnleashConfig by lazy {
+        UnleashConfig.builder()
+            .appName("dp-inntekt-klassifiserer")
+            .instanceId(InetAddress.getLocalHost().hostName)
+            .unleashAPI(config()[Key("DP_UNLEASH_API_INGRESS", stringType)])
+            .apiKey(config()[Key("DP_UNLEASH_API_KEY", stringType)])
+            .build()
+    }
+
+    val unleash: Unleash by lazy { DefaultUnleash(unleashConfig) }
 
     val dpInntektApiScope by lazy { config()[Key("DP_INNTEKT_API_SCOPE", stringType)] }
 }

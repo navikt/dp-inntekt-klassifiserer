@@ -1,5 +1,6 @@
 package no.nav.dagpenger.inntekt.klassifiserer
 
+import io.getunleash.FakeUnleash
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -64,8 +65,7 @@ class InntektKlassifisererTopologyTest {
 
         val app =
             Application(
-                inntektHttpClient = inntektHttpClient,
-                inntektHenter = inntektHenter,
+                inntektClient = InntektClient(inntektHttpClient, inntektHenter, FakeUnleash()),
             )
 
         val packetJson =
@@ -108,8 +108,7 @@ class InntektKlassifisererTopologyTest {
 
         val app =
             Application(
-                inntektHttpClient = mockk(),
-                inntektHenter = mockk(relaxed = true),
+                inntektClient = InntektClient(mockk(), mockk(relaxed = true), FakeUnleash()),
             )
 
         TopologyTestDriver(app.buildTopology(), config).use { topologyTestDriver ->
@@ -143,8 +142,7 @@ class InntektKlassifisererTopologyTest {
 
         val app =
             Application(
-                inntektHttpClient = inntektHttpClient,
-                inntektHenter = mockk(relaxed = true),
+                inntektClient = InntektClient(inntektHttpClient, mockk(relaxed = true), FakeUnleash()),
             )
         TopologyTestDriver(app.buildTopology(), config).use { topologyTestDriver ->
             topologyTestDriver.regelInputTopic().also { it.pipeInput(Packet(packetWithSpesifisertInntektJson)) }
@@ -178,8 +176,7 @@ class InntektKlassifisererTopologyTest {
 
         val app =
             Application(
-                inntektHttpClient = inntektHttpClient,
-                inntektHenter = mockk(relaxed = true),
+                inntektClient = InntektClient(inntektHttpClient, mockk(relaxed = true), FakeUnleash()),
             )
         TopologyTestDriver(app.buildTopology(), config).use { topologyTestDriver ->
             topologyTestDriver.regelInputTopic().also { it.pipeInput(Packet(packetWithSpesifisertInntektJson)) }

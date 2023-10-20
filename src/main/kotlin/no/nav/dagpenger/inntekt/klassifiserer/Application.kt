@@ -5,7 +5,6 @@ import mu.KotlinLogging
 import mu.withLoggingContext
 import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.inntekt.apikey.ApiKeyVerifier
-import no.nav.dagpenger.inntekt.rpc.InntektHenter
 import no.nav.dagpenger.inntekt.rpc.InntektHenterWrapper
 import no.nav.dagpenger.streams.KafkaAivenCredentials
 import no.nav.dagpenger.streams.River
@@ -20,8 +19,7 @@ private val logger = KotlinLogging.logger { }
 
 internal class Application(
     private val configuration: Configuration = Configuration,
-    private val inntektHttpClient: InntektHttpClient,
-    private val inntektHenter: InntektHenter,
+    private val inntektClient: InntektClient,
     topic: Topic<String, Packet> = configuration.kafka.regelTopic,
 ) : River(topic) {
     @Suppress("ktlint:standard:property-naming")
@@ -77,7 +75,7 @@ internal class Application(
                 when (inntektsId) {
                     is String -> {
                         logger.info { "Henter inntekt basert på inntektsId: $inntektsId" }
-                        runBlocking { inntektHenter.hentKlassifisertInntekt(inntektsId) }
+                        runBlocking { inntektClient.getKlassifisertInntekt(inntektsId, callId) }
                     }
 
                     else -> {
@@ -86,7 +84,7 @@ internal class Application(
 
                         try {
                             runBlocking {
-                                inntektHttpClient.getKlassifisertInntekt(
+                                inntektClient.getKlassifisertInntekt(
                                     aktørId,
                                     regelkontekst,
                                     beregningsDato,
@@ -137,9 +135,14 @@ fun main() {
             tokenProvider = { Configuration.oauth2Client.clientCredentials(Configuration.dpInntektApiScope).accessToken },
         )
 
+    val inntektClient =
+        InntektClient(
+            httpClient = inntektHttpClient,
+            inntektHenter = inntektGrpcClient,
+            unleash = Configuration.unleash,
+        )
     Application(
         configuration = Configuration,
-        inntektHttpClient = inntektHttpClient,
-        inntektHenter = inntektGrpcClient,
+        inntektClient = inntektClient,
     ).start()
 }
