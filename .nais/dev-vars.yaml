@@ -1,7 +1,7 @@
 kafka:
   pool: nav-dev
 dp_inntekt:
-  scope: api://prod-fss.teamdagpenger.dp-inntekt-api/.default
+  scope: api://dev-fss.teamdagpenger.dp-inntekt-api/.default
 
 replicas:
   min: 1
