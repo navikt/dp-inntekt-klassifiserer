@@ -11,6 +11,7 @@ import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.ResponseException
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.accept
+import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -47,6 +48,30 @@ internal class InntektHttpClient(
         )
     }
 
+    suspend fun getKlassifisertInntekt(
+        inntektId: String,
+        callId: String,
+    ): Inntekt {
+        return try {
+            httpKlient.get("${inntektApiUrl}v2/inntekt/klassifisert/$inntektId") {
+                header(HttpHeaders.Authorization, "Bearer ${tokenProvider.invoke()}")
+                header(HttpHeaders.XRequestId, callId)
+                accept(ContentType.Application.Json)
+            }.body<Inntekt>()
+        } catch (error: ResponseException) {
+            val problem = mapTilHttpProblem(error)
+            throw InntektApiHttpClientException(
+                """Failed to fetch inntekt. 
+                    |Problem: ${problem.title}. 
+                    |Response code: ${error.response.status}, 
+                    |message: ${error.response.bodyAsText()}
+                """.trimMargin(),
+                problem,
+                error,
+            )
+        }
+    }
+
     private suspend inline fun <reified T : Any> getInntekt(
         aktørId: String,
         regelkontekst: RegelKontekst,
@@ -72,15 +97,7 @@ internal class InntektHttpClient(
                 accept(ContentType.Application.Json)
             }.body<T>()
         } catch (error: ResponseException) {
-            val problem =
-                kotlin.runCatching { objectMapper.readValue(error.response.bodyAsText(), Problem::class.java) }
-                    .getOrDefault(
-                        Problem(
-                            URI.create("urn:dp:error:inntektskomponenten"),
-                            "Klarte ikke å hente inntekt",
-                            detail = error.response.bodyAsText(),
-                        ),
-                    )
+            val problem = mapTilHttpProblem(error)
 
             throw InntektApiHttpClientException(
                 """Failed to fetch inntekt. 
@@ -93,6 +110,16 @@ internal class InntektHttpClient(
             )
         }
     }
+
+    private suspend fun mapTilHttpProblem(error: ResponseException): Problem =
+        kotlin.runCatching { objectMapper.readValue(error.response.bodyAsText(), Problem::class.java) }
+            .getOrDefault<Problem, Problem>(
+                Problem(
+                    URI.create("urn:dp:error:inntektskomponenten"),
+                    "Klarte ikke å hente inntekt",
+                    detail = error.response.bodyAsText(),
+                ),
+            )
 }
 
 private data class InntektRequest(
