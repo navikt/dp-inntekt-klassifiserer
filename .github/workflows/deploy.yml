@@ -34,7 +34,7 @@ jobs:
       - name: docker-build-push
         uses: nais/docker-build-push@v0
         id: docker-build-push
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/feature/http_api'
         with:
           team: teamdagpenger
           push_image: true # optional, default true
@@ -55,7 +55,7 @@ jobs:
   deploy-dev:
     name: Deploy to dev
     needs: [build]
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/feature/http_api'
     runs-on: ubuntu-latest
     environment: dev-fss
     steps:
