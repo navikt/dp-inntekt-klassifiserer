@@ -44,7 +44,7 @@ jobs:
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
 
       - name: Archive NAIS yaml
-        if: github.ref == 'refs/heads/feature/http_api'
+        if: github.ref == 'refs/heads/master'
         uses: actions/upload-artifact@v3
         with:
           name: nais-yaml
