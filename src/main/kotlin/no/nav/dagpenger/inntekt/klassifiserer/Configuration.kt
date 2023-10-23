@@ -75,19 +75,19 @@ object Configuration {
             tokenEndpointUrl = azureAd.tokenEndpointUrl,
             authType = azureAd.clientSecret(),
             httpClient =
-                HttpClient {
-                    install(ContentNegotiation) {
-                        jackson {
-                            configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                            setSerializationInclusion(JsonInclude.Include.NON_NULL)
-                        }
+            HttpClient {
+                install(ContentNegotiation) {
+                    jackson {
+                        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                        setSerializationInclusion(JsonInclude.Include.NON_NULL)
                     }
-                    engine {
-                        System.getenv("HTTP_PROXY")?.let {
-                            this.proxy = ProxyBuilder.http(it)
-                        }
+                }
+                engine {
+                    System.getenv("HTTP_PROXY")?.let {
+                        this.proxy = ProxyBuilder.http(it)
                     }
-                },
+                }
+            },
         )
     }
 
@@ -95,8 +95,8 @@ object Configuration {
         UnleashConfig.builder()
             .appName("dp-inntekt-klassifiserer")
             .instanceId(InetAddress.getLocalHost().hostName)
-            .unleashAPI(config()[Key("DP_UNLEASH_API_INGRESS", stringType)])
-            .apiKey(config()[Key("DP_UNLEASH_API_KEY", stringType)])
+            .unleashAPI(config()[Key("UNLEASH_SERVER_API_URL", stringType)] + "/api/")
+            .apiKey(config()[Key("UNLEASH_SERVER_API_TOKEN", stringType)])
             .build()
     }
 

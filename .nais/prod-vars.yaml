@@ -6,3 +6,6 @@ dp_inntekt:
 replicas:
   min: 4
   max: 6
+
+unleash:
+  environment: production
