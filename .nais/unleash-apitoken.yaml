@@ -1,7 +1,7 @@
 apiVersion: unleash.nais.io/v1
 kind: ApiToken
 metadata:
-  name: dp-inntekt-klassifiserer
+  name: dp-inntekt-klassifiserer-unleash-api-token
   namespace: teamdagpenger
   labels:
     team: teamdagpenger
