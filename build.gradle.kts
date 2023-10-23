@@ -1,11 +1,9 @@
 
 
 plugins {
+    id("common")
     application
-    kotlin("jvm")
-    id("dagpenger.common")
-    id("dagpenger.spotless")
-    id(Shadow.shadow) version Shadow.version
+    id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
 repositories {
@@ -21,8 +19,6 @@ application {
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8"))
-
     // Dagpenger
     implementation("com.github.navikt:dagpenger-events:2023081713361692272216.01ab7c590338")
     implementation("com.github.navikt:dagpenger-streams:20230831.f3d785")
@@ -33,54 +29,48 @@ dependencies {
     implementation("commons-codec:commons-codec:1.16.0")
 
     // kafka
-    implementation(Kafka.streams)
+    implementation("org.apache.kafka:kafka-streams:3.3.1")
 
     implementation("io.getunleash:unleash-client-java:8.4.0")
 
     // ktor http client
-    implementation("com.github.navikt.dp-biblioteker:ktor-client-metrics:2023.04.27-09.33.fcf0798bf943")
-    implementation("com.github.navikt.dp-biblioteker:oauth2-klient:2023.04.27-09.33.fcf0798bf943")
-    implementation(Ktor2.Client.library("auth-jvm"))
-    implementation(Ktor2.Client.library("cio"))
-    implementation(Ktor2.Client.library("core"))
-    implementation(Ktor2.Client.library("logging-jvm"))
-    implementation(Ktor2.Client.library("content-negotiation"))
-    implementation(Ktor2.Client.library("jackson"))
-    implementation("io.ktor:ktor-serialization-jackson:${Ktor2.version}")
+    implementation(libs.dp.biblioteker.oauth2.klient)
+    implementation(libs.dp.biblioteker.ktor.klient.metrics)
+
+    implementation(libs.ktor.client.auth.jvm)
+    implementation(libs.ktor.client.cio)
+    implementation(libs.ktor.client.logging.jvm)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.client.jackson)
+    implementation("io.ktor:ktor-serialization-jackson:${libs.versions.ktor.get()}")
 
     // json
-    implementation(Jackson.core)
-    implementation(Jackson.jsr310)
+    implementation(libs.jackson.core)
+    implementation(libs.jackson.datatype.jsr310)
 
     // Miljøkonfigurasjon
-    implementation(Konfig.konfig)
+    implementation(libs.konfig)
 
     // Logging
-    implementation(Kotlin.Logging.kotlinLogging)
-    implementation(Log4j2.api)
-    implementation(Log4j2.core)
-    implementation(Log4j2.slf4j)
-    implementation(Log4j2.library("layout-template-json"))
+    implementation(libs.kotlin.logging)
+    implementation("org.apache.logging.log4j:log4j-api:2.20.0")
+    implementation("org.apache.logging.log4j:log4j-core:2.20.0")
+    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.20.0")
+    implementation("org.apache.logging.log4j:log4j-layout-template-json:2.20.0")
 
     // prometheus
-    implementation(Prometheus.common)
-    implementation(Prometheus.hotspot)
-    implementation(Prometheus.log4j2)
-
-    // testing
-    testImplementation(kotlin("test"))
-    testImplementation(Junit5.api)
+    implementation("io.prometheus:simpleclient_common:0.16.0")
+    implementation("io.prometheus:simpleclient_hotspot:0.16.0")
+    implementation("io.prometheus:simpleclient_hotspot:0.16.0")
 
     // sanity check mot jackson json
-    testImplementation(Moshi.moshiAdapters)
+    testImplementation("com.squareup.moshi:moshi-adapters:1.14.0")
 
-    testRuntimeOnly(Junit5.engine)
-    testImplementation(KoTest.runner)
-    testImplementation(KoTest.assertions)
-    testImplementation(TestContainers.postgresql)
-    testImplementation(Mockk.mockk)
-    testImplementation(Kafka.streamTestUtils)
-    testImplementation(Wiremock.standalone)
+    testImplementation(libs.kotest.assertions.core)
+    testImplementation(libs.testcontainer.postgresql)
+    testImplementation(libs.mockk)
+    testImplementation("org.apache.kafka:kafka-streams-test-utils:3.3.1")
+    testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
 }
 
 tasks.named("shadowJar") {
