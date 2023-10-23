@@ -66,7 +66,7 @@ private val prodProperties =
     )
 
 object Configuration {
-    val applicationConfig: ApplicationConfig = ApplicationConfig()
+    val applicationConfig: ApplicationConfig = ApplicationConfig(profile = this.profile)
     val kafka: Kafka = Kafka()
 
     val oauth2Client: CachedOauth2Client by lazy {
@@ -97,10 +97,16 @@ object Configuration {
             .instanceId(InetAddress.getLocalHost().hostName)
             .unleashAPI(config()[Key("UNLEASH_SERVER_API_URL", stringType)] + "/api/")
             .apiKey(config()[Key("UNLEASH_SERVER_API_TOKEN", stringType)])
+            .environment(when(profile) {
+                Profile.PROD -> "production"
+                else -> "development"
+            })
             .build()
     }
 
     val unleash: Unleash by lazy { DefaultUnleash(unleashConfig) }
+
+    val profile: Profile = config()[Key("application.profile", stringType)].let { Profile.valueOf(it) }
 
     val dpInntektApiScope by lazy { config()[Key("DP_INNTEKT_API_SCOPE", stringType)] }
 }
@@ -118,7 +124,7 @@ data class Kafka(
 data class ApplicationConfig(
     val id: String = config().getOrElse(Key("application.id", stringType), "dp-inntekt-klassifiserer"),
     val httpPort: Int = config()[Key("application.httpPort", intType)],
-    val profile: Profile = config()[Key("application.profile", stringType)].let { Profile.valueOf(it) },
+    val profile: Profile,
     val inntektApiUrl: String = config()[Key("dp.inntekt.api.url", stringType)],
     val inntektApiKey: String = config()[Key("dp.inntekt.api.key", stringType)],
     val inntektApiSecret: String = config()[Key("dp.inntekt.api.secret", stringType)],
