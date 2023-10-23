@@ -9,6 +9,9 @@ import com.natpryce.konfig.Key
 import com.natpryce.konfig.intType
 import com.natpryce.konfig.overriding
 import com.natpryce.konfig.stringType
+import io.getunleash.DefaultUnleash
+import io.getunleash.Unleash
+import io.getunleash.util.UnleashConfig
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.ProxyBuilder
 import io.ktor.client.engine.http
@@ -22,6 +25,7 @@ import no.nav.dagpenger.streams.PacketSerializer
 import no.nav.dagpenger.streams.Topic
 import no.nav.dagpenger.streams.Topics
 import org.apache.kafka.common.serialization.Serdes
+import java.net.InetAddress
 
 private val localProperties =
     ConfigurationMap(
@@ -62,7 +66,8 @@ private val prodProperties =
     )
 
 object Configuration {
-    val applicationConfig: ApplicationConfig = ApplicationConfig()
+    val profile: Profile = config()[Key("application.profile", stringType)].let { Profile.valueOf(it) }
+    val applicationConfig: ApplicationConfig = ApplicationConfig(profile = this.profile)
     val kafka: Kafka = Kafka()
 
     val oauth2Client: CachedOauth2Client by lazy {
@@ -87,6 +92,23 @@ object Configuration {
         )
     }
 
+    private val unleashConfig: UnleashConfig by lazy {
+        UnleashConfig.builder()
+            .appName("dp-inntekt-klassifiserer")
+            .instanceId(InetAddress.getLocalHost().hostName)
+            .unleashAPI(config()[Key("UNLEASH_SERVER_API_URL", stringType)] + "/api/")
+            .apiKey(config()[Key("UNLEASH_SERVER_API_TOKEN", stringType)])
+            .environment(
+                when (profile) {
+                    Profile.PROD -> "production"
+                    else -> "development"
+                },
+            )
+            .build()
+    }
+
+    val unleash: Unleash by lazy { DefaultUnleash(unleashConfig) }
+
     val dpInntektApiScope by lazy { config()[Key("DP_INNTEKT_API_SCOPE", stringType)] }
 }
 
@@ -103,7 +125,7 @@ data class Kafka(
 data class ApplicationConfig(
     val id: String = config().getOrElse(Key("application.id", stringType), "dp-inntekt-klassifiserer"),
     val httpPort: Int = config()[Key("application.httpPort", intType)],
-    val profile: Profile = config()[Key("application.profile", stringType)].let { Profile.valueOf(it) },
+    val profile: Profile,
     val inntektApiUrl: String = config()[Key("dp.inntekt.api.url", stringType)],
     val inntektApiKey: String = config()[Key("dp.inntekt.api.key", stringType)],
     val inntektApiSecret: String = config()[Key("dp.inntekt.api.secret", stringType)],

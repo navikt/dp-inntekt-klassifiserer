@@ -35,6 +35,8 @@ dependencies {
     // kafka
     implementation(Kafka.streams)
 
+    implementation("io.getunleash:unleash-client-java:8.4.0")
+
     // ktor http client
     implementation("com.github.navikt.dp-biblioteker:ktor-client-metrics:2023.04.27-09.33.fcf0798bf943")
     implementation("com.github.navikt.dp-biblioteker:oauth2-klient:2023.04.27-09.33.fcf0798bf943")
