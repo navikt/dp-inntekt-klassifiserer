@@ -66,6 +66,7 @@ private val prodProperties =
     )
 
 object Configuration {
+    val profile: Profile = config()[Key("application.profile", stringType)].let { Profile.valueOf(it) }
     val applicationConfig: ApplicationConfig = ApplicationConfig(profile = this.profile)
     val kafka: Kafka = Kafka()
 
@@ -75,19 +76,19 @@ object Configuration {
             tokenEndpointUrl = azureAd.tokenEndpointUrl,
             authType = azureAd.clientSecret(),
             httpClient =
-            HttpClient {
-                install(ContentNegotiation) {
-                    jackson {
-                        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                        setSerializationInclusion(JsonInclude.Include.NON_NULL)
+                HttpClient {
+                    install(ContentNegotiation) {
+                        jackson {
+                            configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                            setSerializationInclusion(JsonInclude.Include.NON_NULL)
+                        }
                     }
-                }
-                engine {
-                    System.getenv("HTTP_PROXY")?.let {
-                        this.proxy = ProxyBuilder.http(it)
+                    engine {
+                        System.getenv("HTTP_PROXY")?.let {
+                            this.proxy = ProxyBuilder.http(it)
+                        }
                     }
-                }
-            },
+                },
         )
     }
 
@@ -97,16 +98,16 @@ object Configuration {
             .instanceId(InetAddress.getLocalHost().hostName)
             .unleashAPI(config()[Key("UNLEASH_SERVER_API_URL", stringType)] + "/api/")
             .apiKey(config()[Key("UNLEASH_SERVER_API_TOKEN", stringType)])
-            .environment(when(profile) {
-                Profile.PROD -> "production"
-                else -> "development"
-            })
+            .environment(
+                when (profile) {
+                    Profile.PROD -> "production"
+                    else -> "development"
+                },
+            )
             .build()
     }
 
     val unleash: Unleash by lazy { DefaultUnleash(unleashConfig) }
-
-    val profile: Profile = config()[Key("application.profile", stringType)].let { Profile.valueOf(it) }
 
     val dpInntektApiScope by lazy { config()[Key("DP_INNTEKT_API_SCOPE", stringType)] }
 }
