@@ -64,7 +64,7 @@ dependencies {
     implementation("io.prometheus:simpleclient_hotspot:0.16.0")
 
     // sanity check mot jackson json
-    testImplementation("com.squareup.moshi:moshi-adapters:1.14.0")
+    testImplementation("com.squareup.moshi:moshi-adapters:1.15.0")
 
     testImplementation(libs.kotest.assertions.core)
     testImplementation(libs.testcontainer.postgresql)
