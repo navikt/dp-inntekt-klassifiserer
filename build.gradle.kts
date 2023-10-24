@@ -18,6 +18,8 @@ application {
     mainClass.set("no.nav.dagpenger.inntekt.klassifiserer.ApplicationKt")
 }
 
+val log4j2Versjon = "2.21.0"
+
 dependencies {
     // Dagpenger
     implementation("com.github.navikt:dagpenger-events:2023081713361692272216.01ab7c590338")
@@ -53,10 +55,10 @@ dependencies {
 
     // Logging
     implementation(libs.kotlin.logging)
-    implementation("org.apache.logging.log4j:log4j-api:2.20.0")
-    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.21.0")
-    implementation("org.apache.logging.log4j:log4j-layout-template-json:2.21.0")
-    implementation("org.apache.logging.log4j:log4j-core:2.21.0")
+    implementation("org.apache.logging.log4j:log4j-api:$log4j2Versjon")
+    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:$log4j2Versjon")
+    implementation("org.apache.logging.log4j:log4j-layout-template-json:$log4j2Versjon")
+    implementation("org.apache.logging.log4j:log4j-core:$log4j2Versjon")
 
     // prometheus
     implementation("io.prometheus:simpleclient_common:0.16.0")
