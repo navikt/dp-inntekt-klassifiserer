@@ -45,3 +45,7 @@ spec:
       value: {{dp_inntekt.scope}}
   envFrom:
     - secret: dp-inntekt-klassifiserer-unleash-api-token
+  accessPolicy:
+    outbound:
+      external:
+        - host: dagpenger-unleash-api.nav.cloud.nais.io
