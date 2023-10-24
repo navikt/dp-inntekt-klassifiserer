@@ -56,7 +56,7 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-api:2.20.0")
     implementation("org.apache.logging.log4j:log4j-core:2.20.0")
     implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.21.0")
-    implementation("org.apache.logging.log4j:log4j-layout-template-json:2.20.0")
+    implementation("org.apache.logging.log4j:log4j-layout-template-json:2.21.0")
 
     // prometheus
     implementation("io.prometheus:simpleclient_common:0.16.0")
