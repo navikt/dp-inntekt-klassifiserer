@@ -71,7 +71,7 @@ dependencies {
     testImplementation(libs.kotest.assertions.core)
     testImplementation(libs.testcontainer.postgresql)
     testImplementation(libs.mockk)
-    testImplementation("org.apache.kafka:kafka-streams-test-utils:3.3.1")
+    testImplementation("org.apache.kafka:kafka-streams-test-utils:7.5.1-ce")
     testImplementation("com.github.tomakehurst:wiremock-standalone:3.0.1")
 }
 
