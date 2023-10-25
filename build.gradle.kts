@@ -18,7 +18,7 @@ application {
     mainClass.set("no.nav.dagpenger.inntekt.klassifiserer.ApplicationKt")
 }
 
-val log4j2Versjon = "2.21.0"
+val log4j2Versjon = "2.21.1"
 
 dependencies {
     // Dagpenger
