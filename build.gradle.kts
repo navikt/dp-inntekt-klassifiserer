@@ -31,7 +31,7 @@ dependencies {
     implementation("commons-codec:commons-codec:1.16.0")
 
     // kafka
-    implementation("org.apache.kafka:kafka-streams:3.3.1")
+    implementation("org.apache.kafka:kafka-streams:7.5.2-ce")
 
     implementation("io.getunleash:unleash-client-java:8.4.0")
 
@@ -71,7 +71,7 @@ dependencies {
     testImplementation(libs.kotest.assertions.core)
     testImplementation(libs.testcontainer.postgresql)
     testImplementation(libs.mockk)
-    testImplementation("org.apache.kafka:kafka-streams-test-utils:3.3.1")
+    testImplementation("org.apache.kafka:kafka-streams-test-utils:7.5.2-ce")
     testImplementation("com.github.tomakehurst:wiremock-standalone:3.0.1")
 }
 
