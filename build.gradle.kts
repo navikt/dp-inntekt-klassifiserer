@@ -33,7 +33,7 @@ dependencies {
     // kafka
     implementation("org.apache.kafka:kafka-streams:3.3.1")
 
-    implementation("io.getunleash:unleash-client-java:8.4.0")
+    implementation("io.getunleash:unleash-client-java:9.1.1")
 
     // ktor http client
     implementation(libs.dp.biblioteker.oauth2.klient)
