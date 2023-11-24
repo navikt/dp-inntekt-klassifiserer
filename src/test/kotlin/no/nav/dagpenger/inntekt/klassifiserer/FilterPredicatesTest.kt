@@ -105,4 +105,17 @@ class FilterPredicatesTest {
             )
         app.filterPredicates().all { it.test("", packet) } shouldBe true
     }
+
+    @Test
+    fun `Skal ikke legge på inntekt der det er et application ready event`() {
+        val packet =
+            Packet().apply {
+                putValue("@event_name", "application_ready")
+            }
+        val app =
+            Application(
+                inntektClient = mockk(relaxed = true),
+            )
+        app.filterPredicates().all { it.test("", packet) } shouldBe false
+    }
 }

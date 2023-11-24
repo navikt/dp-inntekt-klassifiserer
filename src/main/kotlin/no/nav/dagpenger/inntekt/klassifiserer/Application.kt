@@ -50,6 +50,7 @@ internal class Application(
             Predicate { _, packet -> !packet.hasField(INNTEKT) },
             Predicate { _, packet -> !packet.hasField(MANUELT_GRUNNLAG) },
             Predicate { _, packet -> !packet.hasField(FORRIGE_GRUNNLAG) },
+            Predicate { _, packet -> !packet.hasFieldAndValue("@event_name", "application_ready") },
         )
     }
 
@@ -112,6 +113,11 @@ internal class Application(
         }
     }
 }
+
+private fun Packet.hasFieldAndValue(
+    key: String,
+    value: String,
+): Boolean = this.hasField(key) && this.getStringValue(key) == value
 
 internal fun Packet.hentRegelkontekst() =
     RegelKontekst(
