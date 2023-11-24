@@ -3,7 +3,7 @@
 plugins {
     id("common")
     application
-    id("com.github.johnrengelman.shadow") version "7.1.2"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 repositories {
@@ -18,7 +18,7 @@ application {
     mainClass.set("no.nav.dagpenger.inntekt.klassifiserer.ApplicationKt")
 }
 
-val log4j2Versjon = "2.21.0"
+val log4j2Versjon = "2.22.0"
 
 dependencies {
     // Dagpenger
@@ -31,9 +31,9 @@ dependencies {
     implementation("commons-codec:commons-codec:1.16.0")
 
     // kafka
-    implementation("org.apache.kafka:kafka-streams:3.3.1")
+    implementation("org.apache.kafka:kafka-streams:7.5.2-ce")
 
-    implementation("io.getunleash:unleash-client-java:8.4.0")
+    implementation("io.getunleash:unleash-client-java:9.1.1")
 
     // ktor http client
     implementation(libs.dp.biblioteker.oauth2.klient)
@@ -71,7 +71,7 @@ dependencies {
     testImplementation(libs.kotest.assertions.core)
     testImplementation(libs.testcontainer.postgresql)
     testImplementation(libs.mockk)
-    testImplementation("org.apache.kafka:kafka-streams-test-utils:3.3.1")
+    testImplementation("org.apache.kafka:kafka-streams-test-utils:7.5.2-ce")
     testImplementation("com.github.tomakehurst:wiremock-standalone:3.0.1")
 }
 
