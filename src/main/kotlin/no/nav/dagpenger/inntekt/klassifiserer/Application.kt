@@ -16,6 +16,7 @@ import java.util.Properties
 import java.util.UUID
 
 private val logger = KotlinLogging.logger { }
+private val sikkerlogg = KotlinLogging.logger("tjenestekall")
 
 internal class Application(
     private val configuration: Configuration = Configuration,
@@ -53,56 +54,61 @@ internal class Application(
     }
 
     override fun onPacket(packet: Packet): Packet {
-        val behovId = packet.getNullableStringValue("behovId")
-        val callId = (behovId ?: UUID.randomUUID()).toString()
-        val started: LocalDateTime? =
-            packet.getNullableStringValue("system_started")
-                ?.let { runCatching { LocalDateTime.parse(it) }.getOrNull() }
-        val inntektsId = packet.getNullableStringValue(INNTEKTS_ID)
-        val regelkontekst = runCatching { packet.hentRegelkontekst() }.getOrNull()
-        val beregningsDato = packet.getLocalDate(BEREGNINGSDATO)
+        try {
+            val behovId = packet.getNullableStringValue("behovId")
+            val callId = (behovId ?: UUID.randomUUID()).toString()
+            val started: LocalDateTime? =
+                packet.getNullableStringValue("system_started")
+                    ?.let { runCatching { LocalDateTime.parse(it) }.getOrNull() }
+            val inntektsId = packet.getNullableStringValue(INNTEKTS_ID)
+            val regelkontekst = runCatching { packet.hentRegelkontekst() }.getOrNull()
+            val beregningsDato = packet.getLocalDate(BEREGNINGSDATO)
 
-        withLoggingContext(
-            "callId" to callId,
-            "behovId" to behovId,
-            "kontekstType" to regelkontekst?.type,
-            "kontekstId" to regelkontekst?.id,
-        ) {
-            if (started?.isBefore(LocalDateTime.now().minusSeconds(30)) == true) {
-                throw RuntimeException("Denne pakka er for gammal!")
-            }
-            val klassifisertInntekt =
-                when (inntektsId) {
-                    is String -> {
-                        logger.info { "Henter inntekt basert på inntektsId: $inntektsId" }
-                        runBlocking { inntektClient.getKlassifisertInntekt(inntektsId, callId) }
-                    }
+            withLoggingContext(
+                "callId" to callId,
+                "behovId" to behovId,
+                "kontekstType" to regelkontekst?.type,
+                "kontekstId" to regelkontekst?.id,
+            ) {
+                if (started?.isBefore(LocalDateTime.now().minusSeconds(30)) == true) {
+                    throw RuntimeException("Denne pakka er for gammal!")
+                }
+                val klassifisertInntekt =
+                    when (inntektsId) {
+                        is String -> {
+                            logger.info { "Henter inntekt basert på inntektsId: $inntektsId" }
+                            runBlocking { inntektClient.getKlassifisertInntekt(inntektsId, callId) }
+                        }
 
-                    else -> {
-                        val aktørId = packet.getStringValue(AKTØRID)
-                        requireNotNull(regelkontekst) { "Må ha en kontekst for å hente inntekt" }
+                        else -> {
+                            val aktørId = packet.getStringValue(AKTØRID)
+                            requireNotNull(regelkontekst) { "Må ha en kontekst for å hente inntekt" }
 
-                        try {
-                            runBlocking {
-                                inntektClient.getKlassifisertInntekt(
-                                    aktørId,
-                                    regelkontekst,
-                                    beregningsDato,
-                                    null,
-                                    callId,
-                                )
+                            try {
+                                runBlocking {
+                                    inntektClient.getKlassifisertInntekt(
+                                        aktørId,
+                                        regelkontekst,
+                                        beregningsDato,
+                                        null,
+                                        callId,
+                                    )
+                                }
+                            } catch (e: InntektApiHttpClientException) {
+                                logger.error(e) { "Kunne ikke hente inntekt fra dp-inntekt-api" }
+                                packet.addProblem(e.problem)
+                                return packet
                             }
-                        } catch (e: InntektApiHttpClientException) {
-                            logger.error(e) { "Kunne ikke hente inntekt fra dp-inntekt-api" }
-                            packet.addProblem(e.problem)
-                            return packet
                         }
                     }
-                }
 
-            logger.info { "Hentet med inntektsId: ${klassifisertInntekt.inntektsId}" }
-            packet.putValue(INNTEKT, klassifisertInntekt)
-            return packet
+                logger.info { "Hentet med inntektsId: ${klassifisertInntekt.inntektsId}" }
+                packet.putValue(INNTEKT, klassifisertInntekt)
+                return packet
+            }
+        } catch (e: Exception) {
+            sikkerlogg.error("Denne feilen oppstod: ${e.message} med denne packeten ${packet.toJson()}")
+            throw e
         }
     }
 }
