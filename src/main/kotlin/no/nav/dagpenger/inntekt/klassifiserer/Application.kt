@@ -61,8 +61,8 @@ internal class Application(
             val started: LocalDateTime? =
                 packet.getNullableStringValue("system_started")
                     ?.let { runCatching { LocalDateTime.parse(it) }.getOrNull() }
-            val inntektsId = packet.getNullableStringValue(INNTEKTS_ID)
-            val regelkontekst = runCatching { packet.hentRegelkontekst() }.getOrNull()
+            val inntektsId: String? = packet.getNullableStringValue(INNTEKTS_ID)
+            val regelkontekst: RegelKontekst? = runCatching { packet.hentRegelkontekst() }.getOrNull()
             val beregningsDato = packet.getLocalDate(BEREGNINGSDATO)
 
             withLoggingContext(
@@ -82,7 +82,7 @@ internal class Application(
                         }
 
                         else -> {
-                            val aktørId = packet.getStringValue(AKTØRID)
+                            val aktørId: String = packet.getStringValue(AKTØRID)
                             requireNotNull(regelkontekst) { "Må ha en kontekst for å hente inntekt" }
 
                             try {

@@ -38,6 +38,7 @@ dependencies {
     // ktor http client
     implementation(libs.dp.biblioteker.oauth2.klient)
     implementation(libs.dp.biblioteker.ktor.klient.metrics)
+    implementation(libs.rapids.and.rivers)
 
     implementation(libs.ktor.client.auth.jvm)
     implementation(libs.ktor.client.cio)
