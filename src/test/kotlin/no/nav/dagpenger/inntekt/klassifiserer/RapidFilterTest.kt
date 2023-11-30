@@ -6,9 +6,12 @@ import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.AKTØRID
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.BEHOV_ID
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.BEREGNINGSDATO
+import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.FORRIGE_GRUNNLAG
+import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.INNTEKT
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.INNTEKT_ID
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.KONTEKST_ID
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.KONTEKST_TYPE
+import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.MANUELT_GRUNNLAG
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.SYSTEM_STARTED
 import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.MessageContext
@@ -22,18 +25,26 @@ class RapidFilterTest {
     private val testRapid = TestRapid()
 
     @Test
+    fun `Skal ikke behandle pakker uten required keys`() {
+        val testListener = TestListener(testRapid)
+        val packetUtenRequiredKey = JsonMessage.newMessage(emptyMap()).toJson()
+        testRapid.sendTestMessage(packetUtenRequiredKey)
+        testListener.onPacketCalled shouldBe false
+    }
+
+    @Test
     fun `Skal ikke behandle pakker med rejected keys`() {
         val testListener = TestListener(testRapid)
         testRapid.sendTestMessage(
-            JsonMessage.newMessage(mapOf(InntektBehovløser.INNTEKT to "finInntekt")).toJson(),
+            testMessageMedRequiredFelter(mapOf(INNTEKT to "finInntekt")),
         )
         testListener.onPacketCalled shouldBe false
         testRapid.sendTestMessage(
-            JsonMessage.newMessage(mapOf(InntektBehovløser.MANUELT_GRUNNLAG to "søtesteManuelleGrunnlaget")).toJson(),
+            testMessageMedRequiredFelter(mapOf(MANUELT_GRUNNLAG to "søtesteManuelleGrunnlaget")),
         )
         testListener.onPacketCalled shouldBe false
         testRapid.sendTestMessage(
-            JsonMessage.newMessage(mapOf(InntektBehovløser.FORRIGE_GRUNNLAG to "jeg er det forrige grunnlaget")).toJson(),
+            testMessageMedRequiredFelter(mapOf(FORRIGE_GRUNNLAG to "jeg er det forrige grunnlaget")),
         )
         testListener.onPacketCalled shouldBe false
     }
@@ -41,11 +52,8 @@ class RapidFilterTest {
     @Test
     fun `Skal kunne hente ut interessante verdier fra pakka`() {
         val testListener = TestListener(testRapid)
-        testRapid.sendTestMessage(
-            JsonMessage.newMessage(emptyMap()).toJson(),
-        )
+        testRapid.sendTestMessage(testMessageMedRequiredFelter())
         shouldNotThrowAny {
-            testListener.jsonMessage[BEHOV_ID]
             testListener.jsonMessage[SYSTEM_STARTED]
             testListener.jsonMessage[BEREGNINGSDATO]
             testListener.jsonMessage[INNTEKT_ID]
@@ -57,6 +65,11 @@ class RapidFilterTest {
             testListener.jsonMessage["HUBBABUBBA"]
         }
     }
+
+    private fun testMessageMedRequiredFelter(ekstraFelter: Map<String, Any> = emptyMap()) =
+        JsonMessage.newMessage(
+            mapOf(BEHOV_ID to "behovId") + ekstraFelter,
+        ).toJson()
 
     private class TestListener(rapidsConnection: RapidsConnection) : River.PacketListener {
         var onPacketCalled = false

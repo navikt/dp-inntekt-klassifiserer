@@ -34,7 +34,7 @@ internal class InntektBehovløser(rapidsConnection: RapidsConnection, private va
         const val KONTEKST_TYPE = "kontekstType"
         const val PROBLEM = "system_problem"
         val rapidFilter: River.() -> Unit = {
-            validate { it.interestedIn(BEHOV_ID) }
+            validate { it.requireKey(BEHOV_ID) }
             validate {
                 it.interestedIn(
                     INNTEKT_ID,

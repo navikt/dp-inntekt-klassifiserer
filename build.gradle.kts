@@ -18,8 +18,6 @@ application {
     mainClass.set("no.nav.dagpenger.inntekt.klassifiserer.ApplicationKt")
 }
 
-val log4j2Versjon = "2.21.0"
-
 dependencies {
     // Dagpenger
     implementation("com.github.navikt:dagpenger-events:2023081713361692272216.01ab7c590338")

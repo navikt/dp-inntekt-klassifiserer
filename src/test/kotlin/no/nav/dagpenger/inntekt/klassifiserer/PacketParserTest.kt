@@ -2,6 +2,7 @@ package no.nav.dagpenger.inntekt.klassifiserer
 
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.AKTØRID
+import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.BEHOV_ID
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.BEREGNINGSDATO
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.INNTEKT_ID
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.KONTEKST_ID
@@ -30,23 +31,18 @@ class PacketParserTest {
     fun `Skal mappe behovId`() {
         val behovløser = OnPacketTestListener(testRapid)
 
-        val testMessage = JsonMessage.newMessage(mapOf(InntektBehovløser.BEHOV_ID to "behovId")).toJson()
-        testRapid.sendTestMessage(testMessage)
-        behovløser.packet.behovId() shouldBe "behovId"
-
-        testRapid.sendTestMessage(JsonMessage.newMessage(emptyMap()).toJson())
-        behovløser.packet.behovId() shouldBe null
+        testRapid.sendTestMessage(testMessageMedRequiredFelter(mapOf(BEHOV_ID to "jeg har behov for id")))
+        behovløser.packet.behovId() shouldBe "jeg har behov for id"
     }
 
     @Test
     fun `Skal mappe beregningsdato`() {
         val behovløser = OnPacketTestListener(testRapid)
 
-        val testMessage = JsonMessage.newMessage(mapOf(BEREGNINGSDATO to LocalDate.MAX)).toJson()
-        testRapid.sendTestMessage(testMessage)
+        testRapid.sendTestMessage(testMessageMedRequiredFelter(mapOf(BEREGNINGSDATO to LocalDate.MAX)))
         behovløser.packet.beregningsdato() shouldBe LocalDate.MAX
 
-        testRapid.sendTestMessage(JsonMessage.newMessage(emptyMap()).toJson())
+        testRapid.sendTestMessage(testMessageMedRequiredFelter())
         behovløser.packet.beregningsdato() shouldBe null
     }
 
@@ -54,11 +50,10 @@ class PacketParserTest {
     fun `Skal mappe innteksId`() {
         val behovløser = OnPacketTestListener(testRapid)
 
-        val testMessage = JsonMessage.newMessage(mapOf(INNTEKT_ID to "Supernice inntektsId")).toJson()
-        testRapid.sendTestMessage(testMessage)
+        testRapid.sendTestMessage(testMessageMedRequiredFelter(mapOf(INNTEKT_ID to "Supernice inntektsId")))
         behovløser.packet.inntektsId() shouldBe "Supernice inntektsId"
 
-        testRapid.sendTestMessage(JsonMessage.newMessage(emptyMap()).toJson())
+        testRapid.sendTestMessage(testMessageMedRequiredFelter())
         behovløser.packet.inntektsId() shouldBe null
     }
 
@@ -66,11 +61,10 @@ class PacketParserTest {
     fun `Skal mappe aktørId`() {
         val behovløser = OnPacketTestListener(testRapid)
 
-        val testMessage = JsonMessage.newMessage(mapOf(AKTØRID to "aktørId")).toJson()
-        testRapid.sendTestMessage(testMessage)
+        testRapid.sendTestMessage(testMessageMedRequiredFelter(mapOf(AKTØRID to "aktørId")))
         behovløser.packet.aktørId() shouldBe "aktørId"
 
-        testRapid.sendTestMessage(JsonMessage.newMessage(emptyMap()).toJson())
+        testRapid.sendTestMessage(testMessageMedRequiredFelter())
         behovløser.packet.aktørId() shouldBe null
     }
 
@@ -78,15 +72,13 @@ class PacketParserTest {
     fun `Skal mappe system_started`() {
         val behovløser = OnPacketTestListener(testRapid)
 
-        val testMessage = JsonMessage.newMessage(mapOf(SYSTEM_STARTED to LocalDateTime.MAX)).toJson()
-        testRapid.sendTestMessage(testMessage)
+        testRapid.sendTestMessage(testMessageMedRequiredFelter(mapOf(SYSTEM_STARTED to LocalDateTime.MAX)))
         behovløser.packet.systemStarted() shouldBe LocalDateTime.MAX
 
-        val testMessage2 = JsonMessage.newMessage(mapOf(SYSTEM_STARTED to "FeilformatertDato")).toJson()
-        testRapid.sendTestMessage(JsonMessage.newMessage(testMessage2).toJson())
+        testRapid.sendTestMessage(testMessageMedRequiredFelter(mapOf(SYSTEM_STARTED to "FeilformatertDato")))
         behovløser.packet.systemStarted() shouldBe null
 
-        testRapid.sendTestMessage(JsonMessage.newMessage(emptyMap()).toJson())
+        testRapid.sendTestMessage(testMessageMedRequiredFelter())
         behovløser.packet.systemStarted() shouldBe null
     }
 
@@ -95,24 +87,29 @@ class PacketParserTest {
         val behovløser = OnPacketTestListener(testRapid)
         val forventetRegelkontekst = RegelKontekst(id = "kontekstid", type = "kontekst type")
         testRapid.sendTestMessage(
-            JsonMessage.newMessage(
+            testMessageMedRequiredFelter(
                 mapOf(
                     KONTEKST_TYPE to forventetRegelkontekst.type,
                     KONTEKST_ID to forventetRegelkontekst.id,
                 ),
-            ).toJson(),
+            ),
         )
         behovløser.packet.hentRegelkontekst() shouldBe forventetRegelkontekst
 
-        testRapid.sendTestMessage(JsonMessage.newMessage(mapOf(KONTEKST_ID to "kontekstid")).toJson())
+        testRapid.sendTestMessage(testMessageMedRequiredFelter(mapOf(KONTEKST_ID to "kontekstid")))
         behovløser.packet.hentRegelkontekst() shouldBe null
 
-        testRapid.sendTestMessage(JsonMessage.newMessage(mapOf(KONTEKST_TYPE to "kontekst type")).toJson())
+        testRapid.sendTestMessage(testMessageMedRequiredFelter(mapOf(KONTEKST_TYPE to "kontekst type")))
         behovløser.packet.hentRegelkontekst() shouldBe null
 
-        testRapid.sendTestMessage(JsonMessage.newMessage(emptyMap()).toJson())
+        testRapid.sendTestMessage(testMessageMedRequiredFelter())
         behovløser.packet.hentRegelkontekst() shouldBe null
     }
+
+    private fun testMessageMedRequiredFelter(ekstraFelter: Map<String, Any> = emptyMap()) =
+        JsonMessage.newMessage(
+            mapOf(BEHOV_ID to "behovId") + ekstraFelter,
+        ).toJson()
 
     private class OnPacketTestListener(rapidsConnection: RapidsConnection) : River.PacketListener {
         var problems: MessageProblems? = null

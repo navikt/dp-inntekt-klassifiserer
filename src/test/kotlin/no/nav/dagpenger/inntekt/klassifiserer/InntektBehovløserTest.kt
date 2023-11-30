@@ -12,6 +12,7 @@ import no.nav.dagpenger.events.inntekt.v1.InntektKlasse
 import no.nav.dagpenger.events.inntekt.v1.KlassifisertInntekt
 import no.nav.dagpenger.events.inntekt.v1.KlassifisertInntektMåned
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.AKTØRID
+import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.BEHOV_ID
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.BEREGNINGSDATO
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.INNTEKT_ID
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.KONTEKST_ID
@@ -27,29 +28,6 @@ import java.time.LocalDateTime
 import java.time.YearMonth
 
 class InntektBehovløserTest {
-    private companion object {
-        val inntekt =
-            Inntekt(
-                inntektsId = "inntektsid",
-                manueltRedigert = false,
-                inntektsListe =
-                    listOf(
-                        KlassifisertInntektMåned(
-                            årMåned = YearMonth.now(),
-                            klassifiserteInntekter =
-                                listOf(
-                                    KlassifisertInntekt(
-                                        beløp = BigDecimal("1000.12"),
-                                        inntektKlasse = InntektKlasse.ARBEIDSINNTEKT,
-                                    ),
-                                ),
-                            harAvvik = false,
-                        ),
-                    ),
-                sisteAvsluttendeKalenderMåned = YearMonth.now(),
-            )
-    }
-
     private val testRapid = TestRapid()
 
     @Test
@@ -68,7 +46,7 @@ class InntektBehovløserTest {
             inntektHttpClient,
         )
 
-        testRapid.sendTestMessage("""{ "$INNTEKT_ID":"inntektId" }""")
+        testRapid.sendTestMessage("""{ "$INNTEKT_ID":"inntektId", "$BEHOV_ID":"kaktus" }""")
 
         testRapid.inspektør.message(0).also {
             it["inntektV1"] shouldNotBe null
@@ -101,7 +79,8 @@ class InntektBehovløserTest {
                "$BEREGNINGSDATO":"2020-01-01",
                "$AKTØRID":"aktørId",
                "$KONTEKST_TYPE" : "konteksType",
-               "$KONTEKST_ID" : "kontekstId"
+               "$KONTEKST_ID" : "kontekstId", 
+               "$BEHOV_ID":"kaktus"
             }
             
             """.trimIndent(),
@@ -119,13 +98,13 @@ class InntektBehovløserTest {
         val femMinutterSiden = LocalDateTime.now().minusMinutes(5)
         shouldThrow<RuntimeException> {
             testRapid.sendTestMessage(
-                """ { "$SYSTEM_STARTED":"$femMinutterSiden" }""",
+                """ { "$SYSTEM_STARTED":"$femMinutterSiden", "$BEHOV_ID":"kaktus" }""",
             )
         }
     }
 
     @Test
-    fun `Kaster exception dersom beregningsdato ikke er satt  for behov uten inntekts id`() {
+    fun `Kaster exception dersom beregningsdato ikke er satt for behov uten inntektId`() {
         InntektBehovløser(testRapid, mockk())
 
         shouldThrow<IllegalArgumentException> {
@@ -134,7 +113,8 @@ class InntektBehovløserTest {
                 {
                    "$AKTØRID":"aktørId",
                    "$KONTEKST_TYPE" : "konteksType",
-                   "$KONTEKST_ID" : "kontekstId"
+                   "$KONTEKST_ID" : "kontekstId", 
+                   "$BEHOV_ID":"kaktus"
                 }
                 
                 """.trimIndent(),
@@ -143,7 +123,7 @@ class InntektBehovløserTest {
     }
 
     @Test
-    fun `Kaster exception dersom aktørId ikke er satt for behov uten inntekts id`() {
+    fun `Kaster exception dersom aktørId ikke er satt for behov uten inntektId`() {
         InntektBehovløser(testRapid, mockk())
 
         shouldThrow<IllegalArgumentException> {
@@ -152,7 +132,8 @@ class InntektBehovløserTest {
                 {
                    "$BEREGNINGSDATO":"2020-01-01",
                    "$KONTEKST_TYPE" : "konteksType",
-                   "$KONTEKST_ID" : "kontekstId"
+                   "$KONTEKST_ID" : "kontekstId", 
+                   "$BEHOV_ID":"kaktus"
                 }
                 
                 """.trimIndent(),
@@ -161,7 +142,7 @@ class InntektBehovløserTest {
     }
 
     @Test
-    fun `Kaster exception dersom konteks ikke er satt for behov uten inntektId  `() {
+    fun `Kaster exception dersom konteks ikke er satt for behov uten inntektId`() {
         InntektBehovløser(testRapid, mockk())
 
         shouldThrow<IllegalArgumentException> {
@@ -169,7 +150,8 @@ class InntektBehovløserTest {
                 """
                 {
                    "$BEREGNINGSDATO":"2020-01-01",
-                   "$AKTØRID":"aktørId"
+                   "$AKTØRID":"aktørId", 
+                   "$BEHOV_ID":"kaktus"
                 }
                 
                 """.trimIndent(),
@@ -199,7 +181,7 @@ class InntektBehovløserTest {
         )
 
         shouldThrow<InntektApiHttpClientException> {
-            testRapid.sendTestMessage("""{ "$INNTEKT_ID":"inntektId" }""")
+            testRapid.sendTestMessage("""{ "$INNTEKT_ID":"inntektId", "$BEHOV_ID":"kaktus" }""")
         }
     }
 
@@ -231,7 +213,8 @@ class InntektBehovløserTest {
                    "$BEREGNINGSDATO":"2020-01-01",
                    "$AKTØRID":"aktørId",
                    "$KONTEKST_TYPE" : "konteksType",
-                   "$KONTEKST_ID" : "kontekstId"
+                   "$KONTEKST_ID" : "kontekstId", 
+                   "$BEHOV_ID":"kaktus"
             } """,
             )
         }
@@ -239,5 +222,28 @@ class InntektBehovløserTest {
         val resultatPacket = testRapid.inspektør.message(0)
         resultatPacket[PROBLEM] shouldNotBe null
         resultatPacket[PROBLEM]["status"].asInt() shouldBe 500
+    }
+
+    private companion object {
+        val inntekt =
+            Inntekt(
+                inntektsId = "inntektsid",
+                manueltRedigert = false,
+                inntektsListe =
+                    listOf(
+                        KlassifisertInntektMåned(
+                            årMåned = YearMonth.now(),
+                            klassifiserteInntekter =
+                                listOf(
+                                    KlassifisertInntekt(
+                                        beløp = BigDecimal("1000.12"),
+                                        inntektKlasse = InntektKlasse.ARBEIDSINNTEKT,
+                                    ),
+                                ),
+                            harAvvik = false,
+                        ),
+                    ),
+                sisteAvsluttendeKalenderMåned = YearMonth.now(),
+            )
     }
 }
