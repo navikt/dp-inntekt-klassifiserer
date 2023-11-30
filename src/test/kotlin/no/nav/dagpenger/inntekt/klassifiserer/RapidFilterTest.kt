@@ -39,7 +39,7 @@ class RapidFilterTest {
     }
 
     @Test
-    fun `Skal kunne hente ut "interessante" verdier fra pakka`() {
+    fun `Skal kunne hente ut interessante verdier fra pakka`() {
         val testListener = TestListener(testRapid)
         testRapid.sendTestMessage(
             JsonMessage.newMessage(emptyMap()).toJson(),

@@ -7,12 +7,10 @@ import com.github.tomakehurst.wiremock.client.WireMock.matching
 import com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import com.github.tomakehurst.wiremock.matching.EqualToPattern
-import com.squareup.moshi.JsonAdapter
 import kotlinx.coroutines.runBlocking
 import no.nav.dagpenger.events.inntekt.v1.Inntekt
 import no.nav.dagpenger.events.inntekt.v1.InntektKlasse
 import no.nav.dagpenger.events.inntekt.v1.sumInntekt
-import no.nav.dagpenger.events.moshiInstance
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
@@ -25,7 +23,7 @@ class InntektHttpClientTest {
     companion object {
         private val tokenProvider = { "token" }
         private val client = httpClient(httpMetricsBasename = "test")
-        val klassifisertInntektJsonAdapter: JsonAdapter<Inntekt> = moshiInstance.adapter(Inntekt::class.java)
+
         val server: WireMockServer = WireMockServer(WireMockConfiguration.options().dynamicPort())
 
         @BeforeAll
@@ -87,17 +85,17 @@ class InntektHttpClientTest {
                     "12345678901",
                 )
             }
-        val moshiSerialisertInntekt = klassifisertInntektJsonAdapter.fromJson(responseBodyJson)!!
-        assertEquals(klassifisertInntekt.inntektsId, moshiSerialisertInntekt.inntektsId)
-        assertEquals(klassifisertInntekt.inntektsListe, moshiSerialisertInntekt.inntektsListe)
-        assertEquals(klassifisertInntekt.manueltRedigert, moshiSerialisertInntekt.manueltRedigert)
+        val jacksonSerialisertInntekt: Inntekt = objectMapper.readValue(responseBodyJson, Inntekt::class.java)
+        assertEquals(klassifisertInntekt.inntektsId, jacksonSerialisertInntekt.inntektsId)
+        assertEquals(klassifisertInntekt.inntektsListe, jacksonSerialisertInntekt.inntektsListe)
+        assertEquals(klassifisertInntekt.manueltRedigert, jacksonSerialisertInntekt.manueltRedigert)
         assertEquals(
             klassifisertInntekt.sisteAvsluttendeKalenderMåned,
-            moshiSerialisertInntekt.sisteAvsluttendeKalenderMåned,
+            jacksonSerialisertInntekt.sisteAvsluttendeKalenderMåned,
         )
         assertEquals(
             klassifisertInntekt.inntektsListe.sumInntekt(enumValues<InntektKlasse>().toList()),
-            moshiSerialisertInntekt.inntektsListe.sumInntekt(enumValues<InntektKlasse>().toList()),
+            jacksonSerialisertInntekt.inntektsListe.sumInntekt(enumValues<InntektKlasse>().toList()),
         )
 
         assertEquals("12345", klassifisertInntekt.inntektsId)
