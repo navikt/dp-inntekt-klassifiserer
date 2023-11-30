@@ -10,7 +10,6 @@ import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.inntektsId
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.systemStarted
 import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.MessageContext
-import no.nav.helse.rapids_rivers.MessageProblems
 import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.helse.rapids_rivers.River
 import java.time.LocalDate
@@ -20,7 +19,7 @@ import java.util.UUID
 private val logger = KotlinLogging.logger { }
 private val sikkerlogg = KotlinLogging.logger("tjenestekall")
 
-internal class InntektBehovløser(rapidsConnection: RapidsConnection, private val inntektClient: InntektClient) :
+internal class InntektBehovløser(rapidsConnection: RapidsConnection, private val inntektClient: InntektHttpClient) :
     River.PacketListener {
     companion object {
         const val BEHOV_ID = "behovId"
@@ -69,6 +68,7 @@ internal class InntektBehovløser(rapidsConnection: RapidsConnection, private va
             "kontekstType" to regelkontekst?.type,
             "kontekstId" to regelkontekst?.id,
         ) {
+            sikkerlogg.info { "Mottok pakke: ${packet.toJson()}" }
             if (started?.isBefore(LocalDateTime.now().minusSeconds(30)) == true) {
                 throw RuntimeException("Denne pakka er for gammal!")
             }
@@ -106,13 +106,7 @@ internal class InntektBehovløser(rapidsConnection: RapidsConnection, private va
             logger.info { "Hentet med inntektsId: ${klassifisertInntekt.inntektsId}" }
             packet[INNTEKT] = klassifisertInntekt.toMap()
             context.publish(packet.toJson())
+            sikkerlogg.info { "Sendte løsning: ${packet.toJson()}" }
         }
-    }
-
-    override fun onError(
-        problems: MessageProblems,
-        context: MessageContext,
-    ) {
-        super.onError(problems, context)
     }
 }
