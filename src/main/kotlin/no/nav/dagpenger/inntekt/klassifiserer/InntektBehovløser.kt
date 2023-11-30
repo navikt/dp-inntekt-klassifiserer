@@ -20,7 +20,7 @@ import java.util.UUID
 private val logger = KotlinLogging.logger { }
 private val sikkerlogg = KotlinLogging.logger("tjenestekall")
 
-internal class InntektBehovløser(rapidsConnection: RapidsConnection, private val inntektHttpClient: InntektHttpClient) :
+internal class InntektBehovløser(rapidsConnection: RapidsConnection, private val inntektClient: InntektClient) :
     River.PacketListener {
     companion object {
         const val BEHOV_ID = "behovId"
@@ -76,7 +76,7 @@ internal class InntektBehovløser(rapidsConnection: RapidsConnection, private va
                 when (inntektsId != null) {
                     true -> {
                         logger.info { "Henter inntekt basert på inntektsId: $inntektsId" }
-                        runBlocking { inntektHttpClient.getKlassifisertInntekt(inntektsId, callId) }
+                        runBlocking { inntektClient.getKlassifisertInntekt(inntektsId, callId) }
                     }
 
                     else -> {
@@ -87,7 +87,7 @@ internal class InntektBehovløser(rapidsConnection: RapidsConnection, private va
                             packet.beregningsdato() ?: throw IllegalArgumentException("Mangler beregningsdato")
                         try {
                             runBlocking {
-                                inntektHttpClient.getKlassifisertInntekt(
+                                inntektClient.getKlassifisertInntekt(
                                     aktørId,
                                     regelkontekst,
                                     beregningsdato,
