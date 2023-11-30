@@ -1,12 +1,16 @@
 package no.nav.dagpenger.inntekt.klassifiserer
 
 import io.kotest.matchers.shouldBe
+import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.AKTØRID
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.BEREGNINGSDATO
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.INNTEKT_ID
+import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.KONTEKST_ID
+import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.KONTEKST_TYPE
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.SYSTEM_STARTED
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.aktørId
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.behovId
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.beregningsdato
+import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.hentRegelkontekst
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.inntektsId
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.systemStarted
 import no.nav.helse.rapids_rivers.JsonMessage
@@ -62,7 +66,7 @@ class PacketParserTest {
     fun `Skal mappe aktørId`() {
         val behovløser = OnPacketTestListener(testRapid)
 
-        val testMessage = JsonMessage.newMessage(mapOf(InntektBehovløser.AKTØRID to "aktørId")).toJson()
+        val testMessage = JsonMessage.newMessage(mapOf(AKTØRID to "aktørId")).toJson()
         testRapid.sendTestMessage(testMessage)
         behovløser.packet.aktørId() shouldBe "aktørId"
 
@@ -84,6 +88,30 @@ class PacketParserTest {
 
         testRapid.sendTestMessage(JsonMessage.newMessage(emptyMap()).toJson())
         behovløser.packet.systemStarted() shouldBe null
+    }
+
+    @Test
+    fun `Skal mappe RegelKontekst`() {
+        val behovløser = OnPacketTestListener(testRapid)
+        val forventetRegelkontekst = RegelKontekst(id = "kontekstid", type = "kontekst type")
+        testRapid.sendTestMessage(
+            JsonMessage.newMessage(
+                mapOf(
+                    KONTEKST_TYPE to forventetRegelkontekst.type,
+                    KONTEKST_ID to forventetRegelkontekst.id,
+                ),
+            ).toJson(),
+        )
+        behovløser.packet.hentRegelkontekst() shouldBe forventetRegelkontekst
+
+        testRapid.sendTestMessage(JsonMessage.newMessage(mapOf(KONTEKST_ID to "kontekstid")).toJson())
+        behovløser.packet.hentRegelkontekst() shouldBe null
+
+        testRapid.sendTestMessage(JsonMessage.newMessage(mapOf(KONTEKST_TYPE to "kontekst type")).toJson())
+        behovløser.packet.hentRegelkontekst() shouldBe null
+
+        testRapid.sendTestMessage(JsonMessage.newMessage(emptyMap()).toJson())
+        behovløser.packet.hentRegelkontekst() shouldBe null
     }
 
     private class OnPacketTestListener(rapidsConnection: RapidsConnection) : River.PacketListener {

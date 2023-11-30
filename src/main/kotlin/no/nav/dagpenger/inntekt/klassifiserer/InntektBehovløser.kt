@@ -2,15 +2,16 @@ package no.nav.dagpenger.inntekt.klassifiserer
 
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.aktørId
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.beregningsdato
+import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.hentRegelkontekst
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.inntektsId
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.systemStarted
 import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.helse.rapids_rivers.River
-import no.nav.helse.rapids_rivers.isMissingOrNull
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.UUID
 
 class InntektBehovløser(rapidsConnection: RapidsConnection) : River.PacketListener {
     companion object {
@@ -40,13 +41,11 @@ class InntektBehovløser(rapidsConnection: RapidsConnection) : River.PacketListe
         context: MessageContext,
     ) {
         val behovId: String? = packet[BEHOV_ID].asText()
-//        val callId = (behovId ?: UUID.randomUUID()).toString()
+        val callId = (behovId ?: UUID.randomUUID()).toString()
         val started: LocalDateTime? = packet.systemStarted()
         val beregningsdato: LocalDate? = packet.beregningsdato()
         val inntektsId: String? = packet.inntektsId()
         val aktørId: String? = packet.aktørId()
-        val regelkontekst: RegelKontekst? = runCatching { packet.hentRegelkontekst() }.getOrNull()
+        val regelkontekst: RegelKontekst? = packet.hentRegelkontekst()
     }
-
-    private fun JsonMessage.harVerdi(field: String) = !this[field].isMissingOrNull()
 }

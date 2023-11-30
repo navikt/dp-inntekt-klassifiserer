@@ -4,13 +4,13 @@ import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.AKTØ
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.BEHOV_ID
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.BEREGNINGSDATO
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.INNTEKT_ID
+import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.KONTEKST_ID
+import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.KONTEKST_TYPE
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.SYSTEM_STARTED
 import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.asLocalDate
 import no.nav.helse.rapids_rivers.isMissingOrNull
 import java.time.LocalDateTime
-import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.KONTEKST_ID
-import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.KONTEKST_TYPE
 
 object PacketParser {
     fun JsonMessage.beregningsdato() =
@@ -37,16 +37,21 @@ object PacketParser {
             false -> null
         }
 
-    fun JsonMessage.hentRegelkontekst() {
-        RegelKontekst( id = TODO, type = TODO)
-
-        val kontekstId: String? =  when (this.harVerdi(KONTEKST_ID)) {
-            true -> this[KONTEKST_ID].asText()
-            false -> null
-        }
-        val kontekstType: String? = when (this.harVerdi(KONTEKST_TYPE)) {
-            true -> this[KONTEKST_TYPE].asText()
-            false -> null
+    fun JsonMessage.hentRegelkontekst(): RegelKontekst? {
+        val kontekstId: String? =
+            when (this.harVerdi(KONTEKST_ID)) {
+                true -> this[KONTEKST_ID].asText()
+                false -> null
+            }
+        val kontekstType: String? =
+            when (this.harVerdi(KONTEKST_TYPE)) {
+                true -> this[KONTEKST_TYPE].asText()
+                false -> null
+            }
+        return if (kontekstId != null && kontekstType != null) {
+            RegelKontekst(id = kontekstId, type = kontekstType)
+        } else {
+            null
         }
     }
 
