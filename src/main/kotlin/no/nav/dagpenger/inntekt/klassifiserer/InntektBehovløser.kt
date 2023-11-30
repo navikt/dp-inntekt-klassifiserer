@@ -1,5 +1,8 @@
 package no.nav.dagpenger.inntekt.klassifiserer
 
+import kotlinx.coroutines.runBlocking
+import mu.KotlinLogging
+import mu.withLoggingContext
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.aktørId
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.beregningsdato
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.hentRegelkontekst
@@ -7,13 +10,18 @@ import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.inntektsId
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.systemStarted
 import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.MessageContext
+import no.nav.helse.rapids_rivers.MessageProblems
 import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.helse.rapids_rivers.River
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
-class InntektBehovløser(rapidsConnection: RapidsConnection) : River.PacketListener {
+private val logger = KotlinLogging.logger { }
+private val sikkerlogg = KotlinLogging.logger("tjenestekall")
+
+internal class InntektBehovløser(rapidsConnection: RapidsConnection, private val inntektHttpClient: InntektHttpClient) :
+    River.PacketListener {
     companion object {
         const val BEHOV_ID = "behovId"
         const val SYSTEM_STARTED = "system_started"
@@ -25,9 +33,19 @@ class InntektBehovløser(rapidsConnection: RapidsConnection) : River.PacketListe
         const val INNTEKT_ID = "inntektsId"
         const val KONTEKST_ID = "kontekstId"
         const val KONTEKST_TYPE = "kontekstType"
+        const val PROBLEM = "system_problem"
         val rapidFilter: River.() -> Unit = {
             validate { it.interestedIn(BEHOV_ID) }
-            validate { it.interestedIn(INNTEKT_ID, BEREGNINGSDATO, AKTØRID, SYSTEM_STARTED, KONTEKST_ID, KONTEKST_TYPE) }
+            validate {
+                it.interestedIn(
+                    INNTEKT_ID,
+                    BEREGNINGSDATO,
+                    AKTØRID,
+                    SYSTEM_STARTED,
+                    KONTEKST_ID,
+                    KONTEKST_TYPE,
+                )
+            }
             validate { it.rejectKey(INNTEKT, MANUELT_GRUNNLAG, FORRIGE_GRUNNLAG) }
         }
     }
@@ -43,9 +61,58 @@ class InntektBehovløser(rapidsConnection: RapidsConnection) : River.PacketListe
         val behovId: String? = packet[BEHOV_ID].asText()
         val callId = (behovId ?: UUID.randomUUID()).toString()
         val started: LocalDateTime? = packet.systemStarted()
-        val beregningsdato: LocalDate? = packet.beregningsdato()
         val inntektsId: String? = packet.inntektsId()
-        val aktørId: String? = packet.aktørId()
         val regelkontekst: RegelKontekst? = packet.hentRegelkontekst()
+        withLoggingContext(
+            "callId" to callId,
+            "behovId" to behovId,
+            "kontekstType" to regelkontekst?.type,
+            "kontekstId" to regelkontekst?.id,
+        ) {
+            if (started?.isBefore(LocalDateTime.now().minusSeconds(30)) == true) {
+                throw RuntimeException("Denne pakka er for gammal!")
+            }
+            val klassifisertInntekt =
+                when (inntektsId != null) {
+                    true -> {
+                        logger.info { "Henter inntekt basert på inntektsId: $inntektsId" }
+                        runBlocking { inntektHttpClient.getKlassifisertInntekt(inntektsId, callId) }
+                    }
+
+                    else -> {
+                        val aktørId: String = packet.aktørId() ?: throw IllegalArgumentException("Mangler aktørId")
+                        requireNotNull(regelkontekst) { "Må ha en kontekst for å hente inntekt" }
+
+                        val beregningsdato: LocalDate =
+                            packet.beregningsdato() ?: throw IllegalArgumentException("Mangler beregningsdato")
+                        try {
+                            runBlocking {
+                                inntektHttpClient.getKlassifisertInntekt(
+                                    aktørId,
+                                    regelkontekst,
+                                    beregningsdato,
+                                    null,
+                                    callId,
+                                )
+                            }
+                        } catch (e: InntektApiHttpClientException) {
+                            logger.error(e) { "Kunne ikke hente inntekt fra dp-inntekt-api" }
+                            packet[PROBLEM] = e.problem.toMap()
+                            context.publish(packet.toJson())
+                            return
+                        }
+                    }
+                }
+            logger.info { "Hentet med inntektsId: ${klassifisertInntekt.inntektsId}" }
+            packet[INNTEKT] = klassifisertInntekt.toMap()
+            context.publish(packet.toJson())
+        }
+    }
+
+    override fun onError(
+        problems: MessageProblems,
+        context: MessageContext,
+    ) {
+        super.onError(problems, context)
     }
 }
