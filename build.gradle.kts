@@ -23,10 +23,6 @@ val log4j2Versjon = "2.21.0"
 dependencies {
     // Dagpenger
     implementation("com.github.navikt:dagpenger-events:2023081713361692272216.01ab7c590338")
-    implementation("com.github.navikt:dagpenger-streams:20230831.f3d785")
-
-    // kafka
-    implementation("org.apache.kafka:kafka-streams:3.3.1")
 
     // ktor http client
     implementation(libs.dp.biblioteker.oauth2.klient)
