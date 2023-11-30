@@ -14,9 +14,9 @@ spec:
       maxSurge: 100%
       maxUnavailable: 99%
   liveness:
-    path: /isAlive
+    path: /isalive
   readiness:
-    path: /isReady
+    path: /isready
   prometheus:
     enabled: true
     path: /metrics
