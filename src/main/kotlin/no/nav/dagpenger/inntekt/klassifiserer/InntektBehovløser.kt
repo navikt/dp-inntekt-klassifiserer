@@ -7,13 +7,11 @@ import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.aktørId
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.beregningsdato
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.hentRegelkontekst
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.inntektsId
-import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.systemStarted
 import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.helse.rapids_rivers.River
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.UUID
 
 private val logger = KotlinLogging.logger { }
@@ -23,7 +21,6 @@ internal class InntektBehovløser(rapidsConnection: RapidsConnection, private va
     River.PacketListener {
     companion object {
         const val BEHOV_ID = "behovId"
-        const val SYSTEM_STARTED = "system_started"
         const val INNTEKT = "inntektV1"
         const val AKTØRID = "aktørId"
         const val MANUELT_GRUNNLAG = "manueltGrunnlag"
@@ -40,7 +37,6 @@ internal class InntektBehovløser(rapidsConnection: RapidsConnection, private va
                     INNTEKT_ID,
                     BEREGNINGSDATO,
                     AKTØRID,
-                    SYSTEM_STARTED,
                     KONTEKST_ID,
                     KONTEKST_TYPE,
                 )
@@ -59,7 +55,6 @@ internal class InntektBehovløser(rapidsConnection: RapidsConnection, private va
     ) {
         val behovId: String? = packet[BEHOV_ID].asText()
         val callId = (behovId ?: UUID.randomUUID()).toString()
-        val started: LocalDateTime? = packet.systemStarted()
         val inntektsId: String? = packet.inntektsId()
         val regelkontekst: RegelKontekst? = packet.hentRegelkontekst()
         withLoggingContext(
@@ -69,9 +64,6 @@ internal class InntektBehovløser(rapidsConnection: RapidsConnection, private va
             "kontekstId" to regelkontekst?.id,
         ) {
             sikkerlogg.info { "Mottok pakke: ${packet.toJson()}" }
-            if (started?.isBefore(LocalDateTime.now().minusSeconds(30)) == true) {
-                throw RuntimeException("Denne pakka er for gammal!")
-            }
             val klassifisertInntekt =
                 when (inntektsId != null) {
                     true -> {

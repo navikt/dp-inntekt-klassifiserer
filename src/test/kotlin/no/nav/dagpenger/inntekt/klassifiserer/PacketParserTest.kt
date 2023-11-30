@@ -7,13 +7,11 @@ import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.BEREG
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.INNTEKT_ID
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.KONTEKST_ID
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.KONTEKST_TYPE
-import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.SYSTEM_STARTED
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.aktørId
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.behovId
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.beregningsdato
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.hentRegelkontekst
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.inntektsId
-import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.systemStarted
 import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.MessageProblems
@@ -22,7 +20,6 @@ import no.nav.helse.rapids_rivers.River
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 class PacketParserTest {
     private val testRapid = TestRapid()
@@ -66,20 +63,6 @@ class PacketParserTest {
 
         testRapid.sendTestMessage(testMessageMedRequiredFelter())
         behovløser.packet.aktørId() shouldBe null
-    }
-
-    @Test
-    fun `Skal mappe system_started`() {
-        val behovløser = OnPacketTestListener(testRapid)
-
-        testRapid.sendTestMessage(testMessageMedRequiredFelter(mapOf(SYSTEM_STARTED to LocalDateTime.MAX)))
-        behovløser.packet.systemStarted() shouldBe LocalDateTime.MAX
-
-        testRapid.sendTestMessage(testMessageMedRequiredFelter(mapOf(SYSTEM_STARTED to "FeilformatertDato")))
-        behovløser.packet.systemStarted() shouldBe null
-
-        testRapid.sendTestMessage(testMessageMedRequiredFelter())
-        behovløser.packet.systemStarted() shouldBe null
     }
 
     @Test

@@ -12,7 +12,6 @@ import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.INNTE
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.KONTEKST_ID
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.KONTEKST_TYPE
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.MANUELT_GRUNNLAG
-import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.SYSTEM_STARTED
 import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.MessageProblems
@@ -54,7 +53,6 @@ class RapidFilterTest {
         val testListener = TestListener(testRapid)
         testRapid.sendTestMessage(testMessageMedRequiredFelter())
         shouldNotThrowAny {
-            testListener.jsonMessage[SYSTEM_STARTED]
             testListener.jsonMessage[BEREGNINGSDATO]
             testListener.jsonMessage[INNTEKT_ID]
             testListener.jsonMessage[AKTØRID]

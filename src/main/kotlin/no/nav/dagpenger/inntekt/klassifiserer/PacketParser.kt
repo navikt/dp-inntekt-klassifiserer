@@ -6,11 +6,9 @@ import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.BEREG
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.INNTEKT_ID
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.KONTEKST_ID
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.KONTEKST_TYPE
-import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.SYSTEM_STARTED
 import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.asLocalDate
 import no.nav.helse.rapids_rivers.isMissingOrNull
-import java.time.LocalDateTime
 
 object PacketParser {
     fun JsonMessage.beregningsdato() =
@@ -54,12 +52,6 @@ object PacketParser {
             null
         }
     }
-
-    fun JsonMessage.systemStarted() =
-        when (this.harVerdi(SYSTEM_STARTED)) {
-            true -> this[SYSTEM_STARTED].asText().let { runCatching { LocalDateTime.parse(it) }.getOrNull() }
-            false -> null
-        }
 
     private fun JsonMessage.harVerdi(field: String) = !this[field].isMissingOrNull()
 }

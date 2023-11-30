@@ -18,13 +18,11 @@ import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.INNTE
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.KONTEKST_ID
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.KONTEKST_TYPE
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.PROBLEM
-import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.SYSTEM_STARTED
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.net.URI
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.YearMonth
 
 class InntektBehovløserTest {
@@ -88,18 +86,6 @@ class InntektBehovløserTest {
 
         testRapid.inspektør.message(0).also {
             it["inntektV1"] shouldNotBe null
-        }
-    }
-
-    @Test
-    fun `Skal kaste exception dersom pakken er for gammel`() {
-        InntektBehovløser(testRapid, mockk())
-
-        val femMinutterSiden = LocalDateTime.now().minusMinutes(5)
-        shouldThrow<RuntimeException> {
-            testRapid.sendTestMessage(
-                """ { "$SYSTEM_STARTED":"$femMinutterSiden", "$BEHOV_ID":"kaktus" }""",
-            )
         }
     }
 
