@@ -53,52 +53,57 @@ internal class InntektBehovløser(rapidsConnection: RapidsConnection, private va
         packet: JsonMessage,
         context: MessageContext,
     ) {
-        val behovId: String? = packet[BEHOV_ID].asText()
-        val callId = (behovId ?: UUID.randomUUID()).toString()
-        val inntektsId: String? = packet.inntektsId()
-        val regelkontekst: RegelKontekst? = packet.hentRegelkontekst()
-        withLoggingContext(
-            "callId" to callId,
-            "behovId" to behovId,
-            "kontekstType" to regelkontekst?.type,
-            "kontekstId" to regelkontekst?.id,
-        ) {
-            sikkerlogg.info { "Mottok pakke: ${packet.toJson()}" }
-            val klassifisertInntekt =
-                when (inntektsId != null) {
-                    true -> {
-                        logger.info { "Henter inntekt basert på inntektsId: $inntektsId" }
-                        runBlocking { inntektClient.getKlassifisertInntekt(inntektsId, callId) }
-                    }
+        try {
+            val behovId: String? = packet[BEHOV_ID].asText()
+            val callId = (behovId ?: UUID.randomUUID()).toString()
+            val inntektsId: String? = packet.inntektsId()
+            val regelkontekst: RegelKontekst? = packet.hentRegelkontekst()
+            withLoggingContext(
+                "callId" to callId,
+                "behovId" to behovId,
+                "kontekstType" to regelkontekst?.type,
+                "kontekstId" to regelkontekst?.id,
+            ) {
+                sikkerlogg.info { "Mottok pakke: ${packet.toJson()}" }
+                val klassifisertInntekt =
+                    when (inntektsId != null) {
+                        true -> {
+                            logger.info { "Henter inntekt basert på inntektsId: $inntektsId" }
+                            runBlocking { inntektClient.getKlassifisertInntekt(inntektsId, callId) }
+                        }
 
-                    else -> {
-                        val aktørId: String = packet.aktørId() ?: throw IllegalArgumentException("Mangler aktørId")
-                        requireNotNull(regelkontekst) { "Må ha en kontekst for å hente inntekt" }
+                        else -> {
+                            val aktørId: String = packet.aktørId() ?: throw IllegalArgumentException("Mangler aktørId")
+                            requireNotNull(regelkontekst) { "Må ha en kontekst for å hente inntekt" }
 
-                        val beregningsdato: LocalDate =
-                            packet.beregningsdato() ?: throw IllegalArgumentException("Mangler beregningsdato")
-                        try {
-                            runBlocking {
-                                inntektClient.getKlassifisertInntekt(
-                                    aktørId,
-                                    regelkontekst,
-                                    beregningsdato,
-                                    null,
-                                    callId,
-                                )
+                            val beregningsdato: LocalDate =
+                                packet.beregningsdato() ?: throw IllegalArgumentException("Mangler beregningsdato")
+                            try {
+                                runBlocking {
+                                    inntektClient.getKlassifisertInntekt(
+                                        aktørId,
+                                        regelkontekst,
+                                        beregningsdato,
+                                        null,
+                                        callId,
+                                    )
+                                }
+                            } catch (e: InntektApiHttpClientException) {
+                                logger.error(e) { "Kunne ikke hente inntekt fra dp-inntekt-api" }
+                                packet[PROBLEM] = e.problem.toMap()
+                                context.publish(packet.toJson())
+                                return
                             }
-                        } catch (e: InntektApiHttpClientException) {
-                            logger.error(e) { "Kunne ikke hente inntekt fra dp-inntekt-api" }
-                            packet[PROBLEM] = e.problem.toMap()
-                            context.publish(packet.toJson())
-                            return
                         }
                     }
-                }
-            logger.info { "Hentet med inntektsId: ${klassifisertInntekt.inntektsId}" }
-            packet[INNTEKT] = klassifisertInntekt.toMap()
-            context.publish(packet.toJson())
-            sikkerlogg.info { "Sendte løsning: ${packet.toJson()}" }
+                logger.info { "Hentet med inntektsId: ${klassifisertInntekt.inntektsId}" }
+                packet[INNTEKT] = klassifisertInntekt.toMap()
+                context.publish(packet.toJson())
+                sikkerlogg.info { "Sendte løsning: ${packet.toJson()}" }
+            }
+        } catch (e: Exception) {
+            sikkerlogg.error("Denne feilen oppstod: ${e.message} med denne packeten ${packet.toJson()}")
+            throw e
         }
     }
 }
