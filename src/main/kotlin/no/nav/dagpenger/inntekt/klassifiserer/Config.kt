@@ -24,7 +24,7 @@ internal object Config {
                 "KAFKA_CONSUMER_GROUP_ID" to "dp-inntekt-klassifiserer-v1",
                 "KAFKA_RAPID_TOPIC" to "teamdagpenger.regel.v1",
                 "KAFKA_RESET_POLICY" to "latest",
-                "DP_INNTEKT_API_URL" to "http://localhost/",
+                "DP_INNTEKT_API_URL" to "http://dp-inntekt-api.teamdagpenger/",
             ),
         )
     private val properties =
