@@ -29,7 +29,7 @@ internal class InntektHttpClient(
     private val tokenProvider: () -> String,
 ) {
     suspend fun getKlassifisertInntekt(
-        aktørId: String,
+        aktørId: String?,
         regelkontekst: RegelKontekst,
         beregningsDato: LocalDate,
         fødselsnummer: String?,
@@ -70,7 +70,7 @@ internal class InntektHttpClient(
     }
 
     private suspend inline fun <reified T : Any> getInntekt(
-        aktørId: String,
+        aktørId: String?,
         regelkontekst: RegelKontekst,
         beregningsDato: LocalDate,
         fødselsnummer: String?,
@@ -120,7 +120,7 @@ internal class InntektHttpClient(
 }
 
 private data class InntektRequest(
-    val aktørId: String,
+    val aktørId: String?,
     val fødselsnummer: String? = null,
     val regelkontekst: RegelKontekst,
     val beregningsDato: LocalDate,

@@ -5,6 +5,7 @@ import mu.KotlinLogging
 import mu.withLoggingContext
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.aktørId
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.beregningsdato
+import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.fødselsnummer
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.hentRegelkontekst
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.inntektsId
 import no.nav.helse.rapids_rivers.JsonMessage
@@ -75,7 +76,13 @@ internal class InntektBehovløser(rapidsConnection: RapidsConnection, private va
                         }
 
                         else -> {
-                            val aktørId: String = packet.aktørId() ?: throw IllegalArgumentException("Mangler aktørId")
+                            val aktørId: String? = packet.aktørId()
+                            val fødselsnummer: String? = packet.fødselsnummer()
+
+                            if (aktørId == null && fødselsnummer == null) {
+                                throw IllegalArgumentException("Mangler aktørId eller fødselsnummer")
+                            }
+
                             requireNotNull(regelkontekst) { "Må ha en kontekst for å hente inntekt" }
 
                             val beregningsdato: LocalDate =
