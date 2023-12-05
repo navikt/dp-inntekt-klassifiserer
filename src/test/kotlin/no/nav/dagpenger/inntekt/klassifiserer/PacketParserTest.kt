@@ -4,12 +4,14 @@ import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.AKTØRID
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.BEHOV_ID
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.BEREGNINGSDATO
+import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.FØDSELSNUMMER
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.INNTEKT_ID
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.KONTEKST_ID
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.KONTEKST_TYPE
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.aktørId
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.behovId
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.beregningsdato
+import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.fødselsnummer
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.hentRegelkontekst
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.inntektsId
 import no.nav.helse.rapids_rivers.JsonMessage
@@ -63,6 +65,17 @@ class PacketParserTest {
 
         testRapid.sendTestMessage(testMessageMedRequiredFelter())
         behovløser.packet.aktørId() shouldBe null
+    }
+
+    @Test
+    fun `Skal mappe fødselnummer`() {
+        val behovløser = OnPacketTestListener(testRapid)
+
+        testRapid.sendTestMessage(testMessageMedRequiredFelter(mapOf(FØDSELSNUMMER to "fnr")))
+        behovløser.packet.fødselsnummer() shouldBe "fnr"
+
+        testRapid.sendTestMessage(testMessageMedRequiredFelter())
+        behovløser.packet.fødselsnummer() shouldBe null
     }
 
     @Test

@@ -23,6 +23,7 @@ internal class InntektBehovløser(rapidsConnection: RapidsConnection, private va
         const val BEHOV_ID = "behovId"
         const val INNTEKT = "inntektV1"
         const val AKTØRID = "aktørId"
+        const val FØDSELSNUMMER = "fødselsnummer"
         const val MANUELT_GRUNNLAG = "manueltGrunnlag"
         const val FORRIGE_GRUNNLAG = "forrigeGrunnlag"
         const val BEREGNINGSDATO = "beregningsDato"
@@ -39,6 +40,7 @@ internal class InntektBehovløser(rapidsConnection: RapidsConnection, private va
                     AKTØRID,
                     KONTEKST_ID,
                     KONTEKST_TYPE,
+                    FØDSELSNUMMER,
                 )
             }
             validate { it.rejectKey(INNTEKT, MANUELT_GRUNNLAG, FORRIGE_GRUNNLAG) }

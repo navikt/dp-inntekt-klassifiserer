@@ -3,6 +3,7 @@ package no.nav.dagpenger.inntekt.klassifiserer
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.AKTØRID
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.BEHOV_ID
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.BEREGNINGSDATO
+import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.FØDSELSNUMMER
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.INNTEKT_ID
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.KONTEKST_ID
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.KONTEKST_TYPE
@@ -26,6 +27,12 @@ object PacketParser {
     fun JsonMessage.aktørId() =
         when (this.harVerdi(AKTØRID)) {
             true -> this[AKTØRID].asText()
+            false -> null
+        }
+
+    fun JsonMessage.fødselsnummer() =
+        when (this.harVerdi(FØDSELSNUMMER)) {
+            true -> this[FØDSELSNUMMER].asText()
             false -> null
         }
 
