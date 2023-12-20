@@ -16,8 +16,7 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.serialization.jackson.JacksonConverter
-import no.nav.dagpenger.events.Problem
-import no.nav.dagpenger.events.inntekt.v1.Inntekt
+import no.nav.dagpenger.inntekt.v1.Inntekt
 import no.nav.dagpenger.ktor.client.metrics.PrometheusMetricsPlugin
 import java.net.URI
 import java.time.Duration

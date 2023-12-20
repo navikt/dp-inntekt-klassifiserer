@@ -1,7 +1,7 @@
 package no.nav.dagpenger.inntekt.klassifiserer
 
-import no.nav.dagpenger.events.inntekt.v1.Inntekt
-import no.nav.dagpenger.events.inntekt.v1.KlassifisertInntektMåned
+import no.nav.dagpenger.inntekt.v1.Inntekt
+import no.nav.dagpenger.inntekt.v1.KlassifisertInntektMåned
 
 private fun List<KlassifisertInntektMåned>.toMap(): List<Map<String, Any>> {
     return this.map { klassifisertInntektMåned ->
