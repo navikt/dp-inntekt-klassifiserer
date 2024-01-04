@@ -93,7 +93,7 @@ internal class InntektBehovløser(rapidsConnection: RapidsConnection, private va
                                         aktørId,
                                         regelkontekst,
                                         beregningsdato,
-                                        null,
+                                        fødselsnummer,
                                         callId,
                                     )
                                 }
