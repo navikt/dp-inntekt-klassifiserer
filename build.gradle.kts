@@ -20,7 +20,7 @@ application {
 
 dependencies {
     // Dagpenger
-    implementation("com.github.navikt:dagpenger-events:2023081713361692272216.01ab7c590338")
+    implementation("com.github.navikt:dp-inntekt-kontrakter:1_20231220.55a8a9")
 
     // ktor http client
     implementation(libs.dp.biblioteker.oauth2.klient)

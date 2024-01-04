@@ -20,7 +20,7 @@ jobs:
           distribution: temurin
           java-version: 17
       - uses: gradle/wrapper-validation-action@v1.1.0
-      - uses: gradle/gradle-build-action@v2.10.0
+      - uses: gradle/gradle-build-action@v2.11.1
         env:
           # Eksluder test dependencies
           DEPENDENCY_GRAPH_INCLUDE_CONFIGURATIONS: compileClasspath|runtimeClasspath
@@ -34,7 +34,6 @@ jobs:
         if: github.ref == 'refs/heads/main'
         id: docker-build-push
         with:
-          byosbom: dependency-graph-reports/build_and_deploy-build.json
           team: teamdagpenger
           push_image: true # optional, default true
           tag: ${{ github.sha }}
@@ -45,7 +44,7 @@ jobs:
 
       - name: Archive NAIS yaml
         if: github.ref == 'refs/heads/main'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: nais-yaml
           path: .nais
@@ -61,12 +60,12 @@ jobs:
     environment: dev-fss
     steps:
       - name: Fetch NAIS yaml
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: nais-yaml
           path: .nais
 
-      - uses: nais/deploy/actions/deploy@v1
+      - uses: nais/deploy/actions/deploy@v2
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-fss
@@ -83,12 +82,12 @@ jobs:
     environment: prod-fss
     steps:
       - name: Fetch NAIS yaml
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: nais-yaml
           path: .nais
 
-      - uses: nais/deploy/actions/deploy@v1
+      - uses: nais/deploy/actions/deploy@v2
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-fss
