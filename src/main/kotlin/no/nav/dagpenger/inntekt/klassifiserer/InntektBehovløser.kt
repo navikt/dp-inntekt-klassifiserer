@@ -42,6 +42,7 @@ internal class InntektBehovløser(rapidsConnection: RapidsConnection, private va
                 )
             }
             validate { it.rejectKey(INNTEKT, MANUELT_GRUNNLAG, FORRIGE_GRUNNLAG) }
+            validate { it.rejectKey(PROBLEM) }
         }
     }
 

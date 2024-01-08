@@ -4,8 +4,10 @@ import io.kotest.assertions.throwables.shouldNotThrowAnyUnit
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.mockk.Called
 import io.mockk.coEvery
 import io.mockk.mockk
+import io.mockk.verify
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.AKTØRID
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.BEHOV_ID
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.BEREGNINGSDATO
@@ -86,6 +88,20 @@ class InntektBehovløserTest {
         testRapid.inspektør.message(0).also {
             it["inntektV1"] shouldNotBe null
         }
+    }
+
+    @Test
+    fun `Skal ikke behandle pakker som har problem`() {
+        val inntektHttpClient: InntektHttpClient = mockk<InntektHttpClient>()
+
+        InntektBehovløser(
+            testRapid,
+            inntektHttpClient,
+        )
+
+        //language=JSON
+        testRapid.sendTestMessage("""{ "$BEHOV_ID":"kaktus", "$PROBLEM": "problem" }""")
+        verify { inntektHttpClient wasNot Called }
     }
 
     @Test
