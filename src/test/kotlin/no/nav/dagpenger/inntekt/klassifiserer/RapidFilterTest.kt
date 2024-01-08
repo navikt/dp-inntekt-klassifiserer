@@ -12,6 +12,7 @@ import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.INNTE
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.KONTEKST_ID
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.KONTEKST_TYPE
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.MANUELT_GRUNNLAG
+import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.PROBLEM
 import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.MessageProblems
@@ -38,12 +39,19 @@ class RapidFilterTest {
             testMessageMedRequiredFelter(mapOf(INNTEKT to "finInntekt")),
         )
         testListener.onPacketCalled shouldBe false
+
         testRapid.sendTestMessage(
             testMessageMedRequiredFelter(mapOf(MANUELT_GRUNNLAG to "søtesteManuelleGrunnlaget")),
         )
         testListener.onPacketCalled shouldBe false
+
         testRapid.sendTestMessage(
             testMessageMedRequiredFelter(mapOf(FORRIGE_GRUNNLAG to "jeg er det forrige grunnlaget")),
+        )
+        testListener.onPacketCalled shouldBe false
+
+        testRapid.sendTestMessage(
+            testMessageMedRequiredFelter(mapOf(PROBLEM to "problem")),
         )
         testListener.onPacketCalled shouldBe false
     }
