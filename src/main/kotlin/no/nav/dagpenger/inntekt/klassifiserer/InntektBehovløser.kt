@@ -69,11 +69,6 @@ internal class InntektBehovløser(rapidsConnection: RapidsConnection, private va
                 val klassifisertInntekt =
                     when (inntektsId != null) {
                         true -> {
-                            // dev hack
-                            if (inntektsId in listOf("01HJ8EMWQCCZZ95R1XBTY189ZY")) {
-                                return
-                            }
-
                             logger.info { "Henter inntekt basert på inntektsId: $inntektsId" }
                             runBlocking { inntektClient.getKlassifisertInntekt(inntektsId, callId) }
                         }
