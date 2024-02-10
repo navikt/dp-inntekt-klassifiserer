@@ -226,6 +226,46 @@ class InntektBehovløserTest {
         resultatPacket[PROBLEM]["status"].asInt() shouldBe 500
     }
 
+    @Test
+    fun `Skal svelge exception for bestemted inntekts id`() {
+        InntektBehovløser(
+            testRapid,
+            mockk<InntektHttpClient>().also {
+                coEvery { it.getKlassifisertInntekt(any(), any()) } throws
+                    InntektApiHttpClientException(
+                        message = "Feil",
+                        problem =
+                            Problem(
+                                type = URI("type"),
+                                title = "title",
+                                status = 404,
+                                detail = "detail",
+                                instance = URI("instance"),
+                            ),
+                        cause = RuntimeException("cause"),
+                    )
+            },
+        )
+
+        shouldNotThrowAnyUnit {
+            testRapid.sendTestMessage(
+                """
+                {
+                   "$BEREGNINGSDATO":"2020-01-01",
+                   "$AKTØRID":"aktørId",
+                   "$INNTEKT_ID":"01DERJ9B6YE2SYFJ568NP6PG3F",
+                   "$KONTEKST_TYPE" : "konteksType",
+                   "$KONTEKST_ID" : "kontekstId", 
+                   "$BEHOV_ID":"kaktus"
+            } """,
+            )
+        }
+
+        val resultatPacket = testRapid.inspektør.message(0)
+        resultatPacket[PROBLEM] shouldNotBe null
+        resultatPacket[PROBLEM]["status"].asInt() shouldBe 404
+    }
+
     private companion object {
         val inntekt =
             Inntekt(
