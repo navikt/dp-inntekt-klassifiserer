@@ -35,7 +35,8 @@ class InntektBehovløserTest {
             mockk<InntektHttpClient>().also {
                 coEvery {
                     it.getKlassifisertInntekt(
-                        inntektId = "inntektId", callId = any(),
+                        inntektId = "inntektId",
+                        callId = any(),
                     )
                 } returns inntekt
             }
