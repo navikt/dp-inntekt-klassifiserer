@@ -31,7 +31,7 @@ jobs:
 
       - name: docker-build-push
         uses: nais/docker-build-push@v0
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/feature/støtte_fnr'
         id: docker-build-push
         with:
           team: teamdagpenger
@@ -43,7 +43,7 @@ jobs:
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
 
       - name: Archive NAIS yaml
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/feature/støtte_fnr'
         uses: actions/upload-artifact@v4
         with:
           name: nais-yaml
@@ -55,7 +55,7 @@ jobs:
   deploy-dev:
     name: Deploy to dev
     needs: [build]
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/feature/støtte_fnr'
     runs-on: ubuntu-latest
     environment: dev-fss
     steps:
@@ -74,24 +74,24 @@ jobs:
           VARS: .nais/dev-vars.yaml
           PRINT_PAYLOAD: true
 
-  deploy-prod:
-    name: Deploy to Production
-    needs: [build, deploy-dev]
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    environment: prod-fss
-    steps:
-      - name: Fetch NAIS yaml
-        uses: actions/download-artifact@v4
-        with:
-          name: nais-yaml
-          path: .nais
-
-      - uses: nais/deploy/actions/deploy@v2
-        env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: prod-fss
-          RESOURCE: .nais/nais.yaml
-          VAR: image=${{ needs.build.outputs.image }}
-          VARS: .nais/prod-vars.yaml
-          PRINT_PAYLOAD: true
+#  deploy-prod:
+#    name: Deploy to Production
+#    needs: [build, deploy-dev]
+#    if: github.ref == 'refs/heads/main'
+#    runs-on: ubuntu-latest
+#    environment: prod-fss
+#    steps:
+#      - name: Fetch NAIS yaml
+#        uses: actions/download-artifact@v4
+#        with:
+#          name: nais-yaml
+#          path: .nais
+#
+#      - uses: nais/deploy/actions/deploy@v2
+#        env:
+#          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+#          CLUSTER: prod-fss
+#          RESOURCE: .nais/nais.yaml
+#          VAR: image=${{ needs.build.outputs.image }}
+#          VARS: .nais/prod-vars.yaml
+#          PRINT_PAYLOAD: true

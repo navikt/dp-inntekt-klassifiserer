@@ -5,6 +5,7 @@ import mu.KotlinLogging
 import mu.withLoggingContext
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.aktørId
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.beregningsdato
+import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.fødselsnummer
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.hentRegelkontekst
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.inntektsId
 import no.nav.helse.rapids_rivers.JsonMessage
@@ -23,6 +24,7 @@ internal class InntektBehovløser(rapidsConnection: RapidsConnection, private va
         const val BEHOV_ID = "behovId"
         const val INNTEKT = "inntektV1"
         const val AKTØRID = "aktørId"
+        const val FØDSELSNUMMER = "fødselsnummer"
         const val MANUELT_GRUNNLAG = "manueltGrunnlag"
         const val FORRIGE_GRUNNLAG = "forrigeGrunnlag"
         const val BEREGNINGSDATO = "beregningsDato"
@@ -39,6 +41,7 @@ internal class InntektBehovløser(rapidsConnection: RapidsConnection, private va
                     AKTØRID,
                     KONTEKST_ID,
                     KONTEKST_TYPE,
+                    FØDSELSNUMMER,
                 )
             }
             validate { it.rejectKey(INNTEKT, MANUELT_GRUNNLAG, FORRIGE_GRUNNLAG) }
@@ -85,7 +88,13 @@ internal class InntektBehovløser(rapidsConnection: RapidsConnection, private va
                         }
 
                         else -> {
-                            val aktørId: String = packet.aktørId() ?: throw IllegalArgumentException("Mangler aktørId")
+                            val aktørId: String? = packet.aktørId()
+                            val fødselsnummer: String? = packet.fødselsnummer()
+
+                            if (aktørId == null && fødselsnummer == null) {
+                                throw IllegalArgumentException("Mangler aktørId eller fødselsnummer")
+                            }
+
                             requireNotNull(regelkontekst) { "Må ha en kontekst for å hente inntekt" }
 
                             val beregningsdato: LocalDate =
@@ -96,7 +105,7 @@ internal class InntektBehovløser(rapidsConnection: RapidsConnection, private va
                                         aktørId,
                                         regelkontekst,
                                         beregningsdato,
-                                        null,
+                                        fødselsnummer,
                                         callId,
                                     )
                                 }

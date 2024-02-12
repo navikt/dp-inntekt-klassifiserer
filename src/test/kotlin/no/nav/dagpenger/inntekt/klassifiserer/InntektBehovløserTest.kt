@@ -118,14 +118,13 @@ class InntektBehovløserTest {
                    "$KONTEKST_ID" : "kontekstId", 
                    "$BEHOV_ID":"kaktus"
                 }
-                
                 """.trimIndent(),
             )
         }
     }
 
     @Test
-    fun `Kaster exception dersom aktørId ikke er satt for behov uten inntektId`() {
+    fun `Kaster exception dersom aktørId  eller fødselsnummer ikke er satt for behov uten inntektId`() {
         InntektBehovløser(testRapid, mockk())
 
         shouldThrow<IllegalArgumentException> {

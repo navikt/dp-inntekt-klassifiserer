@@ -7,6 +7,7 @@ import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.AKTØ
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.BEHOV_ID
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.BEREGNINGSDATO
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.FORRIGE_GRUNNLAG
+import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.FØDSELSNUMMER
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.INNTEKT
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.INNTEKT_ID
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.KONTEKST_ID
@@ -64,6 +65,7 @@ class RapidFilterTest {
             testListener.jsonMessage[BEREGNINGSDATO]
             testListener.jsonMessage[INNTEKT_ID]
             testListener.jsonMessage[AKTØRID]
+            testListener.jsonMessage[FØDSELSNUMMER]
             testListener.jsonMessage[KONTEKST_ID]
             testListener.jsonMessage[KONTEKST_TYPE]
         }
