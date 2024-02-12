@@ -70,7 +70,18 @@ internal class InntektBehovløser(rapidsConnection: RapidsConnection, private va
                     when (inntektsId != null) {
                         true -> {
                             logger.info { "Henter inntekt basert på inntektsId: $inntektsId" }
-                            runBlocking { inntektClient.getKlassifisertInntekt(inntektsId, callId) }
+                            try {
+                                runBlocking { inntektClient.getKlassifisertInntekt(inntektsId, callId) }
+                            } catch (e: InntektApiHttpClientException) {
+                                if (inntektsId in setOf("01DERJ9B6YE2SYFJ568NP6PG3F")) {
+                                    logger.info { "Skipper $inntektsId" }
+                                    packet[PROBLEM] = e.problem.toMap()
+                                    context.publish(packet.toJson())
+                                    return
+                                } else {
+                                    throw e
+                                }
+                            }
                         }
 
                         else -> {
