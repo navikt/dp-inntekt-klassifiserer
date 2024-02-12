@@ -37,6 +37,10 @@ spec:
   azure:
     application:
       enabled: true
+  accessPolicy:
+    outbound:
+      rules:
+        - application: dp-inntekt-api
   env:
     - name: DP_INNTEKT_API_SCOPE
       value: {{dp_inntekt.scope}}
