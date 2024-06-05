@@ -8,12 +8,9 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@master
-        with:
-          fetch-depth: 1
+        uses: actions/checkout@v4
       - name: ktlint
         uses: ScaCap/action-ktlint@master
         with:
           github_token: ${{ secrets.github_token }}
           reporter: github-check
-          ktlint_version: 1.0.1

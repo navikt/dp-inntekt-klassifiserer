@@ -27,10 +27,9 @@ spec:
     pool: {{kafka.pool}}
   resources:
     limits:
-      cpu: 500m
       memory: 512Mi
     requests:
-      cpu: 100m
+      cpu: 20m
       memory: 256Mi
   secureLogs:
     enabled: true
@@ -44,3 +43,5 @@ spec:
   env:
     - name: DP_INNTEKT_API_SCOPE
       value: {{dp_inntekt.scope}}
+    - name: JAVA_OPTS
+      value: -XX:+UseParallelGC -XX:MaxRAMPercentage=50.0 -XX:ActiveProcessorCount=4

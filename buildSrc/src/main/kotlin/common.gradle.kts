@@ -10,7 +10,6 @@ plugins {
 
 repositories {
     mavenCentral()
-    maven("https://jitpack.io")
     maven {
         url = uri("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
     }
@@ -23,7 +22,7 @@ dependencies {
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
 }
 
 tasks.test {
