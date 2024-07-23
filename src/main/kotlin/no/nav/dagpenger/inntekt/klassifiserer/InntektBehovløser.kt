@@ -17,8 +17,10 @@ import java.util.UUID
 private val logger = KotlinLogging.logger { }
 private val sikkerlogg = KotlinLogging.logger("tjenestekall")
 
-internal class InntektBehovløser(rapidsConnection: RapidsConnection, private val inntektClient: InntektHttpClient) :
-    River.PacketListener {
+internal class InntektBehovløser(
+    rapidsConnection: RapidsConnection,
+    private val inntektClient: InntektHttpClient,
+) : River.PacketListener {
     companion object {
         const val BEHOV_ID = "behovId"
         const val INNTEKT = "inntektV1"

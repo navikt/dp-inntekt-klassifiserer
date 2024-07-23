@@ -90,18 +90,22 @@ class PacketParserTest {
     }
 
     private fun testMessageMedRequiredFelter(ekstraFelter: Map<String, Any> = emptyMap()) =
-        JsonMessage.newMessage(
-            mapOf(BEHOV_ID to "behovId") + ekstraFelter,
-        ).toJson()
+        JsonMessage
+            .newMessage(
+                mapOf(BEHOV_ID to "behovId") + ekstraFelter,
+            ).toJson()
 
-    private class OnPacketTestListener(rapidsConnection: RapidsConnection) : River.PacketListener {
+    private class OnPacketTestListener(
+        rapidsConnection: RapidsConnection,
+    ) : River.PacketListener {
         var problems: MessageProblems? = null
         lateinit var packet: JsonMessage
 
         init {
-            River(rapidsConnection).apply(
-                InntektBehovløser.rapidFilter,
-            ).register(this)
+            River(rapidsConnection)
+                .apply(
+                    InntektBehovløser.rapidFilter,
+                ).register(this)
         }
 
         override fun onPacket(

@@ -4,15 +4,18 @@ import mu.KotlinLogging
 import no.nav.helse.rapids_rivers.RapidApplication
 import no.nav.helse.rapids_rivers.RapidsConnection
 
-internal class ApplicationBuilder(config: Map<String, String>) : RapidsConnection.StatusListener {
+internal class ApplicationBuilder(
+    config: Map<String, String>,
+) : RapidsConnection.StatusListener {
     companion object {
         private val logger = KotlinLogging.logger { }
     }
 
     private val rapidsConnection =
-        RapidApplication.Builder(
-            RapidApplication.RapidApplicationConfig.fromEnv(config),
-        ).build()
+        RapidApplication
+            .Builder(
+                RapidApplication.RapidApplicationConfig.fromEnv(config),
+            ).build()
 
     private val inntektClient =
         InntektHttpClient(

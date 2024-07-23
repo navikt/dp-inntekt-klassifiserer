@@ -37,3 +37,7 @@ tasks.test {
 tasks.withType<KotlinCompile>().configureEach {
     dependsOn("ktlintFormat")
 }
+
+configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+    version.set("1.3.1")
+}

@@ -48,28 +48,26 @@ class InntektHttpClientTest {
     fun `fetch klassifisert inntekt on 200 ok with fødselsnummer`() {
         val responseBodyJson =
             InntektHttpClientTest::class.java
-                .getResource("/test-data/example-klassifisert-inntekt-payload.json")!!.readText()
+                .getResource("/test-data/example-klassifisert-inntekt-payload.json")!!
+                .readText()
 
         WireMock.stubFor(
-            WireMock.post(WireMock.urlEqualTo("/v2/inntekt/klassifisert"))
+            WireMock
+                .post(WireMock.urlEqualTo("/v2/inntekt/klassifisert"))
                 .withHeader("Authorization", EqualToPattern("Bearer token"))
                 .withRequestBody(
                     matchingJsonPath("aktørId", equalTo("45456")),
-                )
-                .withRequestBody(
+                ).withRequestBody(
                     matchingJsonPath("regelkontekst.id", equalTo("123")),
-                )
-                .withRequestBody(
+                ).withRequestBody(
                     matchingJsonPath("regelkontekst.type", equalTo("vedtak")),
-                )
-                .withRequestBody(
+                ).withRequestBody(
                     matchingJsonPath("beregningsDato", matching("^\\d{4}-\\d{2}-\\d{2}\$")),
-                )
-                .withRequestBody(
+                ).withRequestBody(
                     matchingJsonPath("fødselsnummer", equalTo("12345678901")),
-                )
-                .willReturn(
-                    WireMock.aResponse()
+                ).willReturn(
+                    WireMock
+                        .aResponse()
                         .withHeader("Content-Type", "application/json")
                         .withBody(responseBodyJson),
                 ),
@@ -115,10 +113,12 @@ class InntektHttpClientTest {
             }
             """.trimIndent()
         WireMock.stubFor(
-            WireMock.post(WireMock.urlEqualTo("/v2/inntekt/klassifisert"))
+            WireMock
+                .post(WireMock.urlEqualTo("/v2/inntekt/klassifisert"))
                 .withHeader("Authorization", EqualToPattern("Bearer token"))
                 .willReturn(
-                    WireMock.serverError()
+                    WireMock
+                        .serverError()
                         .withHeader("Content-Type", "application/json")
                         .withBody(responseBodyJson),
                 ),
@@ -148,13 +148,16 @@ class InntektHttpClientTest {
         runBlocking {
             val responseBodyJson =
                 InntektHttpClientTest::class.java
-                    .getResource("/test-data/example-klassifisert-inntekt-payload.json")!!.readText()
+                    .getResource("/test-data/example-klassifisert-inntekt-payload.json")!!
+                    .readText()
 
             WireMock.stubFor(
-                WireMock.get(WireMock.urlEqualTo("/v2/inntekt/klassifisert/12345"))
+                WireMock
+                    .get(WireMock.urlEqualTo("/v2/inntekt/klassifisert/12345"))
                     .withHeader("Authorization", EqualToPattern("Bearer token"))
                     .willReturn(
-                        WireMock.aResponse()
+                        WireMock
+                            .aResponse()
                             .withHeader("Content-Type", "application/json")
                             .withBody(responseBodyJson),
                     ),
@@ -168,7 +171,8 @@ class InntektHttpClientTest {
     @Test
     fun `fetch spesifisert inntekt fails on error and no body`() {
         WireMock.stubFor(
-            WireMock.post(WireMock.urlEqualTo("/v2/inntekt/klassifisert"))
+            WireMock
+                .post(WireMock.urlEqualTo("/v2/inntekt/klassifisert"))
                 .willReturn(
                     WireMock.serviceUnavailable(),
                 ),

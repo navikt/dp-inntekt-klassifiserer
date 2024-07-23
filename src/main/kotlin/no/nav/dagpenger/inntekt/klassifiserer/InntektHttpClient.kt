@@ -33,8 +33,8 @@ internal class InntektHttpClient(
         beregningsDato: LocalDate,
         fødselsnummer: String?,
         callId: String? = null,
-    ): Inntekt {
-        return getInntekt(
+    ): Inntekt =
+        getInntekt(
             aktørId,
             regelkontekst,
             beregningsDato,
@@ -42,18 +42,18 @@ internal class InntektHttpClient(
             url = "${inntektApiUrl}v2/inntekt/klassifisert",
             callId,
         )
-    }
 
     suspend fun getKlassifisertInntekt(
         inntektId: String,
         callId: String,
-    ): Inntekt {
-        return try {
-            httpKlient.get("${inntektApiUrl}v2/inntekt/klassifisert/$inntektId") {
-                header(HttpHeaders.Authorization, "Bearer ${tokenProvider.invoke()}")
-                header(HttpHeaders.XRequestId, callId)
-                accept(ContentType.Application.Json)
-            }.body<Inntekt>()
+    ): Inntekt =
+        try {
+            httpKlient
+                .get("${inntektApiUrl}v2/inntekt/klassifisert/$inntektId") {
+                    header(HttpHeaders.Authorization, "Bearer ${tokenProvider.invoke()}")
+                    header(HttpHeaders.XRequestId, callId)
+                    accept(ContentType.Application.Json)
+                }.body<Inntekt>()
         } catch (error: ResponseException) {
             val problem = mapTilHttpProblem(error)
             throw InntektApiHttpClientException(
@@ -66,7 +66,6 @@ internal class InntektHttpClient(
                 error,
             )
         }
-    }
 
     private suspend inline fun <reified T : Any> getInntekt(
         aktørId: String,
@@ -85,13 +84,14 @@ internal class InntektHttpClient(
             )
 
         return try {
-            httpKlient.post(url) {
-                header("Content-Type", "application/json")
-                header(HttpHeaders.Authorization, "Bearer ${tokenProvider.invoke()}")
-                header(HttpHeaders.XRequestId, callId)
-                setBody(requestBody)
-                accept(ContentType.Application.Json)
-            }.body<T>()
+            httpKlient
+                .post(url) {
+                    header("Content-Type", "application/json")
+                    header(HttpHeaders.Authorization, "Bearer ${tokenProvider.invoke()}")
+                    header(HttpHeaders.XRequestId, callId)
+                    setBody(requestBody)
+                    accept(ContentType.Application.Json)
+                }.body<T>()
         } catch (error: ResponseException) {
             val problem = mapTilHttpProblem(error)
 
@@ -108,7 +108,8 @@ internal class InntektHttpClient(
     }
 
     private suspend fun mapTilHttpProblem(error: ResponseException): Problem =
-        kotlin.runCatching { objectMapper.readValue(error.response.bodyAsText(), Problem::class.java) }
+        kotlin
+            .runCatching { objectMapper.readValue(error.response.bodyAsText(), Problem::class.java) }
             .getOrDefault<Problem, Problem>(
                 Problem(
                     URI.create("urn:dp:error:inntektskomponenten"),
@@ -125,14 +126,17 @@ private data class InntektRequest(
     val beregningsDato: LocalDate,
 )
 
-class InntektApiHttpClientException(override val message: String, val problem: Problem, override val cause: Throwable) :
-    RuntimeException(message, cause)
+class InntektApiHttpClientException(
+    override val message: String,
+    val problem: Problem,
+    override val cause: Throwable,
+) : RuntimeException(message, cause)
 
 internal fun httpClient(
     engine: HttpClientEngine = CIO.create { requestTimeout = Long.MAX_VALUE },
     httpMetricsBasename: String? = null,
-): HttpClient {
-    return HttpClient(engine) {
+): HttpClient =
+    HttpClient(engine) {
         expectSuccess = true
         install(HttpTimeout) {
             connectTimeoutMillis = Duration.ofSeconds(30).toMillis()
@@ -150,4 +154,3 @@ internal fun httpClient(
             }
         }
     }
-}

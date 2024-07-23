@@ -73,18 +73,22 @@ class RapidFilterTest {
     }
 
     private fun testMessageMedRequiredFelter(ekstraFelter: Map<String, Any> = emptyMap()) =
-        JsonMessage.newMessage(
-            mapOf(BEHOV_ID to "behovId") + ekstraFelter,
-        ).toJson()
+        JsonMessage
+            .newMessage(
+                mapOf(BEHOV_ID to "behovId") + ekstraFelter,
+            ).toJson()
 
-    private class TestListener(rapidsConnection: RapidsConnection) : River.PacketListener {
+    private class TestListener(
+        rapidsConnection: RapidsConnection,
+    ) : River.PacketListener {
         var onPacketCalled = false
         lateinit var jsonMessage: JsonMessage
 
         init {
-            River(rapidsConnection).apply(
-                InntektBehovløser.rapidFilter,
-            ).register(this)
+            River(rapidsConnection)
+                .apply(
+                    InntektBehovløser.rapidFilter,
+                ).register(this)
         }
 
         override fun onPacket(

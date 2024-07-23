@@ -3,8 +3,8 @@ package no.nav.dagpenger.inntekt.klassifiserer
 import no.nav.dagpenger.inntekt.v1.Inntekt
 import no.nav.dagpenger.inntekt.v1.KlassifisertInntektMåned
 
-private fun List<KlassifisertInntektMåned>.toMap(): List<Map<String, Any>> {
-    return this.map { klassifisertInntektMåned ->
+private fun List<KlassifisertInntektMåned>.toMap(): List<Map<String, Any>> =
+    this.map { klassifisertInntektMåned ->
         val harAvvik: Boolean = klassifisertInntektMåned.harAvvik ?: false
         mapOf(
             "årMåned" to "${klassifisertInntektMåned.årMåned}",
@@ -18,7 +18,6 @@ private fun List<KlassifisertInntektMåned>.toMap(): List<Map<String, Any>> {
             "harAvvik" to harAvvik,
         )
     }
-}
 
 internal fun Inntekt.toMap(): Map<String, Any> {
     val manueltRedigert: Boolean = this.manueltRedigert ?: false
