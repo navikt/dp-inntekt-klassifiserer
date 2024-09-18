@@ -20,7 +20,10 @@ internal class ApplicationBuilder(
     private val inntektClient =
         InntektHttpClient(
             Config.inntektApiUrl,
-            tokenProvider = { Config.oauth2Client.clientCredentials(Config.dpInntektApiScope).accessToken },
+            tokenProvider = {
+                Config.oauth2Client.clientCredentials(Config.dpInntektApiScope).accessToken
+                    ?: throw RuntimeException("Fant ikke token")
+            },
         )
 
     init {
