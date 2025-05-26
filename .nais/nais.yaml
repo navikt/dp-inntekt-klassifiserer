@@ -21,8 +21,8 @@ spec:
     enabled: true
     path: /metrics
   replicas:
-    min: "{{replicas.min}}"
-    max: "{{replicas.max}}"
+    min: {{replicas.min}}
+    max: {{replicas.max}}
   kafka:
     pool: "{{kafka.pool}}"
   resources:
