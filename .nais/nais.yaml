@@ -7,7 +7,7 @@ metadata:
   labels:
     team: teamdagpenger
 spec:
-  image: {{ image }}
+  image: "{{ image }}"
   port: 8080
   strategy:
     rollingUpdate:
@@ -21,10 +21,10 @@ spec:
     enabled: true
     path: /metrics
   replicas:
-    min: {{replicas.min}}
-    max: {{replicas.max}}
+    min: "{{replicas.min}}"
+    max: "{{replicas.max}}"
   kafka:
-    pool: {{kafka.pool}}
+    pool: "{{kafka.pool}}"
   resources:
     limits:
       memory: 512Mi
@@ -42,6 +42,6 @@ spec:
         - application: dp-inntekt-api
   env:
     - name: DP_INNTEKT_API_SCOPE
-      value: {{dp_inntekt.scope}}
+      value: "{{dp_inntekt.scope}}"
     - name: JAVA_OPTS
       value: -XX:+UseParallelGC -XX:MaxRAMPercentage=50.0 -XX:ActiveProcessorCount=4
