@@ -45,3 +45,11 @@ spec:
       value: "{{dp_inntekt.scope}}"
     - name: JAVA_OPTS
       value: -XX:+UseParallelGC -XX:MaxRAMPercentage=50.0 -XX:ActiveProcessorCount=4
+  observability:
+    logging:
+      destinations:
+        - id: loki
+        - id: elastic
+    autoInstrumentation:
+      enabled: true
+      runtime: java
