@@ -22,7 +22,7 @@ jobs:
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: 21
+          java-version: 24
       - uses: gradle/actions/wrapper-validation@v5
       - uses: gradle/actions/setup-gradle@v5
         env:
@@ -30,7 +30,7 @@ jobs:
           DEPENDENCY_GRAPH_INCLUDE_CONFIGURATIONS: compileClasspath|runtimeClasspath
         with:
           dependency-graph: generate-and-submit
-      - run: ./gradlew --configuration-cache build shadowJar
+      - run: ./gradlew --configuration-cache build installDist
 
       - name: docker-build-push
         uses: nais/docker-build-push@v0

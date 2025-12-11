@@ -22,17 +22,32 @@ import java.net.URI
 import java.time.Duration
 import java.time.LocalDate
 
-internal class InntektHttpClient(
-    private val inntektApiUrl: String,
-    private val httpKlient: HttpClient = httpClient(httpMetricsBasename = "ktor_client_inntekt_klassifiserer_metrics"),
-    private val tokenProvider: () -> String,
-) {
+interface InntektClient {
     suspend fun getKlassifisertInntekt(
         aktørId: String,
         regelkontekst: RegelKontekst,
         beregningsDato: LocalDate,
         fødselsnummer: String?,
         callId: String? = null,
+    ): Inntekt
+
+    suspend fun getKlassifisertInntekt(
+        inntektId: String,
+        callId: String,
+    ): Inntekt
+}
+
+internal class InntektHttpClient(
+    private val inntektApiUrl: String,
+    private val httpKlient: HttpClient = httpClient(httpMetricsBasename = "ktor_client_inntekt_klassifiserer_metrics"),
+    private val tokenProvider: () -> String,
+) : InntektClient {
+    override suspend fun getKlassifisertInntekt(
+        aktørId: String,
+        regelkontekst: RegelKontekst,
+        beregningsDato: LocalDate,
+        fødselsnummer: String?,
+        callId: String?,
     ): Inntekt =
         getInntekt(
             aktørId,
@@ -43,7 +58,7 @@ internal class InntektHttpClient(
             callId,
         )
 
-    suspend fun getKlassifisertInntekt(
+    override suspend fun getKlassifisertInntekt(
         inntektId: String,
         callId: String,
     ): Inntekt =

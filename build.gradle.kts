@@ -3,13 +3,11 @@
 plugins {
     id("common")
     application
-    alias(libs.plugins.shadow.jar)
 }
 
 repositories {
     mavenCentral()
     maven("https://packages.confluent.io/maven/")
-    maven("https://jitpack.io")
     maven("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
 }
 
@@ -20,7 +18,7 @@ application {
 
 dependencies {
     // Dagpenger
-    implementation("com.github.navikt:dp-inntekt-kontrakter:1_20231220.55a8a9")
+    implementation("com.github.navikt:dp-inntekt-kontrakter:1_20251210.114c62")
 
     // ktor http client
     implementation(libs.dp.biblioteker.oauth2.klient)
@@ -53,13 +51,4 @@ dependencies {
     testImplementation(libs.testcontainer.postgresql)
     testImplementation(libs.mockk)
     testImplementation("com.github.tomakehurst:wiremock-standalone:3.0.1")
-}
-
-tasks.named("shadowJar") {
-    dependsOn("test")
-}
-
-tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
-    mergeServiceFiles()
-    transform(com.github.jengelman.gradle.plugins.shadow.transformers.Log4j2PluginsCacheFileTransformer::class.java)
 }

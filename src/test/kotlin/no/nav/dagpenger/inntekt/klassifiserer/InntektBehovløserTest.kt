@@ -31,8 +31,8 @@ class InntektBehovløserTest {
 
     @Test
     fun `Skal hente inntekter inntekts id er satt`() {
-        val inntektHttpClient: InntektHttpClient =
-            mockk<InntektHttpClient>().also {
+        val inntektHttpClient: InntektClient =
+            mockk<InntektClient>().also {
                 coEvery {
                     it.getKlassifisertInntekt(
                         inntektId = "inntektId",
@@ -55,8 +55,8 @@ class InntektBehovløserTest {
 
     @Test
     fun `Skal hente inntekter dersom beregningsdato, aktørId og regelkontekst er  satt`() {
-        val inntektHttpClient: InntektHttpClient =
-            mockk<InntektHttpClient>().also {
+        val inntektHttpClient: InntektClient =
+            mockk<InntektClient>().also {
                 coEvery {
                     it.getKlassifisertInntekt(
                         aktørId = "aktørId",
@@ -93,7 +93,7 @@ class InntektBehovløserTest {
 
     @Test
     fun `Skal ikke behandle pakker som har problem`() {
-        val inntektHttpClient: InntektHttpClient = mockk<InntektHttpClient>()
+        val inntektHttpClient: InntektClient = mockk<InntektClient>()
 
         InntektBehovløser(
             testRapid,
@@ -165,7 +165,7 @@ class InntektBehovløserTest {
     fun `Skal kaste exception dersom inntektId er satt og  kall mot inntekt api feiler`() {
         InntektBehovløser(
             testRapid,
-            mockk<InntektHttpClient>().also {
+            mockk<InntektClient>().also {
                 coEvery { it.getKlassifisertInntekt(any(), any()) } throws
                     InntektApiHttpClientException(
                         message = "Feilk",
@@ -191,7 +191,7 @@ class InntektBehovløserTest {
     fun `Skal svelge exception men legge på Problem dersom kall mot inntekts api feiler for behov uten inntekts id`() {
         InntektBehovløser(
             testRapid,
-            mockk<InntektHttpClient>().also {
+            mockk<InntektClient>().also {
                 coEvery { it.getKlassifisertInntekt(any(), any(), any(), any(), any()) } throws
                     InntektApiHttpClientException(
                         message = "Feil",
@@ -230,7 +230,7 @@ class InntektBehovløserTest {
     fun `Skal svelge exception for bestemted inntekts id`() {
         InntektBehovløser(
             testRapid,
-            mockk<InntektHttpClient>().also {
+            mockk<InntektClient>().also {
                 coEvery { it.getKlassifisertInntekt(any(), any()) } throws
                     InntektApiHttpClientException(
                         message = "Feil",

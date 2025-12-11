@@ -19,7 +19,7 @@ private val sikkerlogg = KotlinLogging.logger("tjenestekall")
 
 internal class InntektBehovløser(
     rapidsConnection: RapidsConnection,
-    private val inntektClient: InntektHttpClient,
+    private val inntektClient: InntektClient,
 ) : River.PacketListener {
     companion object {
         const val BEHOV_ID = "behovId"
