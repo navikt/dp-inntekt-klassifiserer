@@ -1,6 +1,14 @@
 package no.nav.dagpenger.inntekt.klassifiserer
 
+import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
+import com.github.navikt.tbd_libs.rapids_and_rivers.River
+import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageMetadata
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageProblems
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.kotest.matchers.shouldBe
+import io.micrometer.core.instrument.MeterRegistry
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.AKTØRID
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.BEHOV_ID
 import no.nav.dagpenger.inntekt.klassifiserer.InntektBehovløser.Companion.BEREGNINGSDATO
@@ -12,12 +20,6 @@ import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.behovId
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.beregningsdato
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.hentRegelkontekst
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.inntektsId
-import no.nav.helse.rapids_rivers.JsonMessage
-import no.nav.helse.rapids_rivers.MessageContext
-import no.nav.helse.rapids_rivers.MessageProblems
-import no.nav.helse.rapids_rivers.RapidsConnection
-import no.nav.helse.rapids_rivers.River
-import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
@@ -111,6 +113,8 @@ class PacketParserTest {
         override fun onPacket(
             packet: JsonMessage,
             context: MessageContext,
+            metadata: MessageMetadata,
+            meterRegistry: MeterRegistry,
         ) {
             this.packet = packet
         }
@@ -118,6 +122,7 @@ class PacketParserTest {
         override fun onError(
             problems: MessageProblems,
             context: MessageContext,
+            metadata: MessageMetadata,
         ) {
             this.problems = problems
         }

@@ -1,16 +1,18 @@
 package no.nav.dagpenger.inntekt.klassifiserer
 
+import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
+import com.github.navikt.tbd_libs.rapids_and_rivers.River
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageMetadata
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
+import io.github.oshai.kotlinlogging.KotlinLogging
+import io.github.oshai.kotlinlogging.withLoggingContext
+import io.micrometer.core.instrument.MeterRegistry
 import kotlinx.coroutines.runBlocking
-import mu.KotlinLogging
-import mu.withLoggingContext
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.aktørId
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.beregningsdato
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.hentRegelkontekst
 import no.nav.dagpenger.inntekt.klassifiserer.PacketParser.inntektsId
-import no.nav.helse.rapids_rivers.JsonMessage
-import no.nav.helse.rapids_rivers.MessageContext
-import no.nav.helse.rapids_rivers.RapidsConnection
-import no.nav.helse.rapids_rivers.River
 import java.time.LocalDate
 import java.util.UUID
 
@@ -55,6 +57,8 @@ internal class InntektBehovløser(
     override fun onPacket(
         packet: JsonMessage,
         context: MessageContext,
+        metadata: MessageMetadata,
+        meterRegistry: MeterRegistry,
     ) {
         try {
             val behovId: String? = packet[BEHOV_ID].asText()

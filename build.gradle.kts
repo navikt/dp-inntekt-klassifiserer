@@ -21,8 +21,9 @@ dependencies {
     implementation("com.github.navikt:dp-inntekt-kontrakter:2_20251211.17f9d7")
 
     // ktor http client
-    implementation(libs.dp.biblioteker.oauth2.klient)
-    implementation(libs.dp.biblioteker.ktor.klient.metrics)
+    val version = "2025.12.19-08.15.2e150cd55270"
+    implementation("no.nav.dagpenger:oauth2-klient:$version")
+    implementation("no.nav.dagpenger:ktor-client-metrics:$version")
     implementation(libs.rapids.and.rivers)
 
     implementation(libs.ktor.client.auth.jvm)
@@ -51,4 +52,5 @@ dependencies {
     testImplementation(libs.testcontainer.postgresql)
     testImplementation(libs.mockk)
     testImplementation("com.github.tomakehurst:wiremock-standalone:3.0.1")
+    testImplementation(libs.rapids.and.rivers.test)
 }
