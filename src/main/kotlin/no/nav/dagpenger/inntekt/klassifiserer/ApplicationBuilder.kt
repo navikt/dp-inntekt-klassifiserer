@@ -1,8 +1,8 @@
 package no.nav.dagpenger.inntekt.klassifiserer
 
-import mu.KotlinLogging
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
+import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.helse.rapids_rivers.RapidApplication
-import no.nav.helse.rapids_rivers.RapidsConnection
 
 internal class ApplicationBuilder(
     config: Map<String, String>,
@@ -11,17 +11,13 @@ internal class ApplicationBuilder(
         private val logger = KotlinLogging.logger { }
     }
 
-    private val rapidsConnection =
-        RapidApplication
-            .Builder(
-                RapidApplication.RapidApplicationConfig.fromEnv(config),
-            ).build()
+    private val rapidsConnection = RapidApplication.create(env = config)
 
     private val inntektClient =
         InntektHttpClient(
             Config.inntektApiUrl,
             tokenProvider = {
-                Config.oauth2Client.clientCredentials(Config.dpInntektApiScope).accessToken
+                Config.oauth2Client.clientCredentials(Config.dpInntektApiScope).access_token
                     ?: throw RuntimeException("Fant ikke token")
             },
         )
