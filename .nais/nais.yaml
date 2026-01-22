@@ -31,8 +31,6 @@ spec:
     requests:
       cpu: 20m
       memory: 256Mi
-  secureLogs:
-    enabled: true
   azure:
     application:
       enabled: true
@@ -40,6 +38,8 @@ spec:
     outbound:
       rules:
         - application: dp-inntekt-api
+        - application: logging
+          namespace: nais-system
   env:
     - name: DP_INNTEKT_API_SCOPE
       value: "{{dp_inntekt.scope}}"
