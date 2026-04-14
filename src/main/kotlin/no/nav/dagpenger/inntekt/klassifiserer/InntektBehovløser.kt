@@ -120,7 +120,7 @@ internal class InntektBehovløser(
                 sikkerlogg.info { "Sendte løsning: ${packet.toJson()}" }
             }
         } catch (e: Exception) {
-            sikkerlogg.error("Denne feilen oppstod: ${e.message} med denne packeten ${packet.toJson()}")
+            sikkerlogg.error(e) { "Denne feilen oppstod: ${e.message} med denne packeten ${packet.toJson()}" }
             throw e
         }
     }

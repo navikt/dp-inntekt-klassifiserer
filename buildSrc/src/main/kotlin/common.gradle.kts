@@ -1,5 +1,4 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -9,35 +8,30 @@ plugins {
 
 repositories {
     mavenCentral()
-    maven {
-        url = uri("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
-    }
+    maven("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
+    maven("https://jitpack.io")
 }
 
 dependencies {
-    implementation(platform(kotlin("bom")))
-    implementation(kotlin("stdlib-jdk8"))
     testImplementation(kotlin("test"))
 }
 
 kotlin {
-    jvmToolchain(24)
+    jvmToolchain(21)
 }
 
 tasks.test {
     useJUnitPlatform()
+    reports.junitXml.includeSystemOutLog = false
+    reports.junitXml.includeSystemErrLog = false
     testLogging {
         showExceptions = true
-        showStackTraces = true
+        showStandardStreams = false
         exceptionFormat = TestExceptionFormat.FULL
-        events = setOf(TestLogEvent.PASSED, TestLogEvent.SKIPPED, TestLogEvent.FAILED)
+        // events = setOf(TestLogEvent.PASSED, TestLogEvent.SKIPPED, TestLogEvent.FAILED)
     }
 }
 
 tasks.withType<KotlinCompile>().configureEach {
     dependsOn("ktlintFormat")
-}
-
-configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
-    version.set("1.3.1")
 }
