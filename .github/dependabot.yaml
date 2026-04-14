@@ -1,4 +1,11 @@
 version: 2
+registries:
+  github-package-registry-mirror:
+    type: maven-repository
+    url: https://github-package-registry-mirror.gc.nav.no/cached/maven-release
+  confluent:
+    type: maven-repository
+    url: https://packages.confluent.io/maven/
 updates:
   # Maintain dependencies for GitHub Actions
   - package-ecosystem: "github-actions"
@@ -12,6 +19,9 @@ updates:
   # Maintain dependencies for gradle
   - package-ecosystem: "gradle"
     directory: "/"
+    registries:
+      - github-package-registry-mirror
+      - confluent
     schedule:
       interval: "daily"
       time: "10:05"
@@ -20,15 +30,6 @@ updates:
       default-days: 7
   # Maintain dependencies for docker
   - package-ecosystem: "docker"
-    directory: "/"
-    schedule:
-      interval: "daily"
-      time: "10:05"
-      timezone: "Europe/Oslo"
-    cooldown:
-      default-days: 7
-  # Maintain dependencies for npm
-  - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "daily"
