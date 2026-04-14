@@ -2,6 +2,7 @@ kafka:
   pool: nav-prod
 dp_inntekt:
   scope: api://prod-gcp.teamdagpenger.dp-inntekt-api/.default
+  url: http://dp-inntekt-api.teamdagpenger/
 
 replicas:
   min: 4

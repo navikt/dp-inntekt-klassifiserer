@@ -37,12 +37,15 @@ spec:
   accessPolicy:
     outbound:
       rules:
+        - application: dp-inntekt-api-q1 # G-justering test
         - application: dp-inntekt-api
         - application: logging
           namespace: nais-system
   env:
     - name: DP_INNTEKT_API_SCOPE
       value: "{{dp_inntekt.scope}}"
+    - name: DP_INNTEKT_API_URL
+      value: "{{dp_inntekt.url}}"
     - name: JAVA_OPTS
       value: -XX:+UseParallelGC -XX:MaxRAMPercentage=50.0 -XX:ActiveProcessorCount=4
   observability:
