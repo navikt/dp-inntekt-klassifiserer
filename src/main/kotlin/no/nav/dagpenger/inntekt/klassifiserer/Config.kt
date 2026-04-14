@@ -23,7 +23,7 @@ internal object Config {
                 "RAPID_APP_NAME" to "dp-inntekt-klassifiserer",
                 "KAFKA_CONSUMER_GROUP_ID" to "dp-inntekt-klassifiserer-v1",
                 "KAFKA_RAPID_TOPIC" to "teamdagpenger.regel.v1",
-                "KAFKA_RESET_POLICY" to "latest"
+                "KAFKA_RESET_POLICY" to "latest",
             ),
         )
     private val properties =
