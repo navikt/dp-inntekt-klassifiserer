@@ -1,8 +1,8 @@
 kafka:
   pool: nav-dev
 dp_inntekt:
-  scope: api://dev-gcp.teamdagpenger.dp-inntekt-api-q1/.default
-  url: http://dp-inntekt-api-q1.teamdagpenger/
+  scope: api://dev-gcp.teamdagpenger.dp-inntekt-api/.default
+  url: http://dp-inntekt-api.teamdagpenger/
 
 replicas:
   min: 1
