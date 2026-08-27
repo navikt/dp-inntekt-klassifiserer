@@ -1,7 +1,6 @@
 package no.nav.dagpenger.inntekt.klassifiserer
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.databind.DeserializationFeature
 import com.natpryce.konfig.ConfigurationMap
 import com.natpryce.konfig.ConfigurationProperties
 import com.natpryce.konfig.EnvironmentVariables
@@ -12,9 +11,10 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.ProxyBuilder
 import io.ktor.client.engine.http
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.serialization.jackson.jackson
+import io.ktor.serialization.jackson3.jackson
 import no.nav.dagpenger.oauth2.CachedOauth2Client
 import no.nav.dagpenger.oauth2.OAuth2Config
+import tools.jackson.databind.DeserializationFeature
 
 internal object Config {
     private val defaultProperties =
@@ -46,8 +46,8 @@ internal object Config {
                 HttpClient {
                     install(ContentNegotiation) {
                         jackson {
-                            configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                            setSerializationInclusion(JsonInclude.Include.NON_NULL)
+                            disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                            changeDefaultPropertyInclusion { it.withValueInclusion(JsonInclude.Include.NON_NULL) }
                         }
                     }
                     engine {

@@ -30,12 +30,10 @@ dependencies {
     implementation(libs.ktor.client.cio)
     implementation(libs.ktor.client.logging.jvm)
     implementation(libs.ktor.client.content.negotiation)
-    implementation(libs.ktor.client.jackson)
-    implementation("io.ktor:ktor-serialization-jackson:${libs.versions.ktor.get()}")
+    implementation(libs.ktor.serialization.jackson)
 
     // json
-    implementation(libs.jackson.core)
-    implementation(libs.jackson.datatype.jsr310)
+    implementation(libs.bundles.jackson)
 
     // Miljøkonfigurasjon
     implementation(libs.konfig)
