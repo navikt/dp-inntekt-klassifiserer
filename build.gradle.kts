@@ -18,7 +18,7 @@ application {
 
 dependencies {
     // Dagpenger
-    implementation("com.github.navikt:dp-inntekt-kontrakter:2_20251211.17f9d7")
+    implementation("com.github.navikt:dp-inntekt-kontrakter:2_202609181789745424.d9cfdc")
 
     // ktor http client
     val version = "2025.12.19-08.15.2e150cd55270"
