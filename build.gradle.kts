@@ -21,7 +21,7 @@ dependencies {
     implementation("com.github.navikt:dp-inntekt-kontrakter:2_202609181789745424.d9cfdc")
 
     // ktor http client
-    val version = "2026.10.09-06.25.ab1ddcc5ba08"
+    val version = "2026.10.09-12.23.1525536141d8"
     implementation("no.nav.dagpenger:oauth2-klient:$version")
     implementation("no.nav.dagpenger:ktor-client-metrics:$version")
     implementation(libs.rapids.and.rivers)
